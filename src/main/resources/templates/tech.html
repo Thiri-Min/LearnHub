@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Tests - Learning Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2d4059 0%, #4a6572 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1100;
+            backdrop-filter: blur(8px);
+            background: rgba(27, 38, 59, 0.35) !important;
+        }
+        .page-header {
+            padding: 5rem 0 2rem;
+            text-align: center;
+        }
+        .test-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+        .test-card:hover {
+            transform: translateY(-8px);
+        }
+        .test-icon {
+            font-size: 3rem;
+            color: #1f77b4;
+            margin-bottom: 1rem;
+        }
+        .filter-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            margin: 0.25rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+        .level-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 0.5rem 0;
+            transition: transform 0.3s ease;
+        }
+        .level-card:hover {
+            transform: translateY(-3px);
+        }
+        .site-footer {
+            background: rgba(17, 24, 39, 0.45);
+            backdrop-filter: blur(8px);
+        }
+        .scroll-top-btn {
+            position: fixed;
+            right: 1rem;
+            bottom: 1rem;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            z-index: 1200;
+            display: none;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+        .scroll-top-btn.show {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
+        <div class="container">
+            <a class="navbar-brand" href="/home">
+                <i class="fas fa-graduation-cap me-2"></i>LMS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <div class="navbar-nav ms-auto align-items-center">
+                    <a class="nav-link" href="/home">Home</a>
+                    <a class="nav-link" href="/courses">Courses</a>
+                    <a class="nav-link active" href="/tech">Tech</a>
+                    <a class="nav-link position-relative" href="/cart" th:if="${user}">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" th:if="${cartCount > 0}" th:text="${cartCount}"></span>
+                    </a>
+                    <span class="nav-link text-white" th:if="${user}">Hello, <span th:text="${user.firstName}"></span></span>
+                    <a class="nav-link" href="/logout" th:if="${user}">Logout</a>
+                    <a class="nav-link" href="/login" th:if="${user == null}">Login</a>
+                    <a class="nav-link" href="/profile" th:if="${user}">
+                        <i class="fas fa-user-circle me-1"></i>Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Technical Test Challenges</h1>
+            <p>Choose a subject and take a skill-check test to measure your knowledge.</p>
+        </div>
+    </section>
+
+    <section class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card test-card p-4">
+                    <div class="text-center mb-4">
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mb-4" role="group" aria-label="Tech filters">
+                            <button type="button" class="btn filter-btn" data-filter="all">All</button>
+                            <button type="button" class="btn filter-btn active" data-filter="Java">Java</button>
+                            <button type="button" class="btn filter-btn" data-filter="Python">Python</button>
+                            <button type="button" class="btn filter-btn" data-filter="C++">C++</button>
+                            <button type="button" class="btn filter-btn" data-filter="AI">AI</button>
+                            <button type="button" class="btn filter-btn" data-filter="Database">Database</button>
+                            <button type="button" class="btn filter-btn" data-filter="DSA">DSA</button>
+                            <button type="button" class="btn filter-btn" data-filter="Git">Git</button>
+                            <button type="button" class="btn filter-btn" data-filter="DotNet">.NET</button>
+                            <button type="button" class="btn filter-btn" data-filter="Fullstack">Fullstack</button>
+                        </div>
+                    </div>
+                    <div id="techContent">
+                        <div id="levelsContainer" class="row g-4">
+                            <!-- Level cards will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer text-white">
+        <div class="container py-4 text-center">
+            <p class="mb-0">&copy; 2026 Learning Management System. All rights reserved.</p>
+        </div>
+    </footer>
+    <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        const testData = {
+            Java: {
+                icon: 'fab fa-java',
+                title: 'Java Test',
+                desc: 'Practice Java fundamentals, object-oriented concepts, and interview patterns.',
+                levels: {
+                    'Pre-Interview': 'Basic Java concepts, syntax, and simple programs.',
+                    'Intermediate': 'OOP principles, collections, exception handling, and design patterns.',
+                    'Advanced': 'Concurrency, JVM internals, performance optimization, and complex algorithms.'
+                }
+            },
+            Python: {
+                icon: 'fab fa-python',
+                title: 'Python Test',
+                desc: 'Validate your Python scripting, data structures, and language proficiency.',
+                levels: {
+                    'Pre-Interview': 'Basic Python syntax, data types, and simple scripting.',
+                    'Intermediate': 'Data structures, file handling, modules, and libraries.',
+                    'Advanced': 'Advanced topics, frameworks, and complex problem-solving.'
+                }
+            },
+            'C++': {
+                icon: 'fas fa-code',
+                title: 'C++ Test',
+                desc: 'Measure your C++ knowledge of pointers, memory, and object-oriented design.',
+                levels: {
+                    'Pre-Interview': 'Basic C++ syntax, pointers, and memory management.',
+                    'Intermediate': 'OOP, templates, STL, and exception handling.',
+                    'Advanced': 'Advanced memory management, concurrency, and optimization.'
+                }
+            },
+            AI: {
+                icon: 'fas fa-robot',
+                title: 'AI Test',
+                desc: 'Test your AI knowledge with basic concepts, models, and practical scenarios.',
+                levels: {
+                    'Pre-Interview': 'Basic AI concepts, machine learning fundamentals.',
+                    'Intermediate': 'Neural networks, algorithms, and model training.',
+                    'Advanced': 'Deep learning, NLP, computer vision, and AI ethics.'
+                }
+            },
+            Database: {
+                icon: 'fas fa-database',
+                title: 'Database Test',
+                desc: 'Assess your SQL and database design skills with practical query scenarios.',
+                levels: {
+                    'Pre-Interview': 'Basic SQL queries, CRUD operations, and normalization.',
+                    'Intermediate': 'Joins, subqueries, indexing, and stored procedures.',
+                    'Advanced': 'Database design, optimization, and NoSQL concepts.'
+                }
+            },
+            DSA: {
+                icon: 'fas fa-brain',
+                title: 'DSA Test',
+                desc: 'Challenge your algorithm and data structure skills with core programming problems.',
+                levels: {
+                    'Pre-Interview': 'Basic data structures and simple algorithms.',
+                    'Intermediate': 'Sorting, searching, trees, and graphs.',
+                    'Advanced': 'Dynamic programming, advanced algorithms, and optimization.'
+                }
+            },
+            Git: {
+                icon: 'fab fa-git-alt',
+                title: 'Git Test',
+                desc: 'Validate your Git workflow knowledge with branching, merging, and collaboration scenarios.',
+                levels: {
+                    'Pre-Interview': 'Basic Git commands, commits, and repositories.',
+                    'Intermediate': 'Branching, merging, and conflict resolution.',
+                    'Advanced': 'Advanced workflows, rebasing, and team collaboration.'
+                }
+            },
+            DotNet: {
+                icon: 'fab fa-microsoft',
+                title: '.NET Test',
+                desc: 'Check your .NET and C# understanding with questions on frameworks and architecture.',
+                levels: {
+                    'Pre-Interview': 'Basic C# syntax, .NET fundamentals.',
+                    'Intermediate': 'ASP.NET, Entity Framework, and web development.',
+                    'Advanced': 'Architecture patterns, microservices, and advanced .NET features.'
+                }
+            },
+            Fullstack: {
+                icon: 'fas fa-laptop-code',
+                title: 'Fullstack Test',
+                desc: 'Evaluate your full-stack skills across front-end, back-end, and deployment workflows.',
+                levels: {
+                    'Pre-Interview': 'Basic HTML, CSS, JavaScript, and simple back-end.',
+                    'Intermediate': 'Frameworks, databases, and API development.',
+                    'Advanced': 'Advanced architectures, deployment, and full-stack optimization.'
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const levelsContainer = document.getElementById('levelsContainer');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Populate levels
+                    levelsContainer.innerHTML = '';
+                    if (filter === 'all') {
+                        // For all, show a message or nothing
+                        levelsContainer.innerHTML = '<div class="col-12 text-center"><p class="text-muted">Select a specific technology to view available test levels.</p></div>';
+                    } else {
+                        const data = testData[filter];
+                        Object.entries(data.levels).forEach(([level, desc]) => {
+                            const levelCard = document.createElement('div');
+                            levelCard.className = 'col-md-4';
+                            levelCard.innerHTML = `
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body text-center">
+                                        <i class="${data.icon} test-icon"></i>
+                                        <h5 class="card-title">${level}</h5>
+                                        <p class="card-text">${desc}</p>
+                                        <a href="#" class="btn btn-primary">Start Test</a>
+                                    </div>
+                                </div>
+                            `;
+                            levelsContainer.appendChild(levelCard);
+                        });
+                    }
+                });
+            });
+
+            // Trigger initial load for Java
+            document.querySelector('.filter-btn.active').click();
+        });
+    </script>
+
+    <script>
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scrollTopBtn');
+            if (!btn) return;
+            if (window.scrollY > 200) btn.classList.add('show');
+            else btn.classList.remove('show');
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

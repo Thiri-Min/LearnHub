@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Learning Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1100;
+            backdrop-filter: blur(8px);
+            background: rgba(27, 38, 59, 0.35) !important;
+        }
+        .hero {
+            padding: 5rem 0;
+            color: white;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: fadeInDown 1s ease-out;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+        .btn-custom {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+        }
+        .btn-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .features {
+            padding: 3rem 0;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .auth-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(16, 24, 40, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 1050;
+        }
+        .auth-modal.active {
+            display: flex;
+        }
+        .auth-wrap {
+            width: 100%;
+            max-width: 640px;
+        }
+        .auth-card {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 22px;
+            box-shadow: 0 24px 40px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(14px);
+            color: #fff;
+            overflow: hidden;
+        }
+        .auth-header {
+            text-align: center;
+            padding: 2rem 2rem 1rem;
+            position: relative;
+        }
+        .auth-close {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 0;
+            color: #fff;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+        }
+        .form-label { color: rgba(255, 255, 255, 0.95); }
+        .auth-card .form-control {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+        }
+        .btn-auth {
+            background: linear-gradient(90deg, #7c3aed, #06b6d4);
+            border: 0;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+        }
+        .site-footer {
+            background: rgba(17, 24, 39, 0.45);
+            backdrop-filter: blur(8px);
+            margin-top: 0;
+        }
+        .scroll-top-btn {
+            position: fixed;
+            right: 1rem;
+            bottom: 1rem;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            z-index: 1200;
+            display: none;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+        .scroll-top-btn.show {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-graduation-cap me-2"></i>LMS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <div class="navbar-nav ms-auto align-items-center">
+                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link" href="/courses">Courses</a>
+                    <a class="nav-link" href="/tech">Tech</a>
+                    <a class="nav-link position-relative" href="/cart" th:if="${user}">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" th:if="${cartCount > 0}" th:text="${cartCount}"></span>
+                    </a>
+                    <span class="nav-link text-white" th:if="${user}">Hello, <span th:text="${user.firstName}"></span></span>
+                    <a class="nav-link" href="/logout" th:if="${user}">Logout</a>
+                    <a class="nav-link" href="/profile" th:if="${user}">
+                        <i class="fas fa-user-circle me-1"></i>Profile
+                    </a>
+                    <a class="nav-link" th:if="${user == null}" href="#authBox" onclick="showAuthBox('login'); return false;">Login</a>
+                    <a class="nav-link" th:if="${user == null}" href="#authBox" onclick="showAuthBox('signup'); return false;">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div th:if="${user}">
+                <h1>Welcome back, <span th:text="${user.firstName}"></span>!</h1>
+                <p>Jump into your course dashboard and add new learning paths to your cart.</p>
+                <a href="/courses" class="btn btn-custom btn-lg">
+                    <i class="fas fa-book-open me-2"></i>Explore Courses
+                </a>
+                <a href="/cart" class="btn btn-custom btn-lg">
+                    <i class="fas fa-shopping-cart me-2"></i>View Cart</a>
+            </div>
+            <div th:if="${user == null}">
+                <h1>Welcome to Our Learning Management System</h1>
+                <p>Empower your learning journey with our comprehensive platform</p>
+                <a href="#authBox" onclick="showAuthBox('signup'); return false;" class="btn btn-custom btn-lg">
+                    <i class="fas fa-rocket me-2"></i>Get Started
+                </a>
+                <a href="#authBox" onclick="showAuthBox('login'); return false;" class="btn btn-custom btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="auth-modal" th:if="${user == null}" id="authBox"
+         th:classappend="${authMode != null or loginError != null or signupError != null or signupSuccess != null} ? ' active'">
+        <div class="auth-wrap">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2 class="mb-2">Welcome</h2>
+                    <button type="button" class="auth-close" onclick="hideAuthBox()" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-4 pt-2">
+                    <div id="login-pane" th:if="${authMode == null || authMode == 'login'}">
+                                <h4 class="mb-3">Login</h4>
+                                <div th:if="${signupSuccess}" class="alert alert-success" th:text="${signupSuccess}"></div>
+                                <div th:if="${loginError}" class="alert alert-danger" th:text="${loginError}"></div>
+                                <form action="/login" method="post">
+                                    <div class="mb-3">
+                                        <label for="loginEmail" class="form-label fw-semibold">Email Address</label>
+                                        <input id="loginEmail" name="email" type="email" class="form-control" placeholder="Enter your email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="loginPassword" class="form-label fw-semibold">Password</label>
+                                        <input id="loginPassword" name="password" type="password" class="form-control" placeholder="Enter your password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-auth w-100">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                    </button>
+                                </form>
+                                <div class="text-center mt-3">
+                                    <span class="text-white-50">Don't have an account?</span>
+                                    <a href="/signup" class="ms-1">Sign Up</a>
+                                </div>
+                    </div>
+
+                    <div id="signup-pane" th:if="${authMode == 'signup'}">
+                                <h4 class="mb-3">Create Account</h4>
+                                <div th:if="${signupError}" class="alert alert-danger" th:text="${signupError}"></div>
+                                <form action="/signup" method="post">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="firstName" class="form-label fw-semibold">First Name</label>
+                                            <input id="firstName" name="firstName" type="text" class="form-control" placeholder="Enter first name" th:value="${signupFirstName}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="lastName" class="form-label fw-semibold">Last Name</label>
+                                            <input id="lastName" name="lastName" type="text" class="form-control" placeholder="Enter last name" th:value="${signupLastName}" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="signupEmail" class="form-label fw-semibold">Email Address</label>
+                                            <input id="signupEmail" name="email" type="email" class="form-control" placeholder="Enter your email" th:value="${signupEmail}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="signupPassword" class="form-label fw-semibold">Password</label>
+                                            <input id="signupPassword" name="password" type="password" class="form-control" placeholder="Create password" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="confirmPassword" class="form-label fw-semibold">Confirm Password</label>
+                                            <input id="confirmPassword" name="confirmPassword" type="password" class="form-control" placeholder="Confirm password" required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-auth w-100 mt-4">
+                                        <i class="fas fa-user-plus me-2"></i>Create Account
+                                    </button>
+                                </form>
+                                <div class="text-center mt-3">
+                                    <span class="text-white-50">Already have an account?</span>
+                                    <a href="/login" class="ms-1">Login</a>
+                                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="features" id="courses">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-book-open feature-icon"></i>
+                        <h3>Rich Content</h3>
+                        <p>Access a wide variety of learning materials and resources.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-users feature-icon"></i>
+                        <h3>Interactive Learning</h3>
+                        <p>Engage with peers and instructors in collaborative environments.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                        <h3>Track Progress</h3>
+                        <p>Monitor your learning progress with detailed analytics.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center mt-5" th:if="${user}">
+                <div class="col-12">
+                    <h2 class="mb-4">Featured Courses</h2>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-code feature-icon"></i>
+                        <h3>Java Basics</h3>
+                        <p>Learn the fundamentals of Java programming with guided exercises.</p>
+                        <a href="#" class="btn btn-custom"><i class="fas fa-cart-plus me-2"></i>Add to Cart</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-cloud feature-icon"></i>
+                        <h3>Cloud Fundamentals</h3>
+                        <p>Understand cloud services and deploy your first application.</p>
+                        <a href="#" class="btn btn-custom"><i class="fas fa-cart-plus me-2"></i>Add to Cart</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                        <h3>Data Analytics</h3>
+                        <p>Explore data insights with practical analytics techniques.</p>
+                        <a href="#" class="btn btn-custom"><i class="fas fa-cart-plus me-2"></i>Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer text-white">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5><i class="fas fa-graduation-cap me-2"></i>About LMS</h5>
+                    <p>Our Learning Management System empowers students and educators with cutting-edge tools for modern education.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-decoration-none text-light">Home</a></li>
+                        <li><a href="#authBox" onclick="showAuthBox('login'); return false;" class="text-decoration-none text-light">Login</a></li>
+                        <li><a href="#authBox" onclick="showAuthBox('signup'); return false;" class="text-decoration-none text-light">Sign Up</a></li>
+                        <li><a href="#" class="text-decoration-none text-light">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Follow Us</h5>
+                    <div>
+                        <a href="#" class="text-light me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-instagram fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2026 Learning Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        function showAuthBox(mode) {
+            const box = document.getElementById('authBox');
+            if (!box) return;
+            box.classList.add('active');
+            if (mode === 'signup') {
+                window.location.href = '/signup';
+            }
+        }
+        function hideAuthBox() {
+            const box = document.getElementById('authBox');
+            if (!box) return;
+            box.classList.remove('active');
+        }
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scrollTopBtn');
+            if (!btn) return;
+            if (window.scrollY > 200) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

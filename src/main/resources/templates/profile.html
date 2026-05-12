@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Learning Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2d4059 0%, #4a6572 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1100;
+            backdrop-filter: blur(8px);
+            background: rgba(27, 38, 59, 0.45) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .profile-container {
+            margin-top: 3rem;
+            margin-bottom: 3rem;
+        }
+        .profile-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            padding: 2rem;
+            color: #333;
+        }
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 1.5rem;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            margin: 0 auto 1rem;
+        }
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2d4059;
+            margin-bottom: 0.5rem;
+        }
+        .profile-email {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        .profile-member {
+            font-size: 0.9rem;
+            color: #999;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #2d4059;
+            margin-top: 1rem;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-update {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn-update:hover {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+        .btn-cancel {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            color: #666;
+            border-radius: 8px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn-cancel:hover {
+            background: #e9e9e9;
+            color: #333;
+        }
+        .alert-success {
+            background: #d4edda;
+            border: none;
+            color: #155724;
+            border-radius: 8px;
+        }
+        .alert-danger {
+            background: #f8d7da;
+            border: none;
+            color: #721c24;
+            border-radius: 8px;
+        }
+        .edit-section {
+            margin-top: 2rem;
+        }
+        .site-footer {
+            background: rgba(17, 24, 39, 0.45);
+            backdrop-filter: blur(8px);
+        }
+        .scroll-top-btn {
+            position: fixed;
+            right: 1rem;
+            bottom: 1rem;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            z-index: 1200;
+            display: none;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+        .scroll-top-btn.show {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/home">
+                <i class="fas fa-graduation-cap me-2"></i>LMS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <div class="navbar-nav ms-auto align-items-center">
+                    <a class="nav-link" href="/home">Home</a>
+                    <a class="nav-link" href="/courses">Courses</a>
+                    <a class="nav-link" href="/tech">Tech</a>
+                    <a class="nav-link position-relative" href="/cart" th:if="${user}">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" th:if="${cartCount > 0}" th:text="${cartCount}"></span>
+                    </a>
+                    <span class="nav-link text-white" th:if="${user}">Hello, <span th:text="${user.firstName}"></span></span>
+                    <a class="nav-link" href="/logout" th:if="${user}">Logout</a>
+                    <a class="nav-link" href="/login" th:if="${user == null}">Login</a>
+                    <a class="nav-link" href="/profile" th:if="${user}">
+                        <i class="fas fa-user-circle me-1"></i>Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container profile-container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profileAvatarContainer">
+                            <img id="profileImageDisplay" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none;" />
+                            <i id="profileIconDisplay" class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-name" th:text="${user.firstName} + ' ' + ${user.lastName}"></div>
+                        <div class="profile-email" th:text="${user.email}"></div>
+                        <div class="profile-member">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            <span>Member since <span th:text="${user.createdAt}"></span></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 p-3 border rounded" style="background: #f9f9f9;">
+                        <h5 class="mb-3"><i class="fas fa-image me-2"></i>Profile Picture</h5>
+                        <form method="POST" action="/uploadProfileImage" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="profileImageFile" class="form-label">Upload Image</label>
+                                <input type="file" class="form-control" id="profileImageFile" name="profileImageFile" accept="image/*" required>
+                                <small class="text-muted">Supported formats: JPG, PNG, GIF (Max 5MB)</small>
+                            </div>
+                            <button type="submit" class="btn btn-update btn-sm">
+                                <i class="fas fa-upload me-1"></i>Upload Image
+                            </button>
+                        </form>
+                    </div>
+
+                    <form method="POST" action="/updateProfile" class="edit-section">
+                        <div class="mb-3">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="firstName" name="firstName" 
+                                   th:value="${user.firstName}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="lastName" name="lastName" 
+                                   th:value="${user.lastName}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   th:value="${user.email}" required>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-update">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                            <a href="/home" class="btn btn-cancel">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer text-white">
+        <div class="container py-4 text-center">
+            <p class="mb-0">&copy; 2026 Learning Management System. All rights reserved.</p>
+        </div>
+    </footer>
+    <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Display profile image if it exists
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('profileImageFile');
+            const profileImageDisplay = document.getElementById('profileImageDisplay');
+            const profileIconDisplay = document.getElementById('profileIconDisplay');
+            
+            // Check if Thymeleaf passes the image
+            const hasProfileImage = [[${hasProfileImage}]];
+            const imageBase64 = '[[${profileImageBase64}]]';
+            
+            if (hasProfileImage && imageBase64 && imageBase64 !== '' && !imageBase64.includes('$')) {
+                profileImageDisplay.src = 'data:image/png;base64,' + imageBase64;
+                profileImageDisplay.style.display = 'block';
+                profileIconDisplay.style.display = 'none';
+            }
+            
+            // Preview image on selection
+            if (imageInput) {
+                imageInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            profileImageDisplay.src = event.target.result;
+                            profileImageDisplay.style.display = 'block';
+                            profileIconDisplay.style.display = 'none';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scrollTopBtn');
+            if (!btn) return;
+            if (window.scrollY > 200) btn.classList.add('show');
+            else btn.classList.remove('show');
+        });
+    </script>
+</body>
+</html>
