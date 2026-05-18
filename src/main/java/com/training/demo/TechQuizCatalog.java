@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Quiz questions aligned with tech.html skill sets (Java & Python × 3 levels).
+ * Quiz questions aligned with tech.html skill sets (Java, SQL, Python × 3 levels).
  */
 public final class TechQuizCatalog {
 
@@ -14,6 +14,7 @@ public final class TechQuizCatalog {
 
     static {
         registerJava();
+        registerSql();
         registerPython();
     }
 
@@ -49,6 +50,14 @@ public final class TechQuizCatalog {
         levels.put("Intermediate", javaIntermediate());
         levels.put("Advanced", javaAdvanced());
         QUESTIONS.put("Java", levels);
+    }
+
+    private static void registerSql() {
+        Map<String, List<Map<String, Object>>> levels = new LinkedHashMap<>();
+        levels.put("Pre-Intermediate", sqlPreIntermediate());
+        levels.put("Intermediate", sqlIntermediate());
+        levels.put("Advanced", sqlAdvanced());
+        QUESTIONS.put("SQL", levels);
     }
 
     private static void registerPython() {
@@ -237,6 +246,96 @@ public final class TechQuizCatalog {
                         "It optimizes memory usage", "It is only active in Python 2"), 1));
         list.add(q("What is the output of [x*x for x in range(3)]?",
                 List.of("[0, 1, 4]", "[1, 4, 9]", "[0, 1, 2]", "Error"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> sqlPreIntermediate() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("Which SQL statement is used to retrieve data from a table?",
+                List.of("SELECT", "GET", "FETCH", "READ"), 0));
+        list.add(q("What does a PRIMARY KEY do?",
+                List.of("Uniquely identifies each row", "Encrypts the table", "Sorts rows automatically",
+                        "Links two tables"), 0));
+        list.add(q("Which clause filters rows in a SELECT query?",
+                List.of("WHERE", "FILTER", "HAVING", "ORDER"), 0));
+        list.add(q("Which statement adds new rows to a table?",
+                List.of("INSERT", "ADD", "CREATE ROW", "APPEND"), 0));
+        list.add(q("What does COUNT(*) return?",
+                List.of("The number of rows", "The sum of all columns", "The largest value",
+                        "The table size in MB"), 0));
+        list.add(q("Which keyword removes duplicate rows from a result set?",
+                List.of("DISTINCT", "UNIQUE", "ONLY", "SINGLE"), 0));
+        list.add(q("Which statement modifies existing data?",
+                List.of("UPDATE", "CHANGE", "MODIFY", "ALTER ROW"), 0));
+        list.add(q("Which clause sorts query results?",
+                List.of("ORDER BY", "SORT BY", "GROUP BY", "ARRANGE"), 0));
+        list.add(q("What does DELETE do?",
+                List.of("Removes rows from a table", "Drops the entire table", "Clears the database",
+                        "Hides columns"), 0));
+        list.add(q("In SQL, NULL means:",
+                List.of("Unknown or missing value", "Zero", "Empty string", "False"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> sqlIntermediate() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("Which JOIN returns only matching rows from both tables?",
+                List.of("INNER JOIN", "LEFT JOIN", "RIGHT JOIN", "CROSS JOIN"), 0));
+        list.add(q("Which clause filters groups after GROUP BY?",
+                List.of("HAVING", "WHERE", "FILTER", "GROUP FILTER"), 0));
+        list.add(q("What does GROUP BY do?",
+                List.of("Groups rows for aggregate functions", "Sorts the table", "Creates a new table",
+                        "Joins tables"), 0));
+        list.add(q("Which function calculates the average of numeric values?",
+                List.of("AVG()", "MEAN()", "AVERAGE()", "MID()"), 0));
+        list.add(q("A FOREIGN KEY is used to:",
+                List.of("Reference a primary key in another table", "Encrypt a column", "Index a table",
+                        "Rename a column"), 0));
+        list.add(q("Which subquery type returns a single value?",
+                List.of("Scalar subquery", "Correlated list", "Table scan", "Outer join"), 0));
+        list.add(q("LEFT JOIN returns:",
+                List.of("All rows from the left table and matches from the right", "Only matching rows",
+                        "Only the left table's columns", "Rows with no nulls"), 0));
+        list.add(q("Which constraint ensures a column cannot be NULL?",
+                List.of("NOT NULL", "UNIQUE", "CHECK", "DEFAULT"), 0));
+        list.add(q("What does the LIKE operator do?",
+                List.of("Pattern matching with wildcards", "Exact equality only", "Numeric comparison",
+                        "Date arithmetic"), 0));
+        list.add(q("UNION combines result sets and:",
+                List.of("Removes duplicates by default in standard SQL", "Always keeps duplicates",
+                        "Sorts automatically", "Creates a permanent table"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> sqlAdvanced() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("Which property is NOT part of ACID?",
+                List.of("Distribution", "Atomicity", "Consistency", "Isolation"), 0));
+        list.add(q("What is the main purpose of an index?",
+                List.of("Speed up data retrieval", "Encrypt data", "Backup tables", "Validate passwords"), 0));
+        list.add(q("Which normal form removes partial dependency on a composite key?",
+                List.of("2NF", "1NF", "3NF", "BCNF"), 0));
+        list.add(q("What does a transaction COMMIT do?",
+                List.of("Permanently saves changes", "Rolls back changes", "Locks the database forever",
+                        "Deletes the log"), 0));
+        list.add(q("Which isolation level prevents dirty reads?",
+                List.of("READ COMMITTED or higher", "READ UNCOMMITTED only", "No isolation",
+                        "SERIALIZABLE only"), 0));
+        list.add(q("A covering index means:",
+                List.of("The index contains all columns needed by the query", "The index covers the whole disk",
+                        "The table has no primary key", "The query uses no WHERE clause"), 0));
+        list.add(q("What is a deadlock?",
+                List.of("Two transactions waiting on each other", "A deleted table", "A failed backup",
+                        "An invalid JOIN"), 0));
+        list.add(q("Which statement is true about VARCHAR vs CHAR?",
+                List.of("VARCHAR uses variable length storage", "CHAR is always slower", "They are identical",
+                        "VARCHAR cannot store text"), 0));
+        list.add(q("A VIEW is:",
+                List.of("A virtual table based on a query", "A physical copy of data", "An index type",
+                        "A backup file"), 0));
+        list.add(q("EXPLAIN (or similar) is used to:",
+                List.of("Analyze query execution plan", "Insert sample data", "Grant permissions",
+                        "Drop constraints"), 0));
         return list;
     }
 }

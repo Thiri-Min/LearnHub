@@ -126,6 +126,7 @@
                         <div class="d-flex flex-wrap justify-content-center gap-2 mb-4" role="group" aria-label="Tech filters">
                             <button type="button" class="btn filter-btn" data-filter="all">All</button>
                             <button type="button" class="btn filter-btn active" data-filter="Java">Java</button>
+                            <button type="button" class="btn filter-btn" data-filter="SQL">SQL</button>
                             <button type="button" class="btn filter-btn" data-filter="Python">Python</button>
                             <button type="button" class="btn filter-btn" data-filter="C++">C++</button>
                             <button type="button" class="btn filter-btn" data-filter="AI">AI</button>
@@ -165,6 +166,16 @@
                     'Java Pre-Intermediate': 'Basic Java concepts, syntax, and simple programs.',
                     'Java Intermediate': 'OOP principles, collections, exception handling, and design patterns.',
                     'Java Advanced': 'Concurrency, JVM internals, performance optimization, and complex algorithms.'
+                }
+            },
+            SQL: {
+                icon: 'fas fa-database',
+                title: 'SQL Test',
+                desc: 'Test your SQL skills with queries, joins, design, and database fundamentals.',
+                levels: {
+                    'SQL Pre-Intermediate': 'Basic SELECT, CRUD operations, filtering, and sorting.',
+                    'SQL Intermediate': 'JOINs, GROUP BY, subqueries, and constraints.',
+                    'SQL Advanced': 'Indexing, transactions, optimization, and database design.'
                 }
             },
             Python: {
@@ -438,6 +449,45 @@
                 correct: 1,
                 explanation: "try-with-resources automatically closes resources that implement AutoCloseable."
             }
+        ];
+
+        const sqlPreIntermediateQuestions = [
+            { question: "Which SQL statement is used to retrieve data from a table?", options: ["SELECT", "GET", "FETCH", "READ"], correct: 0 },
+            { question: "What does a PRIMARY KEY do?", options: ["Uniquely identifies each row", "Encrypts the table", "Sorts rows automatically", "Links two tables"], correct: 0 },
+            { question: "Which clause filters rows in a SELECT query?", options: ["WHERE", "FILTER", "HAVING", "ORDER"], correct: 0 },
+            { question: "Which statement adds new rows to a table?", options: ["INSERT", "ADD", "CREATE ROW", "APPEND"], correct: 0 },
+            { question: "What does COUNT(*) return?", options: ["The number of rows", "The sum of all columns", "The largest value", "The table size in MB"], correct: 0 },
+            { question: "Which keyword removes duplicate rows from a result set?", options: ["DISTINCT", "UNIQUE", "ONLY", "SINGLE"], correct: 0 },
+            { question: "Which statement modifies existing data?", options: ["UPDATE", "CHANGE", "MODIFY", "ALTER ROW"], correct: 0 },
+            { question: "Which clause sorts query results?", options: ["ORDER BY", "SORT BY", "GROUP BY", "ARRANGE"], correct: 0 },
+            { question: "What does DELETE do?", options: ["Removes rows from a table", "Drops the entire table", "Clears the database", "Hides columns"], correct: 0 },
+            { question: "In SQL, NULL means:", options: ["Unknown or missing value", "Zero", "Empty string", "False"], correct: 0 }
+        ];
+
+        const sqlIntermediateQuestions = [
+            { question: "Which JOIN returns only matching rows from both tables?", options: ["INNER JOIN", "LEFT JOIN", "RIGHT JOIN", "CROSS JOIN"], correct: 0 },
+            { question: "Which clause filters groups after GROUP BY?", options: ["HAVING", "WHERE", "FILTER", "GROUP FILTER"], correct: 0 },
+            { question: "What does GROUP BY do?", options: ["Groups rows for aggregate functions", "Sorts the table", "Creates a new table", "Joins tables"], correct: 0 },
+            { question: "Which function calculates the average of numeric values?", options: ["AVG()", "MEAN()", "AVERAGE()", "MID()"], correct: 0 },
+            { question: "A FOREIGN KEY is used to:", options: ["Reference a primary key in another table", "Encrypt a column", "Index a table", "Rename a column"], correct: 0 },
+            { question: "Which subquery type returns a single value?", options: ["Scalar subquery", "Correlated list", "Table scan", "Outer join"], correct: 0 },
+            { question: "LEFT JOIN returns:", options: ["All rows from the left table and matches from the right", "Only matching rows", "Only the left table's columns", "Rows with no nulls"], correct: 0 },
+            { question: "Which constraint ensures a column cannot be NULL?", options: ["NOT NULL", "UNIQUE", "CHECK", "DEFAULT"], correct: 0 },
+            { question: "What does the LIKE operator do?", options: ["Pattern matching with wildcards", "Exact equality only", "Numeric comparison", "Date arithmetic"], correct: 0 },
+            { question: "UNION combines result sets and:", options: ["Removes duplicates by default in standard SQL", "Always keeps duplicates", "Sorts automatically", "Creates a permanent table"], correct: 0 }
+        ];
+
+        const sqlAdvancedQuestions = [
+            { question: "Which property is NOT part of ACID?", options: ["Distribution", "Atomicity", "Consistency", "Isolation"], correct: 0 },
+            { question: "What is the main purpose of an index?", options: ["Speed up data retrieval", "Encrypt data", "Backup tables", "Validate passwords"], correct: 0 },
+            { question: "Which normal form removes partial dependency on a composite key?", options: ["2NF", "1NF", "3NF", "BCNF"], correct: 0 },
+            { question: "What does a transaction COMMIT do?", options: ["Permanently saves changes", "Rolls back changes", "Locks the database forever", "Deletes the log"], correct: 0 },
+            { question: "Which isolation level prevents dirty reads?", options: ["READ COMMITTED or higher", "READ UNCOMMITTED only", "No isolation", "SERIALIZABLE only"], correct: 0 },
+            { question: "A covering index means:", options: ["The index contains all columns needed by the query", "The index covers the whole disk", "The table has no primary key", "The query uses no WHERE clause"], correct: 0 },
+            { question: "What is a deadlock?", options: ["Two transactions waiting on each other", "A deleted table", "A failed backup", "An invalid JOIN"], correct: 0 },
+            { question: "Which statement is true about VARCHAR vs CHAR?", options: ["VARCHAR uses variable length storage", "CHAR is always slower", "They are identical", "VARCHAR cannot store text"], correct: 0 },
+            { question: "A VIEW is:", options: ["A virtual table based on a query", "A physical copy of data", "An index type", "A backup file"], correct: 0 },
+            { question: "EXPLAIN (or similar) is used to:", options: ["Analyze query execution plan", "Insert sample data", "Grant permissions", "Drop constraints"], correct: 0 }
         ];
 
         const pythonPreIntermediateQuestions = [
@@ -790,6 +840,11 @@
                 if (level === 'Pre-Intermediate') return javaPreIntermediateQuestions;
                 if (level === 'Intermediate') return javaIntermediateQuestions;
                 if (level === 'Advanced') return javaAdvancedQuestions;
+            }
+            if (subject === 'SQL') {
+                if (level === 'Pre-Intermediate') return sqlPreIntermediateQuestions;
+                if (level === 'Intermediate') return sqlIntermediateQuestions;
+                if (level === 'Advanced') return sqlAdvancedQuestions;
             }
             if (subject === 'Python') {
                 if (level === 'Pre-Intermediate') return pythonPreIntermediateQuestions;
