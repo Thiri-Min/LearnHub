@@ -47,4 +47,18 @@ public class UserService {
         user.setProfileImage(imageData);
         return userRepository.save(user);
     }
+
+    public User updatePassword(Long id, String currentPassword, String newPassword) throws Exception {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new Exception("User not found!"));
+
+        if (!user.getPassword().equals(currentPassword)) {
+            throw new Exception("Current password is incorrect.");
+        }
+        if (newPassword == null || newPassword.length() < 4) {
+            throw new Exception("New password must be at least 4 characters.");
+        }
+        user.setPassword(newPassword);
+        return userRepository.save(user);
+    }
 }

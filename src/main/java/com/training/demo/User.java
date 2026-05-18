@@ -28,6 +28,9 @@ public class User {
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] profileImage;
+
+    @Column(nullable = false)
+    private int loginCount = 0;
     
     // Constructors
     public User() {}
@@ -94,5 +97,13 @@ public class User {
     
     public void setProfileImage(byte[] profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public int getLoginCount() {
+        return loginCount;
+    }
+
+    public void setLoginCount(int loginCount) {
+        this.loginCount = loginCount;
     }
 }

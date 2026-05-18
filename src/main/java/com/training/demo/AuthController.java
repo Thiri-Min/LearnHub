@@ -1,5 +1,6 @@
 package com.training.demo;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -7,20 +8,31 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class AuthController {
     
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserActivityService userActivityService;
+
+    @Autowired
+    private UserFavoriteRepository userFavoriteRepository;
 
     private static final List<Course> COURSE_CATALOG = List.of(
         new Course(1, "SQL Mastery", "Learn SQL query writing, joins, indexing, and database design fundamentals.", "fas fa-database", 89.0),
@@ -43,7 +55,9 @@ public class AuthController {
     }
     
     @PostMapping("/login")
-    public String loginUser(@RequestParam String email, @RequestParam String password, Model model, HttpSession session) {
+    public String loginUser(@RequestParam String email, @RequestParam String password, Model model,
+                            HttpSession session, HttpServletRequest request,
+                            RedirectAttributes redirectAttributes) {
         var userOpt = userService.findByEmail(email);
         if (userOpt.isEmpty() || !userOpt.get().getPassword().equals(password)) {
             populateHomeModel(session, model);
@@ -52,7 +66,9 @@ public class AuthController {
             return "home";
         }
 
-        session.setAttribute("loggedInUser", userOpt.get());
+        User loggedIn = userActivityService.recordLogin(userOpt.get(), request);
+        session.setAttribute("loggedInUser", loggedIn);
+        redirectAttributes.addFlashAttribute("trackLocation", true);
         return "redirect:/home";
     }
 
@@ -149,6 +165,144 @@ public class AuthController {
         return "tech";
     }
 
+    @GetMapping("/rich-content")
+    public String richContent(HttpSession session, Model model) {
+        var user = session.getAttribute("loggedInUser");
+        if (user == null) {
+            return "redirect:/?authMode=login";
+        }
+        model.addAttribute("user", user);
+        model.addAttribute("cartCount", getCart(session).size());
+        model.addAttribute("topics", TechContentCatalog.getAllTopics());
+        return "rich-content";
+    }
+
+    @GetMapping("/rich-content/detail")
+    public String richContentDetail(@RequestParam String topic, HttpSession session, Model model) {
+        var user = session.getAttribute("loggedInUser");
+        if (user == null) {
+            return "redirect:/?authMode=login";
+        }
+        var techTopic = TechContentCatalog.findById(topic);
+        if (techTopic.isEmpty()) {
+            return "redirect:/rich-content";
+        }
+        User currentUser = (User) user;
+        TechTopic tech = techTopic.get();
+        userActivityService.recordRichContentView(currentUser.getId(), tech.getId(), tech.getTitle());
+
+        model.addAttribute("user", currentUser);
+        model.addAttribute("cartCount", getCart(session).size());
+        model.addAttribute("topic", tech);
+        return "rich-content-detail";
+    }
+
+    @GetMapping("/my-progress")
+    public String myProgress(HttpSession session) {
+        if (session.getAttribute("loggedInUser") == null) {
+            return "redirect:/?authMode=login";
+        }
+        return "redirect:/profile?tab=progress";
+    }
+
+    @PostMapping("/api/track/location")
+    @ResponseBody
+    public Map<String, String> trackLoginLocation(@RequestParam String location, HttpSession session) {
+        Map<String, String> response = new HashMap<>();
+        var user = session.getAttribute("loggedInUser");
+        if (user == null) {
+            response.put("status", "unauthorized");
+            return response;
+        }
+        userActivityService.updateLatestLoginLocation(((User) user).getId(), location);
+        response.put("status", "ok");
+        return response;
+    }
+
+    @PostMapping("/api/favorites/sync")
+    @ResponseBody
+    public Map<String, String> syncFavorites(@RequestParam String courseIds, HttpSession session) {
+        Map<String, String> response = new HashMap<>();
+        var user = session.getAttribute("loggedInUser");
+        if (user == null) {
+            response.put("status", "unauthorized");
+            return response;
+        }
+        List<String> ids = parseCourseIdList(courseIds);
+        userActivityService.syncFavorites(((User) user).getId(), ids);
+        response.put("status", "ok");
+        return response;
+    }
+
+    @PostMapping("/api/favorites/toggle")
+    @ResponseBody
+    public Map<String, Object> toggleFavoriteApi(@RequestParam String courseId,
+                                                 @RequestParam(required = false) String courseTitle,
+                                                 HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        var user = session.getAttribute("loggedInUser");
+        if (user == null) {
+            response.put("status", "unauthorized");
+            return response;
+        }
+        Long userId = ((User) user).getId();
+        userActivityService.toggleFavorite(userId, courseId, courseTitle);
+        boolean favorited = userFavoriteRepository.findByUserIdAndCourseId(userId, courseId.trim()).isPresent();
+        response.put("status", "ok");
+        response.put("favorited", favorited);
+        return response;
+    }
+
+    @GetMapping("/course-detail")
+    public String courseDetail(@RequestParam String courseId, HttpSession session, Model model) {
+        var user = session.getAttribute("loggedInUser");
+        if (user == null) {
+            return "redirect:/?authMode=login";
+        }
+        model.addAttribute("user", user);
+        model.addAttribute("cartCount", getCart(session).size());
+        model.addAttribute("courseId", courseId);
+        return "course-detail";
+    }
+
+    @GetMapping("/quiz")
+    public String quiz(@RequestParam String subject, @RequestParam String level, HttpSession session, Model model) {
+        var user = session.getAttribute("loggedInUser");
+        if (user == null) {
+            return "redirect:/?authMode=login";
+        }
+        model.addAttribute("user", user);
+        model.addAttribute("cartCount", getCart(session).size());
+        model.addAttribute("subject", subject);
+        model.addAttribute("level", level);
+        // For demo, hardcoded questions
+        List<Map<String, Object>> questions = getQuestions(subject, level);
+        model.addAttribute("questions", questions);
+        return "quiz";
+    }
+
+    private List<Map<String, Object>> getQuestions(String subject, String level) {
+        List<Map<String, Object>> questions = new ArrayList<>();
+        if ("Java".equals(subject) && "Pre-Intermediate".equals(level)) {
+            questions.add(Map.of("question", "What is the correct main method signature in Java?", "options", List.of("public static void main(String[] args)", "public void main(String args)", "static void main(String[] args)", "void main(String[] args)"), "answer", 0));
+            questions.add(Map.of("question", "Which keyword is used to create an object in Java?", "options", List.of("class", "new", "object", "create"), "answer", 1));
+            questions.add(Map.of("question", "What is the size of int in Java?", "options", List.of("8 bits", "16 bits", "32 bits", "64 bits"), "answer", 2));
+            questions.add(Map.of("question", "Which of these is not a Java keyword?", "options", List.of("class", "interface", "extends", "unsigned"), "answer", 3));
+            questions.add(Map.of("question", "What does JVM stand for?", "options", List.of("Java Virtual Machine", "Java Variable Method", "Just Virtual Memory", "Java Version Manager"), "answer", 0));
+            questions.add(Map.of("question", "Which method is used to compare two strings in Java?", "options", List.of("equals()", "compare()", "==", "match()"), "answer", 0));
+            questions.add(Map.of("question", "What is the default value of a boolean variable in Java?", "options", List.of("true", "false", "null", "0"), "answer", 1));
+            questions.add(Map.of("question", "Which loop is used when the number of iterations is known?", "options", List.of("while", "do-while", "for", "if"), "answer", 2));
+            questions.add(Map.of("question", "What is inheritance in Java?", "options", List.of("Creating multiple objects", "A class acquiring properties of another class", "Hiding data", "Overloading methods"), "answer", 1));
+            questions.add(Map.of("question", "Which access modifier makes a member accessible only within the same package?", "options", List.of("public", "private", "protected", "default"), "answer", 3));
+        } else {
+            // Generic questions
+            for (int i = 1; i <= 10; i++) {
+                questions.add(Map.of("question", "Sample question " + i + " for " + subject + " " + level, "options", List.of("Option A", "Option B", "Option C", "Option D"), "answer", 0));
+            }
+        }
+        return questions;
+    }
+
     @PostMapping("/cart/add")
     public String addToCart(HttpSession session, @RequestParam int courseId) {
         var user = session.getAttribute("loggedInUser");
@@ -183,6 +337,51 @@ public class AuthController {
         return "cart";
     }
 
+    @PostMapping("/checkout")
+    public String checkout(HttpSession session,
+                           @RequestParam String paymentMethod,
+                           @RequestParam String billingName,
+                           @RequestParam String billingAddress,
+                           @RequestParam(required = false) String cardNumber,
+                           @RequestParam(required = false) String cardExpiry,
+                           @RequestParam(required = false) String cardCvv,
+                           Model model) {
+        var user = session.getAttribute("loggedInUser");
+        if (user == null) {
+            return "redirect:/?authMode=login";
+        }
+        User currentUser = (User) user;
+        List<Course> cart = getCart(session);
+        if (cart.isEmpty()) {
+            return "redirect:/cart?message=Your+cart+is+empty.";
+        }
+
+        double total = cart.stream().mapToDouble(Course::getPrice).sum();
+        String paymentSummary;
+        if ("card".equals(paymentMethod)) {
+            paymentSummary = "Paid by Card ending " + (cardNumber != null && cardNumber.length() >= 4 ? cardNumber.substring(cardNumber.length() - 4) : "xxxx") + ".";
+        } else {
+            paymentSummary = "Cash on Delivery (COD) selected.";
+        }
+
+        String successMessage = "Order successfully placed for " + currentUser.getFirstName() + " (" + currentUser.getEmail() + ") using " + (paymentMethod.equals("cod") ? "Cash on Delivery" : "Card") + ".";
+
+        model.addAttribute("user", currentUser);
+        model.addAttribute("cartCount", 0);
+        model.addAttribute("orderItems", new ArrayList<>(cart));
+        model.addAttribute("orderTotal", total);
+        model.addAttribute("paymentMethod", paymentMethod.equals("cod") ? "Cash on Delivery" : "Card");
+        model.addAttribute("paymentSummary", paymentSummary);
+        model.addAttribute("billingName", billingName);
+        model.addAttribute("billingAddress", billingAddress);
+        model.addAttribute("userEmail", currentUser.getEmail());
+        model.addAttribute("orderMessage", successMessage);
+        session.setAttribute("lastOrderMessage", successMessage);
+
+        cart.clear();
+        return "order-confirmation";
+    }
+
     @PostMapping("/cart/remove")
     public String removeFromCart(HttpSession session, @RequestParam int courseId) {
         var user = session.getAttribute("loggedInUser");
@@ -201,23 +400,45 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    public String profile(HttpSession session, Model model) {
+    public String profile(HttpSession session, Model model,
+                          @RequestParam(required = false, defaultValue = "favorites") String tab) {
         var user = session.getAttribute("loggedInUser");
         if (user == null) {
             return "redirect:/?authMode=login";
         }
         User currentUser = (User) user;
-        model.addAttribute("user", currentUser);
-        model.addAttribute("cartCount", getCart(session).size());
-        
-        // Add image data if it exists
-        if (currentUser.getProfileImage() != null && currentUser.getProfileImage().length > 0) {
-            String imageBase64 = Base64.getEncoder().encodeToString(currentUser.getProfileImage());
-            model.addAttribute("hasProfileImage", true);
-            model.addAttribute("profileImageBase64", imageBase64);
-        }
-        
+        populateProfileModel(session, model, currentUser);
+        model.addAttribute("activeTab", "progress".equals(tab) ? "progress" : "favorites");
+        model.addAttribute("lastOrderMessage", session.getAttribute("lastOrderMessage"));
         return "profile";
+    }
+
+    @PostMapping("/updatePassword")
+    public String updatePassword(HttpSession session,
+                                 @RequestParam String currentPassword,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 Model model) {
+        var user = (User) session.getAttribute("loggedInUser");
+        if (user == null) {
+            return "redirect:/?authMode=login";
+        }
+        try {
+            if (!newPassword.equals(confirmPassword)) {
+                throw new Exception("New passwords do not match.");
+            }
+            User updatedUser = userService.updatePassword(user.getId(), currentPassword, newPassword);
+            session.setAttribute("loggedInUser", updatedUser);
+            populateProfileModel(session, model, updatedUser);
+            model.addAttribute("activeTab", "favorites");
+            model.addAttribute("message", "Password updated successfully!");
+            return "profile";
+        } catch (Exception e) {
+            populateProfileModel(session, model, user);
+            model.addAttribute("activeTab", "favorites");
+            model.addAttribute("error", e.getMessage());
+            return "profile";
+        }
     }
 
     @PostMapping("/updateProfile")
@@ -231,22 +452,14 @@ public class AuthController {
         try {
             User updatedUser = userService.updateUser(user.getId(), firstName, lastName, email);
             session.setAttribute("loggedInUser", updatedUser);
-            model.addAttribute("user", updatedUser);
+            populateProfileModel(session, model, updatedUser);
+            model.addAttribute("activeTab", "favorites");
             model.addAttribute("message", "Profile updated successfully!");
-            model.addAttribute("cartCount", getCart(session).size());
-            
-            // Add image data if it exists
-            if (updatedUser.getProfileImage() != null && updatedUser.getProfileImage().length > 0) {
-                String imageBase64 = Base64.getEncoder().encodeToString(updatedUser.getProfileImage());
-                model.addAttribute("hasProfileImage", true);
-                model.addAttribute("profileImageBase64", imageBase64);
-            }
-            
             return "profile";
         } catch (Exception e) {
-            model.addAttribute("user", user);
+            populateProfileModel(session, model, user);
+            model.addAttribute("activeTab", "favorites");
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("cartCount", getCart(session).size());
             return "profile";
         }
     }
@@ -262,30 +475,61 @@ public class AuthController {
                 byte[] imageData = file.getBytes();
                 User updatedUser = userService.updateProfileImage(user.getId(), imageData);
                 session.setAttribute("loggedInUser", updatedUser);
-                model.addAttribute("user", updatedUser);
+                populateProfileModel(session, model, updatedUser);
+                model.addAttribute("activeTab", "favorites");
                 model.addAttribute("message", "Profile image uploaded successfully!");
-                
-                // Add image data to display
-                String imageBase64 = Base64.getEncoder().encodeToString(updatedUser.getProfileImage());
-                model.addAttribute("hasProfileImage", true);
-                model.addAttribute("profileImageBase64", imageBase64);
             } else {
+                populateProfileModel(session, model, user);
+                model.addAttribute("activeTab", "favorites");
                 model.addAttribute("error", "Please select an image file.");
-                model.addAttribute("user", user);
             }
-            model.addAttribute("cartCount", getCart(session).size());
             return "profile";
         } catch (IOException e) {
-            model.addAttribute("user", user);
+            populateProfileModel(session, model, user);
+            model.addAttribute("activeTab", "favorites");
             model.addAttribute("error", "Error uploading image: " + e.getMessage());
-            model.addAttribute("cartCount", getCart(session).size());
             return "profile";
         } catch (Exception e) {
-            model.addAttribute("user", user);
+            populateProfileModel(session, model, user);
+            model.addAttribute("activeTab", "favorites");
             model.addAttribute("error", "Error: " + e.getMessage());
-            model.addAttribute("cartCount", getCart(session).size());
             return "profile";
         }
+    }
+
+    private void populateProfileModel(HttpSession session, Model model, User user) {
+        model.addAttribute("user", user);
+        model.addAttribute("cartCount", getCart(session).size());
+        Map<String, Object> progress = userActivityService.getProgressSummary(user.getId());
+        model.addAttribute("loginCount", progress.get("loginCount"));
+        model.addAttribute("loginEvents", progress.get("loginEvents"));
+        model.addAttribute("richContentViews", progress.get("richContentViews"));
+        model.addAttribute("favorites", progress.get("favorites"));
+        if (user.getProfileImage() != null && user.getProfileImage().length > 0) {
+            String imageBase64 = Base64.getEncoder().encodeToString(user.getProfileImage());
+            model.addAttribute("hasProfileImage", true);
+            model.addAttribute("profileImageBase64", imageBase64);
+        } else {
+            model.addAttribute("hasProfileImage", false);
+            model.addAttribute("profileImageBase64", "");
+        }
+    }
+
+    private List<String> parseCourseIdList(String courseIds) {
+        if (courseIds == null || courseIds.isBlank()) {
+            return List.of();
+        }
+        String cleaned = courseIds.trim();
+        if (cleaned.startsWith("[")) {
+            cleaned = cleaned.substring(1, cleaned.length() - 1);
+        }
+        if (cleaned.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(cleaned.split(","))
+                .map(id -> id.trim().replace("\"", ""))
+                .filter(id -> !id.isEmpty())
+                .collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")

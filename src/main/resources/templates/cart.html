@@ -108,7 +108,7 @@
                                     <th>Course</th>
                                     <th>Description</th>
                                     <th>Price</th>
-                                    <th></th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,10 +117,18 @@
                                     <td th:text="${course.description}"></td>
                                     <td>$<span th:text="${course.price}"></span></td>
                                     <td>
-                                        <form th:action="@{/cart/remove}" method="post">
-                                            <input type="hidden" name="courseId" th:value="${course.id}" />
-                                            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash-alt"></i> Remove</button>
-                                        </form>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-danger" th:onclick="'toggleFavorite(' + ${course.id} + ')'">
+                                                <i class="fas fa-heart me-1"></i>Fav
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary" th:onclick="'window.location.href=&quot;/course-detail?courseId=' + ${course.id} + '&quot;'">
+                                                <i class="fas fa-book-open me-1"></i>Read
+                                            </button>
+                                            <form th:action="@{/cart/remove}" method="post" style="display: inline;">
+                                                <input type="hidden" name="courseId" th:value="${course.id}" />
+                                                <button type="submit" class="btn btn-outline-danger"><i class="fas fa-trash-alt"></i></button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -128,6 +136,47 @@
                         <div class="d-flex justify-content-between align-items-center mt-4">
                             <p class="h5 mb-0">Total: $<span th:text="${cartTotal}"></span></p>
                             <a href="/courses" class="btn btn-primary"><i class="fas fa-book-open me-2"></i>Add More Courses</a>
+                        </div>
+                        <div class="mt-4 p-4 bg-white rounded-4 text-dark">
+                            <h4 class="mb-3">Checkout</h4>
+                            <form th:action="@{/checkout}" method="post" id="checkoutForm">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Payment method</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="paymentCard" value="card" checked onchange="toggleCardFields()">
+                                        <label class="form-check-label" for="paymentCard">Card</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="paymentMethod" id="paymentCod" value="cod" onchange="toggleCardFields()">
+                                        <label class="form-check-label" for="paymentCod">Cash on Delivery (COD)</label>
+                                    </div>
+                                </div>
+                                <div id="cardFields" class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="cardNumber" class="form-label">Card Number</label>
+                                        <input type="text" class="form-control" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="cardExpiry" class="form-label">Expiry</label>
+                                        <input type="text" class="form-control" id="cardExpiry" name="cardExpiry" placeholder="MM/YY" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="cardCvv" class="form-label">CVV</label>
+                                        <input type="text" class="form-control" id="cardCvv" name="cardCvv" placeholder="123" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="billingName" class="form-label">Billing name</label>
+                                    <input type="text" class="form-control" id="billingName" name="billingName" placeholder="Name on card or recipient" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="billingAddress" class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="billingAddress" name="billingAddress" placeholder="Delivery address" required>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-lg w-100">
+                                    <i class="fas fa-check-circle me-2"></i>Place Order
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -145,6 +194,48 @@
     </button>
 
     <script>
+        const cartCourseList = [
+            { id: 1, title: 'SQL Mastery' },
+            { id: 2, title: 'Git Essentials' },
+            { id: 3, title: 'DSA Fundamentals' },
+            { id: 4, title: 'Java Essentials' },
+            { id: 5, title: 'Spring Framework' },
+            { id: 6, title: 'Mock Project' }
+        ];
+
+        let favoriteCourseIds = JSON.parse(localStorage.getItem('favoriteCourseIds') || '[]');
+
+        function toggleFavorite(courseId) {
+            const index = favoriteCourseIds.indexOf(courseId);
+            if (index >= 0) {
+                favoriteCourseIds.splice(index, 1);
+            } else {
+                favoriteCourseIds.push(courseId);
+            }
+            localStorage.setItem('favoriteCourseIds', JSON.stringify(favoriteCourseIds));
+            alert('Course ' + (index >= 0 ? 'removed from' : 'added to') + ' favorites!');
+        }
+
+        function toggleCardFields() {
+            const isCard = document.getElementById('paymentCard').checked;
+            const cardFields = document.getElementById('cardFields');
+            const cardInputs = cardFields.querySelectorAll('input');
+            cardFields.style.display = isCard ? 'flex' : 'none';
+            cardInputs.forEach(input => {
+                if (isCard) {
+                    input.removeAttribute('disabled');
+                    if (input.required) input.required = true;
+                } else {
+                    input.setAttribute('disabled', 'disabled');
+                    input.required = false;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleCardFields();
+        });
+
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }

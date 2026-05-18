@@ -12,6 +12,8 @@
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
+            display: flex;
+            flex-direction: column;
         }
         .navbar {
             position: sticky;
@@ -71,6 +73,7 @@
         .site-footer {
             background: rgba(17, 24, 39, 0.45);
             backdrop-filter: blur(8px);
+            margin-top: auto;
         }
         .scroll-top-btn {
             position: fixed;
@@ -103,21 +106,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarContent">
-                <div class="navbar-nav ms-auto align-items-center">
-                    <a class="nav-link" href="/home">Home</a>
-                    <a class="nav-link" href="/courses">Courses</a>
-                    <a class="nav-link active" href="/tech">Tech</a>
-                    <a class="nav-link position-relative" href="/cart" th:if="${user}">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" th:if="${cartCount > 0}" th:text="${cartCount}"></span>
-                    </a>
-                    <span class="nav-link text-white" th:if="${user}">Hello, <span th:text="${user.firstName}"></span></span>
-                    <a class="nav-link" href="/logout" th:if="${user}">Logout</a>
-                    <a class="nav-link" href="/login" th:if="${user == null}">Login</a>
-                    <a class="nav-link" href="/profile" th:if="${user}">
-                        <i class="fas fa-user-circle me-1"></i>Profile
-                    </a>
-                </div>
+                <div th:replace="~{fragments/navbar :: navLinks(false, false, 'tests', '/home', false)}"></div>
             </div>
         </div>
     </nav>
@@ -173,9 +162,9 @@
                 title: 'Java Test',
                 desc: 'Practice Java fundamentals, object-oriented concepts, and interview patterns.',
                 levels: {
-                    'Pre-Interview': 'Basic Java concepts, syntax, and simple programs.',
-                    'Intermediate': 'OOP principles, collections, exception handling, and design patterns.',
-                    'Advanced': 'Concurrency, JVM internals, performance optimization, and complex algorithms.'
+                    'Java Pre-Intermediate': 'Basic Java concepts, syntax, and simple programs.',
+                    'Java Intermediate': 'OOP principles, collections, exception handling, and design patterns.',
+                    'Java Advanced': 'Concurrency, JVM internals, performance optimization, and complex algorithms.'
                 }
             },
             Python: {
@@ -183,9 +172,9 @@
                 title: 'Python Test',
                 desc: 'Validate your Python scripting, data structures, and language proficiency.',
                 levels: {
-                    'Pre-Interview': 'Basic Python syntax, data types, and simple scripting.',
-                    'Intermediate': 'Data structures, file handling, modules, and libraries.',
-                    'Advanced': 'Advanced topics, frameworks, and complex problem-solving.'
+                    'Python Pre-Intermediate': 'Basic Python syntax, data types, and simple scripting.',
+                    'Python Intermediate': 'Data structures, file handling, modules, and libraries.',
+                    'Python Advanced': 'Advanced topics, frameworks, and complex problem-solving.'
                 }
             },
             'C++': {
@@ -193,9 +182,9 @@
                 title: 'C++ Test',
                 desc: 'Measure your C++ knowledge of pointers, memory, and object-oriented design.',
                 levels: {
-                    'Pre-Interview': 'Basic C++ syntax, pointers, and memory management.',
-                    'Intermediate': 'OOP, templates, STL, and exception handling.',
-                    'Advanced': 'Advanced memory management, concurrency, and optimization.'
+                    'C++ Pre-Intermediate': 'Basic C++ syntax, pointers, and memory management.',
+                    'C++ Intermediate': 'OOP, templates, STL, and exception handling.',
+                    'C++ Advanced': 'Advanced memory management, concurrency, and optimization.'
                 }
             },
             AI: {
@@ -203,9 +192,9 @@
                 title: 'AI Test',
                 desc: 'Test your AI knowledge with basic concepts, models, and practical scenarios.',
                 levels: {
-                    'Pre-Interview': 'Basic AI concepts, machine learning fundamentals.',
-                    'Intermediate': 'Neural networks, algorithms, and model training.',
-                    'Advanced': 'Deep learning, NLP, computer vision, and AI ethics.'
+                    'AI Pre-Intermediate': 'Basic AI concepts, machine learning fundamentals.',
+                    'AI Intermediate': 'Neural networks, algorithms, and model training.',
+                    'AI Advanced': 'Deep learning, NLP, computer vision, and AI ethics.'
                 }
             },
             Database: {
@@ -213,9 +202,9 @@
                 title: 'Database Test',
                 desc: 'Assess your SQL and database design skills with practical query scenarios.',
                 levels: {
-                    'Pre-Interview': 'Basic SQL queries, CRUD operations, and normalization.',
-                    'Intermediate': 'Joins, subqueries, indexing, and stored procedures.',
-                    'Advanced': 'Database design, optimization, and NoSQL concepts.'
+                    'Database Pre-Intermediate': 'Basic SQL queries, CRUD operations, and normalization.',
+                    'Database Intermediate': 'Joins, subqueries, indexing, and stored procedures.',
+                    'Database Advanced': 'Database design, optimization, and NoSQL concepts.'
                 }
             },
             DSA: {
@@ -223,9 +212,9 @@
                 title: 'DSA Test',
                 desc: 'Challenge your algorithm and data structure skills with core programming problems.',
                 levels: {
-                    'Pre-Interview': 'Basic data structures and simple algorithms.',
-                    'Intermediate': 'Sorting, searching, trees, and graphs.',
-                    'Advanced': 'Dynamic programming, advanced algorithms, and optimization.'
+                    'DSA Pre-Intermediate': 'Basic data structures and simple algorithms.',
+                    'DSA Intermediate': 'Sorting, searching, trees, and graphs.',
+                    'DSA Advanced': 'Dynamic programming, advanced algorithms, and optimization.'
                 }
             },
             Git: {
@@ -233,9 +222,9 @@
                 title: 'Git Test',
                 desc: 'Validate your Git workflow knowledge with branching, merging, and collaboration scenarios.',
                 levels: {
-                    'Pre-Interview': 'Basic Git commands, commits, and repositories.',
-                    'Intermediate': 'Branching, merging, and conflict resolution.',
-                    'Advanced': 'Advanced workflows, rebasing, and team collaboration.'
+                    'Git Pre-Intermediate': 'Basic Git commands, commits, and repositories.',
+                    'Git Intermediate': 'Branching, merging, and conflict resolution.',
+                    'Git Advanced': 'Advanced workflows, rebasing, and team collaboration.'
                 }
             },
             DotNet: {
@@ -243,9 +232,9 @@
                 title: '.NET Test',
                 desc: 'Check your .NET and C# understanding with questions on frameworks and architecture.',
                 levels: {
-                    'Pre-Interview': 'Basic C# syntax, .NET fundamentals.',
-                    'Intermediate': 'ASP.NET, Entity Framework, and web development.',
-                    'Advanced': 'Architecture patterns, microservices, and advanced .NET features.'
+                    'DotNet Pre-Intermediate': 'Basic C# syntax, .NET fundamentals.',
+                    'DotNet Intermediate': 'ASP.NET, Entity Framework, and web development.',
+                    'DotNet Advanced': 'Architecture patterns, microservices, and advanced .NET features.'
                 }
             },
             Fullstack: {
@@ -253,12 +242,399 @@
                 title: 'Fullstack Test',
                 desc: 'Evaluate your full-stack skills across front-end, back-end, and deployment workflows.',
                 levels: {
-                    'Pre-Interview': 'Basic HTML, CSS, JavaScript, and simple back-end.',
-                    'Intermediate': 'Frameworks, databases, and API development.',
-                    'Advanced': 'Advanced architectures, deployment, and full-stack optimization.'
+                    'Fullstack Pre-Intermediate': 'Basic HTML, CSS, JavaScript, and simple back-end.',
+                    'Fullstack Intermediate': 'Frameworks, databases, and API development.',
+                    'Fullstack Advanced': 'Advanced architectures, deployment, and full-stack optimization.'
                 }
             }
         };
+
+        // Java MCQ Question Sets
+        const javaPreIntermediateQuestions = [
+            {
+                question: "What is the correct syntax for a Java main method?",
+                options: ["public static void main(String[] args)", "public void main(String args[])", "static public void main(String[] args)", "void main(String[] args)"],
+                correct: 0,
+                explanation: "The main method in Java must be public, static, void, and take a String array as parameter."
+            },
+            {
+                question: "Which of these is NOT a valid Java identifier?",
+                options: ["myVariable", "_private", "123number", "$dollar"],
+                correct: 2,
+                explanation: "Java identifiers cannot start with a number. They can start with letters, underscore, or dollar sign."
+            },
+            {
+                question: "What does the 'public' access modifier mean?",
+                options: ["Accessible only within the same class", "Accessible within the same package", "Accessible from anywhere", "Accessible only by subclasses"],
+                correct: 2,
+                explanation: "Public members are accessible from any class in any package."
+            },
+            {
+                question: "Which operator is used for string concatenation in Java?",
+                options: ["+", "&", ".", "||"],
+                correct: 0,
+                explanation: "The + operator is overloaded for string concatenation in Java."
+            },
+            {
+                question: "What is the default value of a boolean variable in Java?",
+                options: ["true", "false", "null", "0"],
+                correct: 1,
+                explanation: "Boolean variables in Java default to false."
+            },
+            {
+                question: "Which keyword is used to create an object in Java?",
+                options: ["new", "create", "object", "instance"],
+                correct: 0,
+                explanation: "The 'new' keyword is used to instantiate objects in Java."
+            },
+            {
+                question: "What is the size of an int data type in Java?",
+                options: ["8 bits", "16 bits", "32 bits", "64 bits"],
+                correct: 2,
+                explanation: "An int in Java is 32 bits (4 bytes) long."
+            },
+            {
+                question: "Which of these is not a Java keyword?",
+                options: ["class", "interface", "extends", "function"],
+                correct: 3,
+                explanation: "'function' is not a keyword in Java. Java uses 'class', 'interface', and 'extends'."
+            },
+            {
+                question: "What does JVM stand for?",
+                options: ["Java Virtual Machine", "Java Variable Memory", "Java Virtual Method", "Java Variable Manager"],
+                correct: 0,
+                explanation: "JVM stands for Java Virtual Machine, which executes Java bytecode."
+            },
+            {
+                question: "Which symbol is used for single-line comments in Java?",
+                options: ["//", "/*", "*/", "#"],
+                correct: 0,
+                explanation: "Single-line comments in Java start with //"
+            }
+        ];
+
+        const javaIntermediateQuestions = [
+            {
+                question: "What is method overloading in Java?",
+                options: ["Having multiple methods with the same name but different parameters", "Calling a method from another method", "Overriding a method in a subclass", "Creating multiple instances of a method"],
+                correct: 0,
+                explanation: "Method overloading allows multiple methods with the same name but different parameter lists."
+            },
+            {
+                question: "Which collection class maintains insertion order?",
+                options: ["HashSet", "HashMap", "LinkedHashSet", "TreeSet"],
+                correct: 2,
+                explanation: "LinkedHashSet maintains the insertion order of elements."
+            },
+            {
+                question: "What is the purpose of the 'finally' block?",
+                options: ["To catch exceptions", "To execute cleanup code regardless of exceptions", "To throw exceptions", "To ignore exceptions"],
+                correct: 1,
+                explanation: "The finally block executes regardless of whether an exception is thrown or caught."
+            },
+            {
+                question: "Which interface should be implemented for custom sorting?",
+                options: ["Runnable", "Comparable", "Serializable", "Cloneable"],
+                correct: 1,
+                explanation: "Comparable interface provides a natural ordering for objects."
+            },
+            {
+                question: "Which keyword is used to define a constant in Java?",
+                options: ["final", "static", "const", "immutable"],
+                correct: 0,
+                explanation: "final is used to define constants in Java."
+            },
+            {
+                question: "What does the 'instanceof' operator do?",
+                options: ["Creates a new instance", "Checks type compatibility", "Invokes a method", "Compares primitive values"],
+                correct: 1,
+                explanation: "instanceof checks whether an object is an instance of a specified type."
+            },
+            {
+                question: "What value does String.length() return?",
+                options: ["Character count", "Byte size", "Hash code", "Memory address"],
+                correct: 0,
+                explanation: "String.length() returns the number of characters in the string."
+            },
+            {
+                question: "Which exception is thrown when accessing an array out of bounds?",
+                options: ["NullPointerException", "ArrayIndexOutOfBoundsException", "IllegalArgumentException", "ClassCastException"],
+                correct: 1,
+                explanation: "ArrayIndexOutOfBoundsException occurs when an array index is out of range."
+            },
+            {
+                question: "What is the default value of an int instance variable?",
+                options: ["0", "null", "false", "undefined"],
+                correct: 0,
+                explanation: "Instance int variables default to 0."
+            },
+            {
+                question: "Which statement is used to stop a loop immediately?",
+                options: ["continue", "break", "return", "stop"],
+                correct: 1,
+                explanation: "break stops the current loop immediately."
+            }
+        ];
+
+        const javaAdvancedQuestions = [
+            {
+                question: "What is the difference between HashMap and ConcurrentHashMap?",
+                options: ["HashMap is synchronized, ConcurrentHashMap is not", "ConcurrentHashMap allows concurrent access, HashMap does not", "They are identical", "HashMap is thread-safe, ConcurrentHashMap is not"],
+                correct: 1,
+                explanation: "ConcurrentHashMap is designed for concurrent access and provides better performance in multi-threaded environments."
+            },
+            {
+                question: "What does the 'volatile' keyword ensure?",
+                options: ["The variable cannot be changed", "Changes to the variable are visible to all threads", "The variable is stored in volatile memory", "The variable cannot be garbage collected"],
+                correct: 1,
+                explanation: "Volatile ensures that changes to a variable are immediately visible to all threads."
+            },
+            {
+                question: "Which design pattern uses a single instance shared across the application?",
+                options: ["Factory", "Observer", "Singleton", "Decorator"],
+                correct: 2,
+                explanation: "Singleton pattern ensures only one instance of a class exists throughout the application."
+            },
+            {
+                question: "What is the primary purpose of the 'transient' keyword?",
+                options: ["To make a method thread-safe", "To exclude a field from serialization", "To create a temporary variable", "To synchronize access"],
+                correct: 1,
+                explanation: "transient prevents a field from being serialized when an object is written to a stream."
+            },
+            {
+                question: "What does the 'finalize' method do?",
+                options: ["Runs before object construction", "Releases resources before garbage collection", "Makes a class immutable", "Prevents inheritance"],
+                correct: 1,
+                explanation: "finalize is called by the garbage collector before reclaiming an object."
+            },
+            {
+                question: "Which Java construct is used to manage multiple threads?",
+                options: ["ThreadPoolExecutor", "ArrayList", "HashMap", "Stream"],
+                correct: 0,
+                explanation: "ThreadPoolExecutor is used to manage a pool of worker threads."
+            },
+            {
+                question: "What is the output of System.out.println(3 + 4 + \"5\");?",
+                options: ["75", "345", "12", "Error"],
+                correct: 0,
+                explanation: "The expression is evaluated left to right: 3+4 = 7, then concatenated with \"5\" = \"75\"."
+            },
+            {
+                question: "Which memory area stores method call frames in Java?",
+                options: ["Heap", "Stack", "PermGen", "Code segment"],
+                correct: 1,
+                explanation: "The JVM stack stores method call frames and local variables."
+            },
+            {
+                question: "What is a lambda expression used for?",
+                options: ["Creating anonymous classes", "Defining a new data type", "Providing inline implementation of functional interfaces", "Handling exceptions"],
+                correct: 2,
+                explanation: "Lambda expressions provide inline implementations for functional interfaces."
+            },
+            {
+                question: "What is the purpose of the 'try-with-resources' statement?",
+                options: ["To catch runtime exceptions", "To automatically close resources", "To declare variables", "To pause execution"],
+                correct: 1,
+                explanation: "try-with-resources automatically closes resources that implement AutoCloseable."
+            }
+        ];
+
+        const pythonPreIntermediateQuestions = [
+            {
+                question: "What is the correct way to declare a function in Python?",
+                options: ["function myFunc():", "def myFunc():", "func myFunc():", "declare myFunc():"],
+                correct: 1,
+                explanation: "Python functions are defined using the def keyword."
+            },
+            {
+                question: "Which of these is a valid Python list?",
+                options: ["{1, 2, 3}", "[1, 2, 3]", "(1, 2, 3)", "<1, 2, 3>"],
+                correct: 1,
+                explanation: "Lists are defined with square brackets in Python."
+            },
+            {
+                question: "What is the output of print(type(3.14))?",
+                options: ["<class 'int'>", "<class 'float'>", "<class 'str'>", "<class 'double'>"],
+                correct: 1,
+                explanation: "3.14 is a float in Python."
+            },
+            {
+                question: "Which symbol is used for comments in Python?",
+                options: ["//", "#", "/*", "--"],
+                correct: 1,
+                explanation: "Python single-line comments start with #."
+            },
+            {
+                question: "How do you create a dictionary in Python?",
+                options: ["[1: 'a']", "{1: 'a'}", "(1: 'a')", "<1: 'a'>"],
+                correct: 1,
+                explanation: "Dictionaries are created using curly braces with key:value pairs."
+            },
+            {
+                question: "What keyword starts a conditional block in Python?",
+                options: ["when", "if", "cond", "check"],
+                correct: 1,
+                explanation: "if begins a conditional block in Python."
+            },
+            {
+                question: "Which function prints output to the console in Python?",
+                options: ["echo()", "print()", "console.log()", "output()"],
+                correct: 1,
+                explanation: "print() is used to output values in Python."
+            },
+            {
+                question: "How do you access the first element of a list named items?",
+                options: ["items[1]", "items[0]", "items.first", "items.get(0)"],
+                correct: 1,
+                explanation: "Python list indices start at 0, so items[0] returns the first element."
+            },
+            {
+                question: "Which data type is immutable in Python?",
+                options: ["list", "set", "tuple", "dictionary"],
+                correct: 2,
+                explanation: "Tuples are immutable, while lists and dictionaries are mutable."
+            },
+            {
+                question: "What does len('hello') return?",
+                options: ["4", "5", "6", "hello"],
+                correct: 1,
+                explanation: "len returns the number of characters in the string, which is 5."
+            }
+        ];
+
+        const pythonIntermediateQuestions = [
+            {
+                question: "What is list comprehension used for in Python?",
+                options: ["Creating lists using loops in a single expression", "Declaring classes", "Handling exceptions", "Defining functions"],
+                correct: 0,
+                explanation: "List comprehensions provide a concise way to create lists from existing iterables."
+            },
+            {
+                question: "Which keyword is used to handle exceptions in Python?",
+                options: ["try", "catch", "except", "error"],
+                correct: 2,
+                explanation: "Exceptions are handled using try and except blocks."
+            },
+            {
+                question: "How do you import a module named math?",
+                options: ["import math", "include math", "using math", "require math"],
+                correct: 0,
+                explanation: "Python modules are imported using the import keyword."
+            },
+            {
+                question: "What does the strip() method do on a string?",
+                options: ["Removes whitespace from both ends", "Converts to lowercase", "Reverses the string", "Splits the string"],
+                correct: 0,
+                explanation: "strip() removes whitespace from both ends of a string."
+            },
+            {
+                question: "Which of these is a tuple?",
+                options: ["[1, 2, 3]", "(1, 2, 3)", "{1, 2, 3}", "<1, 2, 3>"],
+                correct: 1,
+                explanation: "Tuples are defined with parentheses."
+            },
+            {
+                question: "What is the output of print('5' + '2')?",
+                options: ["7", "52", "Error", "5 2"],
+                correct: 1,
+                explanation: "String concatenation produces '52'."
+            },
+            {
+                question: "Which built-in type is used for ordered key-value data?",
+                options: ["list", "tuple", "set", "dict"],
+                correct: 3,
+                explanation: "A dict stores ordered key-value pairs."
+            },
+            {
+                question: "How do you define a class named Person?",
+                options: ["class Person:", "Person class:", "def Person:", "create Person:"],
+                correct: 0,
+                explanation: "In Python, classes are declared with the class keyword."
+            },
+            {
+                question: "What is the result of 3 == 3.0 in Python?",
+                options: ["True", "False", "None", "Error"],
+                correct: 0,
+                explanation: "Python compares numeric values and 3 equals 3.0."
+            },
+            {
+                question: "Which function generates a sequence of numbers?",
+                options: ["range()", "list()", "numbers()", "sequence()"],
+                correct: 0,
+                explanation: "range() generates an iterable sequence of numbers."
+            }
+        ];
+
+        const pythonAdvancedQuestions = [
+            {
+                question: "What does the @staticmethod decorator do?",
+                options: ["Defines a class method", "Defines a method that does not receive self", "Creates a new object", "Imports a module"],
+                correct: 1,
+                explanation: "@staticmethod defines a method that does not receive the instance as the first argument."
+            },
+            {
+                question: "Which protocol is used for object serialization in Python?",
+                options: ["pickle", "json", "xml", "yaml"],
+                correct: 0,
+                explanation: "pickle is commonly used for serializing Python objects."
+            },
+            {
+                question: "What is a generator in Python?",
+                options: ["A list of values", "A function returning an iterator", "A class method", "A type of exception"],
+                correct: 1,
+                explanation: "Generators are functions that yield values and return iterators."
+            },
+            {
+                question: "Which statement is used to create a context manager?",
+                options: ["with", "use", "using", "context"],
+                correct: 0,
+                explanation: "The with statement is used with context managers for resource handling."
+            },
+            {
+                question: "What is the output of len({'a': 1, 'b': 2})?",
+                options: ["1", "2", "3", "Error"],
+                correct: 1,
+                explanation: "len returns the number of keys in a dictionary, which is 2."
+            },
+            {
+                question: "Which method is used to add an item to a set?",
+                options: ["add()", "append()", "insert()", "push()"],
+                correct: 0,
+                explanation: "add() adds an element to a set."
+            },
+            {
+                question: "What is the purpose of __init__ in a Python class?",
+                options: ["To define a class method", "To initialize object state", "To delete an object", "To create a static method"],
+                correct: 1,
+                explanation: "__init__ initializes the object's state when it is created."
+            },
+            {
+                question: "How do you catch multiple exceptions in one except block?",
+                options: ["except (TypeError, ValueError):", "except TypeError, ValueError:", "except TypeError | ValueError:", "except [TypeError, ValueError]:"],
+                correct: 0,
+                explanation: "Python catches multiple exceptions using a tuple in the except clause."
+            },
+            {
+                question: "Which statement is true about Python's GIL?",
+                options: ["It allows true parallel threads for CPU-bound tasks", "It prevents multiple native threads from executing Python bytecodes at the same time", "It optimizes memory usage", "It is only active in Python 2"],
+                correct: 1,
+                explanation: "The Global Interpreter Lock ensures only one thread executes Python bytecode at a time in CPython."
+            },
+            {
+                question: "What is the output of [x*x for x in range(3)]?",
+                options: ["[0, 1, 4]", "[1, 4, 9]", "[0, 1, 2]", "Error"],
+                correct: 0,
+                explanation: "The list comprehension squares each number in the range, producing [0, 1, 4]."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let currentQuizQuestions = [];
+        let currentLevel = '';
+        let currentSubject = '';
+        let userAnswers = [];
+        let timer;
+        let timeLeft = 0;
 
         document.addEventListener('DOMContentLoaded', function() {
             const filterButtons = document.querySelectorAll('.filter-btn');
@@ -288,7 +664,7 @@
                                         <i class="${data.icon} test-icon"></i>
                                         <h5 class="card-title">${level}</h5>
                                         <p class="card-text">${desc}</p>
-                                        <a href="#" class="btn btn-primary">Start Test</a>
+                                        <button class="btn btn-primary start-test-btn" data-subject="${filter}" data-level="${level}">Start Test</button>
                                     </div>
                                 </div>
                             `;
@@ -298,9 +674,329 @@
                 });
             });
 
+            // Add event listeners for start test buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('start-test-btn')) {
+                    const subject = e.target.getAttribute('data-subject');
+                    const level = e.target.getAttribute('data-level');
+                    startQuiz(subject, level);
+                }
+            });
+
             // Trigger initial load for Java
             document.querySelector('.filter-btn.active').click();
         });
+
+        function normalizeLevel(level, subject) {
+            const tiers = ['Pre-Intermediate', 'Intermediate', 'Advanced'];
+            for (const tier of tiers) {
+                if (level === tier || level.endsWith(tier)) {
+                    return tier;
+                }
+            }
+            return level;
+        }
+
+        function startQuiz(subject, level) {
+            const normalizedLevel = normalizeLevel(level, subject);
+            const tiers = ['Pre-Intermediate', 'Intermediate', 'Advanced'];
+            if (tiers.includes(normalizedLevel)) {
+                window.location.href = `/quiz?subject=${encodeURIComponent(subject)}&level=${encodeURIComponent(normalizedLevel)}`;
+                return;
+            }
+            alert(`Quiz for ${subject} ${level} is not available yet.`);
+        }
+
+        function _startQuizInlineRemoved(subject, level) {
+            return;
+            if (false && ['Java', 'Python'].includes(subject) && ['Pre-Intermediate', 'Intermediate', 'Advanced'].includes(level)) {
+                const levelTitle = level;
+                const duration = level === 'Pre-Intermediate' ? 15 * 60 : 20 * 60;
+                const badgeClass = level === 'Pre-Intermediate' ? 'bg-warning' : 'bg-info';
+                const questionData = getQuestionSet(subject, level);
+
+                if (!questionData) {
+                    alert(`Quiz for ${subject} ${level} is not available yet.`);
+                    return;
+                }
+
+                currentQuizQuestions = questionData;
+                currentLevel = level;
+                currentSubject = subject;
+                currentQuestionIndex = 0;
+                userAnswers = new Array(currentQuizQuestions.length).fill(null);
+                timeLeft = duration;
+
+                // Hide main content and show quiz
+                document.querySelector('.page-header').style.display = 'none';
+                document.querySelector('section.container').style.display = 'none';
+                document.querySelector('footer').style.display = 'none';
+
+                // Create quiz interface
+                const quizContainer = document.createElement('div');
+                quizContainer.id = 'quiz-container';
+                quizContainer.className = 'container py-5';
+                quizContainer.innerHTML = `
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="card test-card p-4">
+                                <div class="card-header bg-primary text-white text-center">
+                                    <h3><i class="fab fa-${subject.toLowerCase()} me-2"></i>${subject} ${levelTitle} Test</h3>
+                                    <div class="mt-2">
+                                        <span class="badge bg-light text-dark me-2">10 Questions</span>
+                                        <span class="badge bg-light text-dark me-2">${Math.floor(duration / 60)} Minutes</span>
+                                        <span id="timer" class="badge ${badgeClass} text-dark">${formatTime(timeLeft)}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="question-container">
+                                        <!-- Questions will be loaded here -->
+                                    </div>
+                                </div>
+                                <div class="card-footer text-center">
+                                    <button id="prev-btn" class="btn btn-secondary me-2" disabled>
+                                        <i class="fas fa-arrow-left me-1"></i>Previous
+                                    </button>
+                                    <span class="mx-3">Question <span id="current-question">1</span> of ${currentQuizQuestions.length}</span>
+                                    <button id="next-btn" class="btn btn-primary">
+                                        Next<i class="fas fa-arrow-right ms-1"></i>
+                                    </button>
+                                    <button id="submit-btn" class="btn btn-success d-none">
+                                        <i class="fas fa-check me-1"></i>Submit Test
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(quizContainer);
+
+                startTimer();
+                showQuestion();
+
+                // Add event listeners
+                document.getElementById('prev-btn').addEventListener('click', prevQuestion);
+                document.getElementById('next-btn').addEventListener('click', nextQuestion);
+                document.getElementById('submit-btn').addEventListener('click', submitQuiz);
+            } else {
+                alert(`Quiz for ${subject} ${level} is not available yet.`);
+            }
+        }
+
+        function getQuestionSet(subject, level) {
+            if (subject === 'Java') {
+                if (level === 'Pre-Intermediate') return javaPreIntermediateQuestions;
+                if (level === 'Intermediate') return javaIntermediateQuestions;
+                if (level === 'Advanced') return javaAdvancedQuestions;
+            }
+            if (subject === 'Python') {
+                if (level === 'Pre-Intermediate') return pythonPreIntermediateQuestions;
+                if (level === 'Intermediate') return pythonIntermediateQuestions;
+                if (level === 'Advanced') return pythonAdvancedQuestions;
+            }
+            return null;
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timerElement = document.getElementById('timer');
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft < 300) { // Less than 5 minutes
+                timerElement.classList.remove('bg-warning');
+                timerElement.classList.add('bg-danger');
+            }
+        }
+
+        function showQuestion() {
+            const question = currentQuizQuestions[currentQuestionIndex];
+            const questionContainer = document.getElementById('question-container');
+
+            questionContainer.innerHTML = `
+                <h4 class="mb-4">Question ${currentQuestionIndex + 1}</h4>
+                <p class="lead mb-4">${question.question}</p>
+                <div class="options-container">
+                    ${question.options.map((option, index) => `
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="answer" id="option${index}" value="${index}"
+                                   ${userAnswers[currentQuestionIndex] === index ? 'checked' : ''}>
+                            <label class="form-check-label" for="option${index}">
+                                ${String.fromCharCode(65 + index)}. ${option}
+                            </label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Add event listeners to radio buttons
+            document.querySelectorAll('input[name="answer"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userAnswers[currentQuestionIndex] = parseInt(e.target.value);
+                });
+            });
+
+            updateNavigationButtons();
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            const currentQuestionSpan = document.getElementById('current-question');
+
+            currentQuestionSpan.textContent = currentQuestionIndex + 1;
+
+            prevBtn.disabled = currentQuestionIndex === 0;
+            nextBtn.classList.toggle('d-none', currentQuestionIndex === currentQuizQuestions.length - 1);
+            submitBtn.classList.toggle('d-none', currentQuestionIndex !== currentQuizQuestions.length - 1);
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuizQuestions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            clearInterval(timer);
+
+            // Calculate results
+            let correct = 0;
+            currentQuizQuestions.forEach((question, index) => {
+                if (userAnswers[index] === question.correct) {
+                    correct++;
+                }
+            });
+
+            const percentage = Math.round((correct / currentQuizQuestions.length) * 100);
+            let grade, message, color;
+
+            if (percentage >= 90) {
+                grade = 'A';
+                message = 'Excellent! You have outstanding Java knowledge.';
+                color = 'text-success';
+            } else if (percentage >= 80) {
+                grade = 'B';
+                message = 'Very Good! You have strong Java skills.';
+                color = 'text-primary';
+            } else if (percentage >= 70) {
+                grade = 'C';
+                message = 'Good! You have solid Java fundamentals.';
+                color = 'text-warning';
+            } else if (percentage >= 60) {
+                grade = 'D';
+                message = 'Fair! You need to strengthen your Java knowledge.';
+                color = 'text-warning';
+            } else {
+                grade = 'F';
+                message = 'Needs Improvement! Consider reviewing Java basics.';
+                color = 'text-danger';
+            }
+
+            // Show results
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.innerHTML = `
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card test-card p-4 text-center">
+                            <div class="card-body">
+                                <div class="mb-4">
+                                    <i class="fas fa-trophy fa-4x ${color.replace('text-', 'text-')} mb-3"></i>
+                                    <h2 class="display-4 ${color} mb-2">${grade}</h2>
+                                    <h3 class="mb-3">Test Complete!</h3>
+                                    <p class="lead mb-2">${percentage}% (${correct}/${currentQuizQuestions.length})</p>
+                                    <p class="mb-4">${message}</p>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h5>Time Taken</h5>
+                                                <p class="mb-0">${formatTime((currentLevel === 'Pre-Intermediate' ? 15 * 60 : 20 * 60) - timeLeft)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h5>Questions Answered</h5>
+                                                <p class="mb-0">${userAnswers.filter(answer => answer !== null).length}/${currentQuizQuestions.length}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <h5>Question Review:</h5>
+                                    <div class="text-start bg-light p-3 rounded" style="max-height: 250px; overflow-y: auto;">
+                                        ${currentQuizQuestions.map((q, i) => {
+                                            const isCorrect = userAnswers[i] === q.correct;
+                                            const userAnswerText = userAnswers[i] !== null ? q.options[userAnswers[i]] : 'No answer';
+                                            const correctAnswerText = q.options[q.correct];
+                                            return `
+                                                <div class="mb-3 ${isCorrect ? 'text-success' : 'text-danger'}">
+                                                    <div><strong>Q${i+1}:</strong> ${q.question}</div>
+                                                    <div><strong>Correct:</strong> ${correctAnswerText}</div>
+                                                    <div><strong>Your answer:</strong> ${userAnswerText}</div>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary btn-lg" onclick="closeQuiz()">
+                                    <i class="fas fa-home me-2"></i>Back to Tests
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeQuiz() {
+            const quizContainer = document.getElementById('quiz-container');
+            if (quizContainer) {
+                quizContainer.remove();
+            }
+
+            // Show main content again
+            document.querySelector('.page-header').style.display = 'block';
+            document.querySelector('section.container').style.display = 'block';
+            document.querySelector('footer').style.display = 'block';
+
+            // Reset quiz state
+            clearInterval(timer);
+        }
     </script>
 
     <script>

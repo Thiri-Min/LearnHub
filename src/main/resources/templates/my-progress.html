@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Progress - LMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2d4059 0%, #4a6572 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar {
+            backdrop-filter: blur(8px);
+            background: rgba(27, 38, 59, 0.35) !important;
+        }
+        .progress-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 20px;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+        .stat-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        .stat-box h2 {
+            margin: 0;
+            font-size: 2.25rem;
+        }
+        .table-progress {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .site-footer {
+            background: rgba(17, 24, 39, 0.45);
+            margin-top: auto;
+        }
+        .empty-hint {
+            color: #6c757d;
+            text-align: center;
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
+        <div class="container">
+            <a class="navbar-brand" href="/home"><i class="fas fa-graduation-cap me-2"></i>LMS</a>
+            <div class="navbar-nav ms-auto align-items-center">
+                <a class="nav-link" href="/home">Home</a>
+                <a class="nav-link" href="/rich-content">Rich Content</a>
+                <a class="nav-link" href="/tech">Tech Tests</a>
+                <a class="nav-link active" href="/my-progress">My Progress</a>
+                <a class="nav-link" href="/profile">Profile</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4 flex-grow-1">
+        <div class="text-center mb-4">
+            <h1><i class="fas fa-chart-line me-2"></i>My Learning Progress</h1>
+            <p class="lead mb-0">Tracking for <span th:text="${user.firstName} + ' ' + ${user.lastName}"></span></p>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-box">
+                    <i class="fas fa-sign-in-alt fa-2x mb-2"></i>
+                    <h2 th:text="${loginCount}">0</h2>
+                    <p class="mb-0">Total Logins</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-box">
+                    <i class="fas fa-book-open fa-2x mb-2"></i>
+                    <h2 th:text="${#lists.size(richContentViews)}">0</h2>
+                    <p class="mb-0">Rich Content Topics Viewed</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-box">
+                    <i class="fas fa-heart fa-2x mb-2"></i>
+                    <h2 th:text="${#lists.size(favorites)}">0</h2>
+                    <p class="mb-0">Favorite Courses</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="progress-card">
+                    <h4 class="mb-3"><i class="fas fa-history me-2 text-primary"></i>Login History &amp; Location</h4>
+                    <div th:if="${#lists.isEmpty(loginEvents)}" class="empty-hint">
+                        No login history recorded yet.
+                    </div>
+                    <div th:unless="${#lists.isEmpty(loginEvents)}" class="table-responsive table-progress">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date &amp; Time</th>
+                                    <th>IP Address</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="event, stat : ${loginEvents}">
+                                    <td th:text="${stat.count}">1</td>
+                                    <td th:text="${#temporals.format(event.loginAt, 'dd MMM yyyy HH:mm')}">—</td>
+                                    <td th:text="${event.ipAddress}">—</td>
+                                    <td th:text="${event.location}">—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="progress-card">
+                    <h4 class="mb-3"><i class="fas fa-layer-group me-2 text-success"></i>Rich Content Activity</h4>
+                    <div th:if="${#lists.isEmpty(richContentViews)}" class="empty-hint">
+                        You have not opened any rich content topics yet.
+                        <div class="mt-2"><a href="/rich-content" class="btn btn-sm btn-primary">Browse Rich Content</a></div>
+                    </div>
+                    <div th:unless="${#lists.isEmpty(richContentViews)}" class="table-responsive table-progress">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Topic</th>
+                                    <th>Views</th>
+                                    <th>Last Viewed</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="view : ${richContentViews}">
+                                    <td th:text="${view.topicTitle}">Java</td>
+                                    <td><span class="badge bg-info" th:text="${view.viewCount}">1</span></td>
+                                    <td th:text="${#temporals.format(view.lastViewedAt, 'dd MMM yyyy HH:mm')}">—</td>
+                                    <td>
+                                        <a th:href="@{/rich-content/detail(topic=${view.topicId})}" class="btn btn-sm btn-outline-primary">Open</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-card mt-1">
+            <h4 class="mb-3"><i class="fas fa-heart me-2 text-danger"></i>Favorite Courses</h4>
+            <div th:if="${#lists.isEmpty(favorites)}" class="empty-hint">
+                No favorite courses saved for your account yet. Mark courses as Fav on the home page.
+            </div>
+            <div th:unless="${#lists.isEmpty(favorites)}" class="row g-3">
+                <div class="col-md-6 col-lg-4" th:each="fav : ${favorites}">
+                    <div class="border rounded p-3 h-100 bg-light">
+                        <h5 class="mb-1" th:text="${fav.courseTitle}">Course</h5>
+                        <p class="text-muted small mb-2">Course ID: <span th:text="${fav.courseId}"></span></p>
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-clock me-1"></i>
+                            Added <span th:text="${#temporals.format(fav.addedAt, 'dd MMM yyyy')}"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer text-white">
+        <div class="container py-4 text-center">
+            <p class="mb-0">&copy; 2026 Learning Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        (function syncLocalFavorites() {
+            const ids = JSON.parse(localStorage.getItem('favoriteCourseIds') || '[]');
+            if (!ids.length) return;
+            const body = new URLSearchParams();
+            body.append('courseIds', JSON.stringify(ids));
+            fetch('/api/favorites/sync', { method: 'POST', body: body }).catch(() => {});
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

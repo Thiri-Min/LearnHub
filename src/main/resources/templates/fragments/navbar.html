@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  activeTech: tests | rich-content | mentoring | (empty)
+  homeHref: / or /home
+-->
+<div th:fragment="navLinks(homeActive, coursesActive, activeTech, homeHref, useAuthModal)"
+     class="navbar-nav ms-auto align-items-center">
+    <a class="nav-link" th:href="${homeHref}" th:classappend="${homeActive} ? 'active' : ''">Home</a>
+    <a class="nav-link" href="/courses" th:classappend="${coursesActive} ? 'active' : ''">Courses</a>
+
+    <li class="nav-item dropdown" th:if="${user}">
+        <a class="nav-link dropdown-toggle" href="#" id="techNavDropdown" role="button"
+           data-bs-toggle="dropdown" aria-expanded="false"
+           th:classappend="${activeTech != null and !#strings.isEmpty(activeTech)} ? 'active' : ''">Tech</a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="techNavDropdown">
+            <li>
+                <a class="dropdown-item" th:href="@{/tech}"
+                   th:classappend="${activeTech == 'tests'} ? 'active' : ''">
+                    <i class="fas fa-clipboard-check me-2"></i>Skill Tests
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" th:href="@{/rich-content}"
+                   th:classappend="${activeTech == 'rich-content'} ? 'active' : ''">
+                    <i class="fas fa-book-open me-2"></i>Rich Content
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" th:href="@{/mentoring}"
+                   th:classappend="${activeTech == 'mentoring'} ? 'active' : ''">
+                    <i class="fas fa-users me-2"></i>Interactive Learning
+                </a>
+            </li>
+        </ul>
+    </li>
+    <a class="nav-link" th:if="${user == null}" href="/?authMode=login">Tech</a>
+
+    <a class="nav-link position-relative" href="/cart" th:if="${user}">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              th:if="${cartCount != null and cartCount > 0}" th:text="${cartCount}"></span>
+    </a>
+    <span class="nav-link text-white" th:if="${user}">Hello, <span th:text="${user.firstName}"></span></span>
+    <a class="nav-link" href="/logout" th:if="${user}">Logout</a>
+    <a class="nav-link" href="/profile" th:if="${user}">
+        <i class="fas fa-user-circle me-1"></i>Profile
+    </a>
+    <a class="nav-link" th:if="${user == null and !useAuthModal}" href="/?authMode=login">Login</a>
+    <a class="nav-link" th:if="${user == null and !useAuthModal}" href="/?authMode=signup">Sign Up</a>
+    <a class="nav-link" th:if="${user == null and useAuthModal}" href="#authBox"
+       onclick="showAuthBox('login'); return false;">Login</a>
+    <a class="nav-link" th:if="${user == null and useAuthModal}" href="#authBox"
+       onclick="showAuthBox('signup'); return false;">Sign Up</a>
+</div>
+</body>
+</html>
