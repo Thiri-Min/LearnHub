@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - LMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f0f4f8; min-height: 100vh; }
+        .navbar { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important; }
+        .admin-header {
+            background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+            color: #fff;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .main-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.08);
+            padding: 1.5rem;
+        }
+        .nav-pills-admin .nav-link { color: #475569; font-weight: 500; }
+        .nav-pills-admin .nav-link.active { background: #4f46e5; }
+        .badge-admin { background: #7c3aed; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="/home"><i class="fas fa-graduation-cap me-2"></i>LMS</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navAdmin">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navAdmin">
+            <div th:replace="~{fragments/navbar :: navLinks(false, false, '', '/home', false)}"></div>
+        </div>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    <div class="admin-header">
+        <h1 class="h3 mb-1"><i class="fas fa-shield-halved me-2"></i>Admin Dashboard</h1>
+        <p class="mb-0 opacity-75">View all users, logins, skill tests, and learning progress.</p>
+    </div>
+
+    <div class="main-card">
+        <ul class="nav nav-pills nav-pills-admin mb-4" id="adminTabs">
+            <li class="nav-item"><button type="button" class="nav-link active" data-tab="users">Users</button></li>
+            <li class="nav-item"><button type="button" class="nav-link" data-tab="logins">Logins</button></li>
+            <li class="nav-item"><button type="button" class="nav-link" data-tab="tests">Skill Tests</button></li>
+            <li class="nav-item"><button type="button" class="nav-link" data-tab="progress">Track Progress</button></li>
+        </ul>
+
+        <div id="panelUsers" class="tab-panel">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Logins</th>
+                        <th>Joined</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="u : ${users}">
+                        <td th:text="${u.id}">1</td>
+                        <td th:text="${u.firstName + ' ' + u.lastName}">Name</td>
+                        <td th:text="${u.email}">email</td>
+                        <td>
+                            <span class="badge badge-admin" th:if="${u.admin}">ADMIN</span>
+                            <span class="badge bg-secondary" th:unless="${u.admin}">USER</span>
+                        </td>
+                        <td th:text="${u.loginCount}">0</td>
+                        <td th:text="${u.createdAt != null} ? ${#temporals.format(u.createdAt, 'dd MMM yyyy')} : '—'">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="panelLogins" class="tab-panel d-none">
+            <p th:if="${#lists.isEmpty(loginEvents)}" class="text-muted">No login events yet.</p>
+            <div th:unless="${#lists.isEmpty(loginEvents)}" class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                    <tr><th>User</th><th>Email</th><th>Date &amp; Time</th><th>IP</th><th>Location</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="event : ${loginEvents}">
+                        <td th:text="${userById.containsKey(event.userId)} ? ${userById.get(event.userId).firstName + ' ' + userById.get(event.userId).lastName} : 'User #' + ${event.userId}">—</td>
+                        <td th:text="${userById.containsKey(event.userId)} ? ${userById.get(event.userId).email} : '—'">—</td>
+                        <td th:text="${#temporals.format(event.loginAt, 'dd MMM yyyy HH:mm')}">—</td>
+                        <td th:text="${event.ipAddress}">—</td>
+                        <td th:text="${event.location}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="panelTests" class="tab-panel d-none">
+            <p th:if="${#lists.isEmpty(quizAttempts)}" class="text-muted">No skill tests completed yet.</p>
+            <div th:unless="${#lists.isEmpty(quizAttempts)}" class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                    <tr><th>User</th><th>Email</th><th>Subject</th><th>Level</th><th>Score</th><th>Grade</th><th>When</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="q : ${quizAttempts}">
+                        <td th:text="${userById.containsKey(q.userId)} ? ${userById.get(q.userId).firstName + ' ' + userById.get(q.userId).lastName} : 'User #' + ${q.userId}">—</td>
+                        <td th:text="${userById.containsKey(q.userId)} ? ${userById.get(q.userId).email} : '—'">—</td>
+                        <td th:text="${q.subject}">—</td>
+                        <td th:text="${q.level}">—</td>
+                        <td th:text="${q.score + '/' + q.totalQuestions + ' (' + q.percentage + '%)'}">—</td>
+                        <td><span class="badge bg-primary" th:text="${q.grade}">A</span></td>
+                        <td th:text="${#temporals.format(q.completedAt, 'dd MMM yyyy HH:mm')}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="panelProgress" class="tab-panel d-none">
+            <h5 class="mb-3"><i class="fas fa-book-open me-2 text-success"></i>Rich Content Views</h5>
+            <p th:if="${#lists.isEmpty(richContentViews)}" class="text-muted small">No rich content activity.</p>
+            <div th:unless="${#lists.isEmpty(richContentViews)}" class="table-responsive mb-4">
+                <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                    <tr><th>User</th><th>Topic</th><th>Views</th><th>Last viewed</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="v : ${richContentViews}">
+                        <td th:text="${userById.containsKey(v.userId)} ? ${userById.get(v.userId).email} : 'User #' + ${v.userId}">—</td>
+                        <td th:text="${v.topicTitle}">—</td>
+                        <td th:text="${v.viewCount}">1</td>
+                        <td th:text="${#temporals.format(v.lastViewedAt, 'dd MMM yyyy HH:mm')}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h5 class="mb-3"><i class="fas fa-heart me-2 text-danger"></i>Favorites</h5>
+            <p th:if="${#lists.isEmpty(favorites)}" class="text-muted small">No favorites yet.</p>
+            <div th:unless="${#lists.isEmpty(favorites)}" class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                    <tr><th>User</th><th>Course</th><th>Added</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="f : ${favorites}">
+                        <td th:text="${userById.containsKey(f.userId)} ? ${userById.get(f.userId).email} : 'User #' + ${f.userId}">—</td>
+                        <td th:text="${f.courseTitle}">—</td>
+                        <td th:text="${#temporals.format(f.addedAt, 'dd MMM yyyy')}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const panels = { users: 'panelUsers', logins: 'panelLogins', tests: 'panelTests', progress: 'panelProgress' };
+    document.querySelectorAll('#adminTabs [data-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#adminTabs .nav-link').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            Object.values(panels).forEach(id => document.getElementById(id).classList.add('d-none'));
+            document.getElementById(panels[btn.dataset.tab]).classList.remove('d-none');
+        });
+    });
+</script>
+</body>
+</html>

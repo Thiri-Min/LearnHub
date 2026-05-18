@@ -8,5 +8,7 @@ import java.util.Optional;
 public interface LoginEventRepository extends JpaRepository<LoginEvent, Long> {
     List<LoginEvent> findByUserIdOrderByLoginAtDesc(Long userId);
 
+    List<LoginEvent> findAllByOrderByLoginAtDesc();
+
     Optional<LoginEvent> findFirstByUserIdOrderByLoginAtDesc(Long userId);
 }

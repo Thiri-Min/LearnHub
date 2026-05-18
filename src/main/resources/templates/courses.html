@@ -123,8 +123,11 @@
                             <input type="hidden" name="courseId" th:value="${course.id}" />
                             <button type="submit" class="btn btn-course w-100"><i class="fas fa-cart-plus me-2"></i>Add to Cart</button>
                         </form>
-                        <button type="button" class="btn btn-outline-danger w-100" th:onclick="'toggleFavorite(' + ${course.id} + ')'" id="favBtn">
-                            <i class="fas fa-heart me-2"></i><span id="favText">Fav</span>
+                        <button type="button" class="btn btn-outline-danger w-100"
+                                th:id="'favBtn-' + ${course.id}"
+                                th:attr="data-course-id=${course.id}, data-course-title=${course.title}"
+                                onclick="toggleFavorite(this.dataset.courseId, this.dataset.courseTitle)">
+                            <i class="fas fa-heart me-2"></i><span class="fav-text">Fav</span>
                         </button>
                         <button type="button" class="btn btn-outline-primary w-100" th:onclick="'window.location.href=&quot;/course-detail?courseId=' + ${course.id} + '&quot;'">
                             <i class="fas fa-book-open me-2"></i>Read
@@ -145,18 +148,10 @@
     </button>
 
     <script>
-        const courseList = [
-            { id: 1, title: 'SQL Mastery' },
-            { id: 2, title: 'Git Essentials' },
-            { id: 3, title: 'DSA Fundamentals' },
-            { id: 4, title: 'Java Essentials' },
-            { id: 5, title: 'Spring Framework' },
-            { id: 6, title: 'Mock Project' }
-        ];
+        let favoriteCourseIds = JSON.parse(localStorage.getItem('favoriteCourseIds') || '[]').map(String);
 
-        let favoriteCourseIds = JSON.parse(localStorage.getItem('favoriteCourseIds') || '[]');
-
-        function toggleFavorite(courseId) {
+        function toggleFavorite(courseId, courseTitle) {
+            courseId = String(courseId);
             const index = favoriteCourseIds.indexOf(courseId);
             if (index >= 0) {
                 favoriteCourseIds.splice(index, 1);
@@ -164,12 +159,47 @@
                 favoriteCourseIds.push(courseId);
             }
             localStorage.setItem('favoriteCourseIds', JSON.stringify(favoriteCourseIds));
-            location.reload();
+            updateFavoriteButtons();
+
+            const body = new URLSearchParams();
+            body.append('courseId', courseId);
+            if (courseTitle) body.append('courseTitle', courseTitle);
+            fetch('/api/favorites/toggle', { method: 'POST', body: body }).catch(() => {});
+        }
+
+        function syncFavoritesToServer() {
+            if (!favoriteCourseIds.length) return;
+            const body = new URLSearchParams();
+            body.append('courseIds', JSON.stringify(favoriteCourseIds));
+            fetch('/api/favorites/sync', { method: 'POST', body: body }).catch(() => {});
+        }
+
+        function updateFavoriteButtons() {
+            const favorites = favoriteCourseIds.map(String);
+            document.querySelectorAll('[id^="favBtn-"]').forEach(btn => {
+                const id = btn.dataset.courseId || btn.id.replace('favBtn-', '');
+                const text = btn.querySelector('.fav-text');
+                if (favorites.includes(String(id))) {
+                    btn.classList.remove('btn-outline-danger');
+                    btn.classList.add('btn-danger');
+                    if (text) text.textContent = 'Unfav';
+                } else {
+                    btn.classList.remove('btn-danger');
+                    btn.classList.add('btn-outline-danger');
+                    if (text) text.textContent = 'Fav';
+                }
+            });
         }
 
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            updateFavoriteButtons();
+            syncFavoritesToServer();
+        });
+
         window.addEventListener('scroll', () => {
             const btn = document.getElementById('scrollTopBtn');
             if (!btn) return;

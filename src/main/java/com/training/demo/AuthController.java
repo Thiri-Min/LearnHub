@@ -32,6 +32,9 @@ public class AuthController {
     private UserActivityService userActivityService;
 
     @Autowired
+    private AdminService adminService;
+
+    @Autowired
     private UserFavoriteRepository userFavoriteRepository;
 
     private static final List<Course> COURSE_CATALOG = List.of(
@@ -67,8 +70,12 @@ public class AuthController {
         }
 
         User loggedIn = userActivityService.recordLogin(userOpt.get(), request);
+        loggedIn = userService.findById(loggedIn.getId()).orElse(loggedIn);
         session.setAttribute("loggedInUser", loggedIn);
         redirectAttributes.addFlashAttribute("trackLocation", true);
+        if (loggedIn.isAdmin()) {
+            return "redirect:/admin";
+        }
         return "redirect:/home";
     }
 
@@ -281,26 +288,27 @@ public class AuthController {
         return "quiz";
     }
 
-    private List<Map<String, Object>> getQuestions(String subject, String level) {
-        List<Map<String, Object>> questions = new ArrayList<>();
-        if ("Java".equals(subject) && "Pre-Intermediate".equals(level)) {
-            questions.add(Map.of("question", "What is the correct main method signature in Java?", "options", List.of("public static void main(String[] args)", "public void main(String args)", "static void main(String[] args)", "void main(String[] args)"), "answer", 0));
-            questions.add(Map.of("question", "Which keyword is used to create an object in Java?", "options", List.of("class", "new", "object", "create"), "answer", 1));
-            questions.add(Map.of("question", "What is the size of int in Java?", "options", List.of("8 bits", "16 bits", "32 bits", "64 bits"), "answer", 2));
-            questions.add(Map.of("question", "Which of these is not a Java keyword?", "options", List.of("class", "interface", "extends", "unsigned"), "answer", 3));
-            questions.add(Map.of("question", "What does JVM stand for?", "options", List.of("Java Virtual Machine", "Java Variable Method", "Just Virtual Memory", "Java Version Manager"), "answer", 0));
-            questions.add(Map.of("question", "Which method is used to compare two strings in Java?", "options", List.of("equals()", "compare()", "==", "match()"), "answer", 0));
-            questions.add(Map.of("question", "What is the default value of a boolean variable in Java?", "options", List.of("true", "false", "null", "0"), "answer", 1));
-            questions.add(Map.of("question", "Which loop is used when the number of iterations is known?", "options", List.of("while", "do-while", "for", "if"), "answer", 2));
-            questions.add(Map.of("question", "What is inheritance in Java?", "options", List.of("Creating multiple objects", "A class acquiring properties of another class", "Hiding data", "Overloading methods"), "answer", 1));
-            questions.add(Map.of("question", "Which access modifier makes a member accessible only within the same package?", "options", List.of("public", "private", "protected", "default"), "answer", 3));
-        } else {
-            // Generic questions
-            for (int i = 1; i <= 10; i++) {
-                questions.add(Map.of("question", "Sample question " + i + " for " + subject + " " + level, "options", List.of("Option A", "Option B", "Option C", "Option D"), "answer", 0));
-            }
+    @PostMapping("/quiz/submit")
+    @ResponseBody
+    public Map<String, Object> submitQuizResult(@RequestParam String subject,
+                                                @RequestParam String level,
+                                                @RequestParam int score,
+                                                @RequestParam int total,
+                                                @RequestParam int percentage,
+                                                @RequestParam String grade,
+                                                @RequestParam(defaultValue = "false") boolean timeUp,
+                                                HttpSession session) {
+        var user = session.getAttribute("loggedInUser");
+        if (user == null) {
+            return Map.of("ok", false, "error", "Not logged in");
         }
-        return questions;
+        User current = (User) user;
+        adminService.saveQuizAttempt(current.getId(), subject, level, score, total, percentage, grade, timeUp);
+        return Map.of("ok", true);
+    }
+
+    private List<Map<String, Object>> getQuestions(String subject, String level) {
+        return TechQuizCatalog.getQuestions(subject, level);
     }
 
     @PostMapping("/cart/add")
@@ -406,7 +414,8 @@ public class AuthController {
         if (user == null) {
             return "redirect:/?authMode=login";
         }
-        User currentUser = (User) user;
+        User currentUser = userService.findById(((User) user).getId()).orElse((User) user);
+        session.setAttribute("loggedInUser", currentUser);
         populateProfileModel(session, model, currentUser);
         model.addAttribute("activeTab", "progress".equals(tab) ? "progress" : "favorites");
         model.addAttribute("lastOrderMessage", session.getAttribute("lastOrderMessage"));
@@ -418,7 +427,7 @@ public class AuthController {
                                  @RequestParam String currentPassword,
                                  @RequestParam String newPassword,
                                  @RequestParam String confirmPassword,
-                                 Model model) {
+                                 RedirectAttributes redirectAttributes) {
         var user = (User) session.getAttribute("loggedInUser");
         if (user == null) {
             return "redirect:/?authMode=login";
@@ -429,22 +438,18 @@ public class AuthController {
             }
             User updatedUser = userService.updatePassword(user.getId(), currentPassword, newPassword);
             session.setAttribute("loggedInUser", updatedUser);
-            populateProfileModel(session, model, updatedUser);
-            model.addAttribute("activeTab", "favorites");
-            model.addAttribute("message", "Password updated successfully!");
-            return "profile";
+            redirectAttributes.addFlashAttribute("message", "Password updated successfully!");
+            return "redirect:/profile";
         } catch (Exception e) {
-            populateProfileModel(session, model, user);
-            model.addAttribute("activeTab", "favorites");
-            model.addAttribute("error", e.getMessage());
-            return "profile";
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/profile";
         }
     }
 
     @PostMapping("/updateProfile")
-    public String updateProfile(HttpSession session, @RequestParam String firstName, 
+    public String updateProfile(HttpSession session, @RequestParam String firstName,
                                @RequestParam String lastName, @RequestParam String email,
-                               Model model) {
+                               RedirectAttributes redirectAttributes) {
         var user = (User) session.getAttribute("loggedInUser");
         if (user == null) {
             return "redirect:/?authMode=login";
@@ -452,15 +457,11 @@ public class AuthController {
         try {
             User updatedUser = userService.updateUser(user.getId(), firstName, lastName, email);
             session.setAttribute("loggedInUser", updatedUser);
-            populateProfileModel(session, model, updatedUser);
-            model.addAttribute("activeTab", "favorites");
-            model.addAttribute("message", "Profile updated successfully!");
-            return "profile";
+            redirectAttributes.addFlashAttribute("message", "Profile updated successfully!");
+            return "redirect:/profile";
         } catch (Exception e) {
-            populateProfileModel(session, model, user);
-            model.addAttribute("activeTab", "favorites");
-            model.addAttribute("error", e.getMessage());
-            return "profile";
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/profile";
         }
     }
 
@@ -504,6 +505,7 @@ public class AuthController {
         model.addAttribute("loginCount", progress.get("loginCount"));
         model.addAttribute("loginEvents", progress.get("loginEvents"));
         model.addAttribute("richContentViews", progress.get("richContentViews"));
+        model.addAttribute("quizAttempts", progress.get("quizAttempts"));
         model.addAttribute("favorites", progress.get("favorites"));
         if (user.getProfileImage() != null && user.getProfileImage().length > 0) {
             String imageBase64 = Base64.getEncoder().encodeToString(user.getProfileImage());

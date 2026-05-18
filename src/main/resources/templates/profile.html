@@ -94,6 +94,21 @@
         }
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
+        .progress-toggle {
+            border: none;
+            background: transparent;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .progress-toggle:hover { opacity: 0.85; }
+        .collapse-chevron {
+            transition: transform 0.25s ease;
+            color: #6c757d;
+        }
+        .progress-toggle[aria-expanded="true"] .collapse-chevron {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body>
@@ -231,21 +246,28 @@
                     <!-- Track Progress -->
                     <div id="panelProgress" class="tab-panel">
                         <div class="row g-3 mb-4">
-                            <div class="col-md-4">
+                            <div class="col-6 col-md-3">
                                 <div class="stat-box">
                                     <i class="fas fa-sign-in-alt mb-2"></i>
                                     <h3 th:text="${loginCount}">0</h3>
                                     <p class="mb-0 small">Total Logins</p>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-6 col-md-3">
                                 <div class="stat-box">
                                     <i class="fas fa-book-open mb-2"></i>
                                     <h3 th:text="${#lists.size(richContentViews)}">0</h3>
                                     <p class="mb-0 small">Rich Content Viewed</p>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-6 col-md-3">
+                                <div class="stat-box">
+                                    <i class="fas fa-clipboard-check mb-2"></i>
+                                    <h3 th:text="${#lists.size(quizAttempts)}">0</h3>
+                                    <p class="mb-0 small">Skill Tests Taken</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
                                 <div class="stat-box">
                                     <i class="fas fa-heart mb-2"></i>
                                     <h3 th:text="${#lists.size(favorites)}">0</h3>
@@ -255,56 +277,106 @@
                         </div>
 
                         <div class="progress-section">
-                            <h5 class="mb-3"><i class="fas fa-history me-2 text-primary"></i>Login History &amp; Location</h5>
-                            <div th:if="${#lists.isEmpty(loginEvents)}" class="empty-hint small">No login history yet.</div>
-                            <div th:unless="${#lists.isEmpty(loginEvents)}" class="table-responsive">
-                                <table class="table table-sm table-hover mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Date &amp; Time</th>
-                                            <th>IP</th>
-                                            <th>Location</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr th:each="event, stat : ${loginEvents}">
-                                            <td th:text="${stat.count}">1</td>
-                                            <td th:text="${#temporals.format(event.loginAt, 'dd MMM yyyy HH:mm')}">—</td>
-                                            <td th:text="${event.ipAddress}">—</td>
-                                            <td th:text="${event.location}">—</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <button class="progress-toggle d-flex justify-content-between align-items-center"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#loginHistoryCollapse"
+                                    aria-expanded="false" aria-controls="loginHistoryCollapse">
+                                <h5 class="mb-0"><i class="fas fa-history me-2 text-primary"></i>Login History &amp; Location</h5>
+                                <i class="fas fa-chevron-down collapse-chevron" aria-hidden="true"></i>
+                            </button>
+                            <div id="loginHistoryCollapse" class="collapse mt-3">
+                                <div th:if="${#lists.isEmpty(loginEvents)}" class="empty-hint small">No login history yet.</div>
+                                <div th:unless="${#lists.isEmpty(loginEvents)}" class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Date &amp; Time</th>
+                                                <th>IP</th>
+                                                <th>Location</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="event, stat : ${loginEvents}">
+                                                <td th:text="${stat.count}">1</td>
+                                                <td th:text="${#temporals.format(event.loginAt, 'dd MMM yyyy HH:mm')}">—</td>
+                                                <td th:text="${event.ipAddress}">—</td>
+                                                <td th:text="${event.location}">—</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
 
                         <div class="progress-section">
-                            <h5 class="mb-3"><i class="fas fa-layer-group me-2 text-success"></i>Rich Content Activity</h5>
-                            <div th:if="${#lists.isEmpty(richContentViews)}" class="empty-hint small">
-                                No rich content viewed yet. <a href="/rich-content">Browse library</a>
+                            <button class="progress-toggle d-flex justify-content-between align-items-center"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#richContentCollapse"
+                                    aria-expanded="false" aria-controls="richContentCollapse">
+                                <h5 class="mb-0"><i class="fas fa-layer-group me-2 text-success"></i>Rich Content Activity</h5>
+                                <i class="fas fa-chevron-down collapse-chevron" aria-hidden="true"></i>
+                            </button>
+                            <div id="richContentCollapse" class="collapse mt-3">
+                                <div th:if="${#lists.isEmpty(richContentViews)}" class="empty-hint small">
+                                    No rich content viewed yet. <a href="/rich-content">Browse library</a>
+                                </div>
+                                <div th:unless="${#lists.isEmpty(richContentViews)}" class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Topic</th>
+                                                <th>Views</th>
+                                                <th>Last Viewed</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="view : ${richContentViews}">
+                                                <td th:text="${view.topicTitle}">—</td>
+                                                <td><span class="badge bg-info" th:text="${view.viewCount}">1</span></td>
+                                                <td th:text="${#temporals.format(view.lastViewedAt, 'dd MMM yyyy HH:mm')}">—</td>
+                                                <td>
+                                                    <a th:href="@{/rich-content/detail(topic=${view.topicId})}" class="btn btn-sm btn-outline-primary">Open</a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            <div th:unless="${#lists.isEmpty(richContentViews)}" class="table-responsive">
-                                <table class="table table-sm table-hover mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Topic</th>
-                                            <th>Views</th>
-                                            <th>Last Viewed</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr th:each="view : ${richContentViews}">
-                                            <td th:text="${view.topicTitle}">—</td>
-                                            <td><span class="badge bg-info" th:text="${view.viewCount}">1</span></td>
-                                            <td th:text="${#temporals.format(view.lastViewedAt, 'dd MMM yyyy HH:mm')}">—</td>
-                                            <td>
-                                                <a th:href="@{/rich-content/detail(topic=${view.topicId})}" class="btn btn-sm btn-outline-primary">Open</a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        </div>
+
+                        <div class="progress-section">
+                            <button class="progress-toggle d-flex justify-content-between align-items-center"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#skillTestsCollapse"
+                                    aria-expanded="false" aria-controls="skillTestsCollapse">
+                                <h5 class="mb-0"><i class="fas fa-clipboard-check me-2 text-warning"></i>Skill Tests Taken</h5>
+                                <i class="fas fa-chevron-down collapse-chevron" aria-hidden="true"></i>
+                            </button>
+                            <div id="skillTestsCollapse" class="collapse mt-3">
+                                <div th:if="${#lists.isEmpty(quizAttempts)}" class="empty-hint small">
+                                    No skill tests completed yet. <a href="/tech">Take a test</a>
+                                </div>
+                                <div th:unless="${#lists.isEmpty(quizAttempts)}" class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Subject</th>
+                                                <th>Level</th>
+                                                <th>Score</th>
+                                                <th>Grade</th>
+                                                <th>Completed</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="attempt : ${quizAttempts}">
+                                                <td th:text="${attempt.subject}">—</td>
+                                                <td th:text="${attempt.level}">—</td>
+                                                <td th:text="${attempt.score + '/' + attempt.totalQuestions + ' (' + attempt.percentage + '%)'}">—</td>
+                                                <td><span class="badge bg-primary" th:text="${attempt.grade}">A</span></td>
+                                                <td th:text="${#temporals.format(attempt.completedAt, 'dd MMM yyyy HH:mm')}">—</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -312,8 +384,7 @@
             </div>
         </div>
     </div>
-
-    <footer class="site-footer">
+<footer class="site-footer">
         <div class="container py-4 text-center">
             <p class="mb-0">&copy; 2026 Learning Management System. All rights reserved.</p>
         </div>

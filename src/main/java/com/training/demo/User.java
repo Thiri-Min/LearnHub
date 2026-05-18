@@ -13,10 +13,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
     
-    @Column(nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
     
     @Column(nullable = false, unique = true)
@@ -34,6 +34,9 @@ public class User {
 
     @Column(nullable = false)
     private int loginCount = 0;
+
+    @Column(nullable = false, length = 20)
+    private String role = "USER";
     
     // Constructors
     public User() {}
@@ -43,6 +46,11 @@ public class User {
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.role = "USER";
+    }
+
+    public boolean isAdmin() {
+        return "ADMIN".equalsIgnoreCase(role);
     }
     
     // Getters and Setters
@@ -108,5 +116,13 @@ public class User {
 
     public void setLoginCount(int loginCount) {
         this.loginCount = loginCount;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

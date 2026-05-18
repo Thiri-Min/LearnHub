@@ -39,6 +39,9 @@ public class UserActivityService {
     @Autowired
     private UserFavoriteRepository userFavoriteRepository;
 
+    @Autowired
+    private QuizAttemptRepository quizAttemptRepository;
+
     public User recordLogin(User user, HttpServletRequest request) {
         user.setLoginCount(user.getLoginCount() + 1);
         User saved = userRepository.save(user);
@@ -126,6 +129,7 @@ public class UserActivityService {
         summary.put("loginCount", user.getLoginCount());
         summary.put("loginEvents", loginEventRepository.findByUserIdOrderByLoginAtDesc(userId));
         summary.put("richContentViews", richContentViewRepository.findByUserIdOrderByLastViewedAtDesc(userId));
+        summary.put("quizAttempts", quizAttemptRepository.findByUserIdOrderByCompletedAtDesc(userId));
         summary.put("favorites", userFavoriteRepository.findByUserIdOrderByAddedAtDesc(userId));
         return summary;
     }

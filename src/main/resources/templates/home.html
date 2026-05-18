@@ -337,7 +337,7 @@
                                 <input type="hidden" name="courseId" value="4" />
                                 <button type="submit" class="btn btn-custom w-100"><i class="fas fa-cart-plus me-2"></i>Add to Cart</button>
                             </form>
-                            <button type="button" class="btn btn-outline-danger w-100" id="favBtn-4" onclick="toggleFavorite(4)">
+                            <button type="button" class="btn btn-outline-danger w-100" id="favBtn-4" data-course-id="4" data-course-title="Java Basics" onclick="toggleFavorite(this.dataset.courseId, this.dataset.courseTitle)">
                                 <i class="fas fa-heart me-2"></i><span class="fav-text">Fav</span>
                             </button>
                             <button type="button" class="btn btn-outline-primary w-100" onclick="window.location.href='/course-detail?courseId=4'">
@@ -356,7 +356,7 @@
                                 <input type="hidden" name="courseId" value="4" />
                                 <button type="submit" class="btn btn-custom w-100"><i class="fas fa-cart-plus me-2"></i>Add to Cart</button>
                             </form>
-                                    <button type="button" class="btn btn-outline-danger w-100" id="favBtn-python-basics" data-course-id="python-basics" onclick="toggleFavorite('python-basics')">
+                            <button type="button" class="btn btn-outline-danger w-100" id="favBtn-python-basics" data-course-id="python-basics" data-course-title="Python Basics" onclick="toggleFavorite(this.dataset.courseId, this.dataset.courseTitle)">
                                 <i class="fas fa-heart me-2"></i><span class="fav-text">Fav</span>
                             </button>
                             <button type="button" class="btn btn-outline-primary w-100" onclick="window.location.href='/course-detail?courseId=python-basics'">
@@ -375,7 +375,7 @@
                                 <input type="hidden" name="courseId" value="5" />
                                 <button type="submit" class="btn btn-custom w-100"><i class="fas fa-cart-plus me-2"></i>Add to Cart</button>
                             </form>
-                            <button type="button" class="btn btn-outline-danger w-100" id="favBtn-dotnet-basics" data-course-id="dotnet-basics" onclick="toggleFavorite('dotnet-basics')">
+                            <button type="button" class="btn btn-outline-danger w-100" id="favBtn-dotnet-basics" data-course-id="dotnet-basics" data-course-title=".NET Fundamentals" onclick="toggleFavorite(this.dataset.courseId, this.dataset.courseTitle)">
                                 <i class="fas fa-heart me-2"></i><span class="fav-text">Fav</span>
                             </button>
                             <button type="button" class="btn btn-outline-primary w-100" onclick="window.location.href='/course-detail?courseId=dotnet-basics'">
@@ -426,7 +426,7 @@
     </button>
 
     <script>
-        const favoriteCourseIds = JSON.parse(localStorage.getItem('favoriteCourseIds') || '[]');
+        let favoriteCourseIds = JSON.parse(localStorage.getItem('favoriteCourseIds') || '[]').map(String);
 
         function showAuthBox(mode) {
             const box = document.getElementById('authBox');
