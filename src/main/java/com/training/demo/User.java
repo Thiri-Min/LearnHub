@@ -1,6 +1,9 @@
 package com.training.demo;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -22,11 +25,11 @@ public class User {
     @Column(nullable = false)
     private String password;
     
-    @Column(name = "created_at", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private String createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
     
     @Lob
-    @Column(columnDefinition = "LONGBLOB")
     private byte[] profileImage;
 
     @Column(nullable = false)
@@ -83,11 +86,11 @@ public class User {
         this.password = password;
     }
     
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
     
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
     
