@@ -58,14 +58,15 @@ public class AuthController {
     }
     
     @PostMapping("/login")
-    public String loginUser(@RequestParam String email, @RequestParam String password, Model model,
+    public String loginUser(@RequestParam String emailOrUsername, @RequestParam String password, Model model,
                             HttpSession session, HttpServletRequest request,
                             RedirectAttributes redirectAttributes) {
-        var userOpt = userService.findByEmail(email);
+        var userOpt = userService.findByEmailOrUsername(emailOrUsername);
         if (userOpt.isEmpty() || !userOpt.get().getPassword().equals(password)) {
             populateHomeModel(session, model);
             model.addAttribute("authMode", "login");
-            model.addAttribute("loginError", "Invalid email or password. Please try again.");
+            model.addAttribute("loginError", "Invalid email/username or password. Please try again.");
+            model.addAttribute("loginEmailOrUsername", emailOrUsername);
             return "home";
         }
 
@@ -86,35 +87,36 @@ public class AuthController {
     
     @PostMapping("/signup")
     public String signupUser(@RequestParam String firstName, @RequestParam String lastName,
-                            @RequestParam String email, @RequestParam String password,
-                            @RequestParam String confirmPassword, Model model, HttpSession session,
-                            RedirectAttributes redirectAttributes) {
+                            @RequestParam String username, @RequestParam String email,
+                            @RequestParam String password, @RequestParam String confirmPassword,
+                            Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         try {
-            // Check if passwords match
             if (!password.equals(confirmPassword)) {
                 populateHomeModel(session, model);
                 model.addAttribute("authMode", "signup");
                 model.addAttribute("signupError", "Passwords do not match!");
-                model.addAttribute("signupFirstName", firstName);
-                model.addAttribute("signupLastName", lastName);
-                model.addAttribute("signupEmail", email);
+                preserveSignupForm(model, firstName, lastName, username, email);
                 return "home";
             }
-            
-            // Register user in database
-            userService.registerUser(firstName, lastName, email, password);
+
+            userService.registerUser(firstName, lastName, username, email, password);
             redirectAttributes.addAttribute("authMode", "login");
-            redirectAttributes.addAttribute("signupSuccess", "Account created successfully. Please sign in.");
+            redirectAttributes.addAttribute("signupSuccess", "Account created successfully. Sign in with your email or username.");
             return "redirect:/";
         } catch (Exception e) {
             populateHomeModel(session, model);
             model.addAttribute("authMode", "signup");
             model.addAttribute("signupError", e.getMessage());
-            model.addAttribute("signupFirstName", firstName);
-            model.addAttribute("signupLastName", lastName);
-            model.addAttribute("signupEmail", email);
+            preserveSignupForm(model, firstName, lastName, username, email);
             return "home";
         }
+    }
+
+    private void preserveSignupForm(Model model, String firstName, String lastName, String username, String email) {
+        model.addAttribute("signupFirstName", firstName);
+        model.addAttribute("signupLastName", lastName);
+        model.addAttribute("signupUsername", username);
+        model.addAttribute("signupEmail", email);
     }
 
     @GetMapping("/")
@@ -448,14 +450,14 @@ public class AuthController {
 
     @PostMapping("/updateProfile")
     public String updateProfile(HttpSession session, @RequestParam String firstName,
-                               @RequestParam String lastName, @RequestParam String email,
-                               RedirectAttributes redirectAttributes) {
+                               @RequestParam String lastName, @RequestParam String username,
+                               @RequestParam String email, RedirectAttributes redirectAttributes) {
         var user = (User) session.getAttribute("loggedInUser");
         if (user == null) {
             return "redirect:/?authMode=login";
         }
         try {
-            User updatedUser = userService.updateUser(user.getId(), firstName, lastName, email);
+            User updatedUser = userService.updateUser(user.getId(), firstName, lastName, username, email);
             session.setAttribute("loggedInUser", updatedUser);
             redirectAttributes.addFlashAttribute("message", "Profile updated successfully!");
             return "redirect:/profile";

@@ -149,6 +149,7 @@
                             <i id="profileIconDisplay" class="fas fa-user"></i>
                         </div>
                         <h5 class="mb-0" th:text="${user.firstName} + ' ' + ${user.lastName}">Name</h5>
+                        <p class="text-muted small mb-0">@<span th:text="${user.username}">username</span></p>
                         <p class="text-muted small mb-0" th:text="${user.email}">email</p>
                         <p class="text-muted small mt-1">
                             <i class="fas fa-calendar-alt me-1"></i>Member since <span th:text="${user.createdAt != null} ? ${#temporals.format(user.createdAt, 'dd MMM yyyy')} : '—'"></span>
@@ -165,7 +166,7 @@
                         </button>
                     </form>
 
-                    <h6 class="fw-semibold mb-2"><i class="fas fa-user-edit me-2"></i>Name &amp; Email</h6>
+                    <h6 class="fw-semibold mb-2"><i class="fas fa-user-edit me-2"></i>Profile Details</h6>
                     <form method="POST" action="/updateProfile" class="mb-4">
                         <div class="mb-2">
                             <label class="form-label small mb-0">First Name</label>
@@ -174,6 +175,10 @@
                         <div class="mb-2">
                             <label class="form-label small mb-0">Last Name</label>
                             <input type="text" class="form-control form-control-sm" name="lastName" th:value="${user.lastName}" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small mb-0">Username</label>
+                            <input type="text" class="form-control form-control-sm" name="username" th:value="${user.username}" pattern="[a-zA-Z0-9_]{3,30}" title="3–30 characters: letters, numbers, underscore" required>
                         </div>
                         <div class="mb-2">
                             <label class="form-label small mb-0">Email</label>
@@ -280,7 +285,7 @@
                             <button class="progress-toggle d-flex justify-content-between align-items-center"
                                     type="button" data-bs-toggle="collapse" data-bs-target="#loginHistoryCollapse"
                                     aria-expanded="false" aria-controls="loginHistoryCollapse">
-                                <h5 class="mb-0"><i class="fas fa-history me-2 text-primary"></i>Login History &amp; Location</h5>
+                                <h5 class="mb-0"><i class="fas fa-history me-2 text-primary"></i>Login History &amp; Country</h5>
                                 <i class="fas fa-chevron-down collapse-chevron" aria-hidden="true"></i>
                             </button>
                             <div id="loginHistoryCollapse" class="collapse mt-3">
@@ -292,7 +297,7 @@
                                                 <th>#</th>
                                                 <th>Date &amp; Time</th>
                                                 <th>IP</th>
-                                                <th>Location</th>
+                                                <th>Country</th>
                                             </tr>
                                         </thead>
                                         <tbody>

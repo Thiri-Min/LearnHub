@@ -229,8 +229,8 @@
                                 <div th:if="${loginError}" class="alert alert-danger" th:text="${loginError}"></div>
                                 <form action="/login" method="post">
                                     <div class="mb-3">
-                                        <label for="loginEmail" class="form-label fw-semibold">Email Address</label>
-                                        <input id="loginEmail" name="email" type="email" class="form-control" placeholder="Enter your email" required>
+                                        <label for="loginEmailOrUsername" class="form-label fw-semibold">Email or Username</label>
+                                        <input id="loginEmailOrUsername" name="emailOrUsername" type="text" class="form-control" placeholder="Enter email or username" th:value="${loginEmailOrUsername}" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="loginPassword" class="form-label fw-semibold">Password</label>
@@ -259,7 +259,11 @@
                                             <label for="lastName" class="form-label fw-semibold">Last Name</label>
                                             <input id="lastName" name="lastName" type="text" class="form-control" placeholder="Enter last name" th:value="${signupLastName}" required>
                                         </div>
-                                        <div class="col-12">
+                                        <div class="col-md-6">
+                                            <label for="signupUsername" class="form-label fw-semibold">Username</label>
+                                            <input id="signupUsername" name="username" type="text" class="form-control" placeholder="Choose a username" th:value="${signupUsername}" pattern="[a-zA-Z0-9_]{3,30}" title="3–30 characters: letters, numbers, underscore" required>
+                                        </div>
+                                        <div class="col-md-6">
                                             <label for="signupEmail" class="form-label fw-semibold">Email Address</label>
                                             <input id="signupEmail" name="email" type="email" class="form-control" placeholder="Enter your email" th:value="${signupEmail}" required>
                                         </div>
@@ -467,18 +471,60 @@
             fetch('/api/favorites/sync', { method: 'POST', body: body }).catch(() => {});
         }
 
+        function postLoginCountry(country) {
+            const body = new URLSearchParams();
+            body.append('location', country || 'Unknown');
+            fetch('/api/track/location', { method: 'POST', body: body }).catch(() => {});
+        }
+
+        function countryFromCoordinates(lat, lng) {
+            const url = 'https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='
+                + encodeURIComponent(lat) + '&longitude=' + encodeURIComponent(lng) + '&localityLanguage=en';
+            return fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.countryName) return data.countryName;
+                    if (data.countryCode) return data.countryCode;
+                    return 'Unknown';
+                })
+                .catch(function() { return null; });
+        }
+
+        function countryFromIp() {
+            return fetch('https://ipapi.co/json/')
+                .then(function(r) { return r.json(); })
+                .then(function(data) { return data.country_name || data.country || null; })
+                .catch(function() { return null; });
+        }
+
         function trackLoginLocation() {
-            if (!navigator.geolocation) return;
-            navigator.geolocation.getCurrentPosition(function(pos) {
-                const label = 'Lat ' + pos.coords.latitude.toFixed(4) + ', Lng ' + pos.coords.longitude.toFixed(4);
-                const body = new URLSearchParams();
-                body.append('location', label);
-                fetch('/api/track/location', { method: 'POST', body: body }).catch(() => {});
-            }, function() {
-                const body = new URLSearchParams();
-                body.append('location', 'Location permission denied');
-                fetch('/api/track/location', { method: 'POST', body: body }).catch(() => {});
-            });
+            function useIpFallback() {
+                countryFromIp().then(function(country) {
+                    postLoginCountry(country || 'Unknown (IP lookup failed)');
+                });
+            }
+
+            if (!navigator.geolocation) {
+                useIpFallback();
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    countryFromCoordinates(pos.coords.latitude, pos.coords.longitude)
+                        .then(function(country) {
+                            if (country) {
+                                postLoginCountry(country);
+                            } else {
+                                useIpFallback();
+                            }
+                        });
+                },
+                function() {
+                    useIpFallback();
+                },
+                { timeout: 10000, maximumAge: 300000 }
+            );
         }
 
         function updateFavoriteButtons() {

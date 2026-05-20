@@ -50,7 +50,7 @@ public class UserActivityService {
         event.setUserId(saved.getId());
         event.setLoginAt(LocalDateTime.now());
         event.setIpAddress(resolveClientIp(request));
-        event.setLocation("Location pending (browser will update if allowed)");
+        event.setLocation("Detecting country…");
         loginEventRepository.save(event);
         return saved;
     }

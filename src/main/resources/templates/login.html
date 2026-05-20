@@ -115,8 +115,8 @@
                                 <div th:if="${loginError}" class="alert alert-danger" th:text="${loginError}"></div>
                                 <form action="/login" method="post">
                                     <div class="mb-3">
-                                        <label for="loginEmail" class="form-label fw-semibold">Email Address</label>
-                                        <input id="loginEmail" name="email" type="email" class="form-control" placeholder="Enter your email" required>
+                                        <label for="loginEmailOrUsername" class="form-label fw-semibold">Email or Username</label>
+                                        <input id="loginEmailOrUsername" name="emailOrUsername" type="text" class="form-control" placeholder="Enter email or username" th:value="${loginEmailOrUsername}" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="loginPassword" class="form-label fw-semibold">Password</label>
@@ -145,7 +145,11 @@
                                             <label for="lastName" class="form-label fw-semibold">Last Name</label>
                                             <input id="lastName" name="lastName" type="text" class="form-control" placeholder="Enter last name" th:value="${signupLastName}" required>
                                         </div>
-                                        <div class="col-12">
+                                        <div class="col-md-6">
+                                            <label for="signupUsername" class="form-label fw-semibold">Username</label>
+                                            <input id="signupUsername" name="username" type="text" class="form-control" placeholder="Choose a username" th:value="${signupUsername}" pattern="[a-zA-Z0-9_]{3,30}" title="3–30 characters: letters, numbers, underscore" required>
+                                        </div>
+                                        <div class="col-md-6">
                                             <label for="signupEmail" class="form-label fw-semibold">Email Address</label>
                                             <input id="signupEmail" name="email" type="email" class="form-control" placeholder="Enter your email" th:value="${signupEmail}" required>
                                         </div>
