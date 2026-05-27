@@ -6,13 +6,32 @@
     <title>Course Detail - Learning Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material-darker.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --accent: #667eea;
+            --accent-dark: #5a67d8;
+            --accent-soft: rgba(102, 126, 234, 0.12);
+            --accent-glow: rgba(102, 126, 234, 0.35);
+            --surface: #ffffff;
+            --surface-muted: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #0f172a;
+            --code-text: #e2e8f0;
+            --success: #10b981;
+            --radius: 16px;
+            --shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+            --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.12);
+        }
         body {
-            background: linear-gradient(135deg, #2d4059 0%, #4a6572 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6b46c1 100%);
+            background-attachment: fixed;
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
             color: #fff;
             display: flex;
             flex-direction: column;
@@ -21,145 +40,380 @@
             position: sticky;
             top: 0;
             z-index: 1100;
-            backdrop-filter: blur(8px);
-            background: rgba(27, 38, 59, 0.35) !important;
+            backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.4) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .page-header {
-            padding: 4rem 0 2rem;
-            text-align: center;
+        .nav-link { color: rgba(255, 255, 255, 0.85); transition: color 0.2s; }
+        .nav-link:hover { color: #fff; }
+        .course-hero {
+            padding: 2.5rem 0 1.5rem;
+        }
+        .breadcrumb-course {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+        .breadcrumb-course a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+        }
+        .breadcrumb-course a:hover { color: #fff; text-decoration: underline; }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .course-hero h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .course-hero .lead {
+            font-size: 1.05rem;
+            opacity: 0.92;
+            max-width: 640px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
         .detail-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            color: var(--text);
+            overflow: hidden;
+        }
+        .course-header-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 1.75rem 1.75rem 0;
+        }
+        .course-title-block {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            flex: 1;
+            min-width: 0;
+        }
+        .course-icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+        .course-title-block h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+            color: var(--text);
+        }
+        .category-pill {
+            display: inline-block;
+            background: var(--accent-soft);
+            color: var(--accent-dark);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+        .ref-link-card {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.85rem;
+            background: var(--surface-muted);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--accent-dark);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .ref-link-card:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .btn-back {
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            background: var(--surface);
+        }
+        .btn-back:hover {
+            background: var(--surface-muted);
+            color: var(--text);
+            border-color: var(--border);
+        }
+        .btn-practice {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
             border: none;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            color: #333;
+            color: #fff;
+            border-radius: 10px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+        .btn-practice:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+        .section-block {
+            padding: 0 1.75rem 1.75rem;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.85rem;
+        }
+        .section-title i {
+            color: var(--accent);
+            width: 1.25rem;
+            text-align: center;
         }
         .code-box {
-            background: #1e1e1e;
-            color: #f8f8f2;
-            padding: 1rem;
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem 1.5rem;
             border-radius: 12px;
             overflow-x: auto;
-            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
             white-space: pre-wrap;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
         }
-        .practice-row {
-            gap: 1rem;
+        .code-box::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 14px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 18px 0 0 #f59e0b, 36px 0 0 #22c55e;
         }
-        .output-box {
-            background: #f1f5f9;
-            min-height: 120px;
-            border-radius: 12px;
-            padding: 1rem;
-            overflow-wrap: anywhere;
-            font-family: Consolas, monospace;
+        .code-box-inner {
+            padding-top: 1.5rem;
+            padding-right: 2.5rem;
         }
-        .code-editor-container {
+        .btn-copy-demo {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-copy-demo:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        .btn-copy-demo.copied {
+            color: #6ee7b7;
+            border-color: rgba(110, 231, 183, 0.4);
+        }
+        .practice-section {
+            background: linear-gradient(180deg, var(--surface-muted) 0%, var(--surface) 100%);
+            border-top: 1px solid var(--border);
+            padding: 1.75rem;
+            margin-top: 0.5rem;
+        }
+        .practice-toolbar {
             display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
             gap: 1rem;
             margin-bottom: 1rem;
-            height: 400px;
         }
-        .editor-section {
-            flex: 1;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-        .editor-label {
-            background: #2d3748;
-            color: white;
-            padding: 0.75rem 1rem;
-            font-weight: 600;
-            margin: 0;
-        }
-        .code-editor {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-            font-size: 0.95rem;
-            padding: 1rem;
-            border: none;
-            resize: none;
-            overflow: auto;
-            white-space: pre;
-            line-height: 1.5;
-            flex: 1;
-        }
-        .code-editor:focus {
-            outline: none;
-            box-shadow: inset 0 0 0 2px #667eea;
-        }
-        .output-section {
-            flex: 1;
-            background: #f8f9fa;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-        .output-label {
-            background: #2d3748;
-            color: white;
-            padding: 0.75rem 1rem;
-            font-weight: 600;
-            margin: 0;
-        }
-        .output-content {
-            background: #f8f9fa;
-            color: #333;
-            padding: 1rem;
-            overflow: auto;
-            font-family: Consolas, monospace;
-            white-space: pre-wrap;
-            flex: 1;
-        }
+        .practice-toolbar .section-title { margin-bottom: 0; }
         .run-button-group {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 1rem;
         }
-        .run-button-group .btn {
-            border-radius: 8px;
-            padding: 0.75rem 1.5rem;
+        .btn-run {
+            background: linear-gradient(135deg, var(--success), #059669);
+            border: none;
+            color: #fff;
+            border-radius: 10px;
+            padding: 0.55rem 1.25rem;
             font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
         }
+        .btn-run:hover {
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+        .btn-clear {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-muted);
+            border-radius: 10px;
+            padding: 0.55rem 1.1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .btn-clear:hover {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+        .code-editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            min-height: 380px;
+        }
+        .editor-section,
+        .output-section {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+        }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #fff;
+            background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+        }
+        .panel-header.output-header {
+            background: linear-gradient(90deg, #475569, #64748b);
+        }
+        .panel-header .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .code-editor {
+            background: #0f172a;
+            color: #cbd5e1;
+            font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+            font-size: 0.875rem;
+            padding: 1rem 1.15rem;
+            border: none;
+            resize: vertical;
+            min-height: 300px;
+            flex: 1;
+            line-height: 1.55;
+            white-space: pre;
+        }
+        .code-editor:focus {
+            outline: none;
+            box-shadow: inset 0 0 0 2px var(--accent);
+        }
+        .code-editor::placeholder { color: #64748b; }
+        .output-content {
+            background: #f1f5f9;
+            color: var(--text);
+            padding: 1rem 1.15rem;
+            overflow: auto;
+            font-family: 'Cascadia Code', Consolas, monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            flex: 1;
+            min-height: 300px;
+            line-height: 1.55;
+        }
+        .output-content.is-empty {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        .output-content.is-error { color: #dc2626; }
+        .output-content.is-success { color: #047857; }
         @media (max-width: 991px) {
             .code-editor-container {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
-            .editor-section, .output-section {
-                width: 100%;
-            }
+            .course-header-panel { padding: 1.25rem 1.25rem 0; }
+            .section-block, .practice-section { padding-left: 1.25rem; padding-right: 1.25rem; }
         }
         .site-footer {
-            background: rgba(17, 24, 39, 0.45);
+            background: rgba(15, 23, 42, 0.5);
             backdrop-filter: blur(8px);
             margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
         .scroll-top-btn {
             position: fixed;
-            right: 1rem;
-            bottom: 1rem;
-            width: 44px;
-            height: 44px;
+            right: 1.25rem;
+            bottom: 1.25rem;
+            width: 48px;
+            height: 48px;
             border: none;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.25);
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
             color: #fff;
             z-index: 1200;
             display: none;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-        }
-        .scroll-top-btn.show {
-            display: inline-flex;
+            box-shadow: 0 8px 24px var(--accent-glow);
             align-items: center;
             justify-content: center;
+            transition: transform 0.2s;
         }
+        .scroll-top-btn:hover { transform: translateY(-3px); color: #fff; }
+        .scroll-top-btn.show { display: inline-flex; }
     </style>
 </head>
 <body>
@@ -191,54 +445,91 @@
         </div>
     </nav>
 
-    <section class="page-header">
-        <div class="container">
+    <section class="course-hero">
+        <div class="container text-center">
+            <nav class="breadcrumb-course" aria-label="breadcrumb">
+                <a href="/courses"><i class="fas fa-arrow-left me-1"></i>Courses</a>
+                <span class="mx-2">/</span>
+                <span id="breadcrumbTitle">Course</span>
+            </nav>
+            <div class="hero-badge" id="heroBadge">
+                <i class="fas fa-book-open"></i>
+                <span id="heroCategory">Learning</span>
+            </div>
             <h1 id="courseTitle">Course Detail</h1>
-            <p id="courseDescription">Read the course details, reference website, and practice examples.</p>
+            <p class="lead" id="courseDescription">Read the course details, reference website, and practice examples.</p>
         </div>
     </section>
 
     <section class="container pb-5">
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                <div class="card detail-card p-4">
-                    <div class="mb-4">
-                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                <div class="card detail-card">
+                    <div class="course-header-panel">
+                        <div class="course-title-block">
+                            <div class="course-icon-wrap" id="courseIconWrap">
+                                <i class="fas fa-code" id="courseIcon"></i>
+                            </div>
                             <div>
+                                <span class="category-pill" id="detailCategory"></span>
                                 <h2 id="detailTitle"></h2>
-                                <p class="text-muted mb-1" id="detailCategory"></p>
-                                <p class="mb-0"><strong>Ref Website:</strong> <a href="#" id="detailWebsite" target="_blank"></a></p>
+                                <a href="#" id="detailWebsite" class="ref-link-card" target="_blank" rel="noopener">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    <span id="detailWebsiteLabel">Reference</span>
+                                </a>
                             </div>
-                            <div class="d-flex gap-2">
-                                <a href="/courses" class="btn btn-outline-secondary">Back to Courses</a>
-                                <a href="#codeEditor" class="btn btn-primary">Practice</a>
-                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <a href="/courses" class="btn btn-back">
+                                <i class="fas fa-chevron-left me-1"></i>Back
+                            </a>
+                            <a href="#practiceArea" class="btn btn-practice">
+                                <i class="fas fa-terminal me-1"></i>Practice
+                            </a>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <h5>Code Demo</h5>
-                        <div class="code-box" id="detailCode"></div>
+                    <div class="section-block">
+                        <h3 class="section-title">
+                            <i class="fas fa-file-code"></i>Code Demo
+                        </h3>
+                        <div class="code-box">
+                            <button type="button" class="btn-copy-demo" id="copyDemoBtn" onclick="copyCodeDemo()" title="Copy code" aria-label="Copy code demo">
+                                <i class="fas fa-copy" id="copyDemoIcon"></i>
+                                <span id="copyDemoLabel">Copy</span>
+                            </button>
+                            <div class="code-box-inner" id="detailCode"></div>
+                        </div>
                     </div>
 
-                    <div class="mb-4">
-                        <h5>Practice Area - Write & Execute Code</h5>
-                        <div class="run-button-group">
-                            <button type="button" class="btn btn-success" onclick="runPractice()">
-                                <i class="fas fa-play me-2"></i>Run Code
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="clearCode()">
-                                <i class="fas fa-trash me-2"></i>Clear
-                            </button>
+                    <div class="practice-section" id="practiceArea">
+                        <div class="practice-toolbar">
+                            <h3 class="section-title">
+                                <i class="fas fa-laptop-code"></i>Practice Lab
+                            </h3>
+                            <div class="run-button-group">
+                                <button type="button" class="btn btn-run" onclick="runPractice()">
+                                    <i class="fas fa-play me-1"></i>Run Code
+                                </button>
+                                <button type="button" class="btn btn-clear" onclick="clearCode()">
+                                    <i class="fas fa-eraser me-1"></i>Clear
+                                </button>
+                            </div>
                         </div>
                         <div class="code-editor-container">
                             <div class="editor-section">
-                                <div class="editor-label">Input Code</div>
-                                <textarea id="codeEditor" class="code-editor" placeholder="Write your code here..."></textarea>
+                                <div class="panel-header">
+                                    <span class="dot"></span>
+                                    <i class="fas fa-keyboard"></i> Input Code
+                                </div>
+                                <textarea id="codeEditor" class="code-editor" placeholder="Write your code here..." aria-label="Input code"></textarea>
                             </div>
                             <div class="output-section">
-                                <div class="output-label">Output</div>
-                                <div id="practiceOutput" class="output-content">Click Run to see output...</div>
+                                <div class="panel-header output-header">
+                                    <span class="dot"></span>
+                                    <i class="fas fa-terminal"></i> Output
+                                </div>
+                                <div id="practiceOutput" class="output-content is-empty" role="status">Click Run to see output...</div>
                             </div>
                         </div>
                     </div>
@@ -257,6 +548,19 @@
     </button>
 
     <script>
+        const categoryThemes = {
+            'Database': { accent: '#336791', icon: 'fas fa-database' },
+            'Version Control': { accent: '#f05032', icon: 'fab fa-git-alt' },
+            'Algorithms': { accent: '#8b5cf6', icon: 'fas fa-project-diagram' },
+            'Java': { accent: '#ea580c', icon: 'fab fa-java' },
+            'Java Framework': { accent: '#6db33f', icon: 'fas fa-leaf' },
+            'Project': { accent: '#6366f1', icon: 'fas fa-folder-open' },
+            'Cloud': { accent: '#0ea5e9', icon: 'fas fa-cloud' },
+            'Python': { accent: '#3776ab', icon: 'fab fa-python' },
+            '.NET': { accent: '#512bd4', icon: 'fab fa-microsoft' },
+            'Data Analytics': { accent: '#0d9488', icon: 'fas fa-chart-line' }
+        };
+
         const courseDetails = {
             '1': {
                 title: 'SQL Mastery',
@@ -364,152 +668,209 @@
             return params.get(name);
         }
 
+        function hexToRgb(hex) {
+            const n = parseInt(hex.slice(1), 16);
+            return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+        }
+
+        function applyCourseTheme(category) {
+            const theme = categoryThemes[category] || { accent: '#667eea', icon: 'fas fa-book' };
+            const { r, g, b } = hexToRgb(theme.accent);
+            const root = document.documentElement;
+            root.style.setProperty('--accent', theme.accent);
+            root.style.setProperty('--accent-dark', theme.accent);
+            root.style.setProperty('--accent-soft', `rgba(${r}, ${g}, ${b}, 0.12)`);
+            root.style.setProperty('--accent-glow', `rgba(${r}, ${g}, ${b}, 0.35)`);
+            const iconEl = document.getElementById('courseIcon');
+            if (iconEl) {
+                iconEl.className = theme.icon;
+            }
+        }
+
+        function setOutput(text, type) {
+            const output = document.getElementById('practiceOutput');
+            output.textContent = text;
+            output.classList.remove('is-empty', 'is-error', 'is-success');
+            if (type === 'error') output.classList.add('is-error');
+            else if (type === 'success') output.classList.add('is-success');
+            else if (!text || text === 'Click Run to see output...') output.classList.add('is-empty');
+        }
+
         function populateCourseDetail() {
             const courseId = getQueryParam('courseId');
             const course = courseDetails[courseId];
             const titleElement = document.getElementById('detailTitle');
             const categoryElement = document.getElementById('detailCategory');
             const websiteElement = document.getElementById('detailWebsite');
+            const websiteLabel = document.getElementById('detailWebsiteLabel');
             const codeElement = document.getElementById('detailCode');
             const headerTitle = document.getElementById('courseTitle');
             const headerDescription = document.getElementById('courseDescription');
             const codeEditor = document.getElementById('codeEditor');
+            const breadcrumbTitle = document.getElementById('breadcrumbTitle');
+            const heroCategory = document.getElementById('heroCategory');
 
             if (!course) {
                 titleElement.textContent = 'Course not found';
                 categoryElement.textContent = '';
-                websiteElement.textContent = '';
+                websiteLabel.textContent = '';
                 websiteElement.removeAttribute('href');
+                websiteElement.classList.add('d-none');
                 codeElement.textContent = 'The requested course could not be loaded.';
                 headerTitle.textContent = 'Course Detail';
                 headerDescription.textContent = 'Please return to the Courses page and select a valid course.';
+                if (breadcrumbTitle) breadcrumbTitle.textContent = 'Not found';
                 return;
             }
 
+            applyCourseTheme(course.category);
             titleElement.textContent = course.title;
             categoryElement.textContent = course.category;
             websiteElement.href = course.refWebsite;
-            websiteElement.textContent = course.refLabel;
+            websiteLabel.textContent = course.refLabel;
+            websiteElement.classList.remove('d-none');
             codeElement.textContent = course.codeDemo;
             headerTitle.textContent = course.title;
             headerDescription.textContent = course.description;
+            if (breadcrumbTitle) breadcrumbTitle.textContent = course.title;
+            if (heroCategory) heroCategory.textContent = course.category;
             codeEditor.value = course.codeDemo;
             codeEditor.placeholder = course.practiceHint;
+            setOutput('Click Run to see output...');
         }
 
         function runPractice() {
             const courseId = getQueryParam('courseId');
             const course = courseDetails[courseId];
             const code = document.getElementById('codeEditor').value;
-            const output = document.getElementById('practiceOutput');
 
             if (!code.trim()) {
-                output.textContent = 'Please write some code first.';
+                setOutput('Please write some code first.', 'error');
                 return;
             }
 
             if (!course) {
-                output.textContent = 'No course selected.';
+                setOutput('No course selected.', 'error');
                 return;
             }
 
             // SQL queries
             if (courseId === '1') {
-                output.textContent = '$ ' + code + '\n\nQuery Results:\n─────────────────────────────────\nfirst_name\tlast_name\n─────────────────────────────────\nJohn\t\tDoe\nJane\t\tSmith\nMike\t\tJohnson\n─────────────────────────────────\n3 rows in result set.';
+                setOutput('$ ' + code + '\n\nQuery Results:\n─────────────────────────────────\nfirst_name\tlast_name\n─────────────────────────────────\nJohn\t\tDoe\nJane\t\tSmith\nMike\t\tJohnson\n─────────────────────────────────\n3 rows in result set.', 'success');
             }
-            // Git commands
             else if (courseId === '2') {
-                output.textContent = '$ ' + code + '\n\nGit operation completed successfully!\nBranch created or switched, changes committed and pushed.';
+                setOutput('$ ' + code + '\n\nGit operation completed successfully!\nBranch created or switched, changes committed and pushed.', 'success');
             }
-            // DSA - Linked List
             else if (courseId === '3') {
-                output.textContent = 'Compiling...\n✓ Compilation successful\n\nLinked List created:\nNode 1 -> Node 2 -> Node 3 -> null\nTime Complexity: O(n)\nSpace Complexity: O(n)';
+                setOutput('Compiling...\n✓ Compilation successful\n\nLinked List created:\nNode 1 -> Node 2 -> Node 3 -> null\nTime Complexity: O(n)\nSpace Complexity: O(n)', 'success');
             }
-            // Java - Hello World
             else if (courseId === '4') {
-                if (code.includes('println')) {
-                    const match = code.match(/println\s*\(\s*"([^"]*)"\s*\)/);
-                    if (match) {
-                        output.textContent = match[1];
-                    } else {
-                        output.textContent = 'Hello, Java!';
-                    }
+                const lines = [];
+                for (const m of code.matchAll(/(?:System\.out\.)?print(?:ln)?\s*\(\s*"([^"]*)"\s*\)\s*;?/g)) {
+                    lines.push(m[1]);
+                }
+                if (lines.length > 0) {
+                    setOutput(lines.join('\n'), 'success');
+                } else if (code.includes('print')) {
+                    setOutput('Hello, Java!', 'success');
                 } else {
-                    output.textContent = 'Compilation successful!\nProgram executed.';
+                    setOutput('Compilation successful!\nProgram executed.', 'success');
                 }
             }
-            // Spring Boot
             else if (courseId === '5') {
-                output.textContent = '. ____ _ __ _ _\n /\\\\ / ___\'_ __ _ _(_)_ __ __ _ \\ \\ \\ \\\n( ( )\\___ | \'_ | \'_| | \'_ \\/ _` | \\ \\ \\ \\\n \\\\/  ___)| |_)| | | | | || (_| |  ) ) ) )\n  \'  |____| .__|_| |_|_| |_\\\\__, | / / / /\n =========|_|==============|___/=/_/_/_/\n\nSpring Boot application started successfully!\nListening on http://localhost:8080';
+                setOutput('. ____ _ __ _ _\n /\\\\ / ___\'_ __ _ _(_)_ __ __ _ \\ \\ \\ \\\n( ( )\\___ | \'_ | \'_| | \'_ \\/ _` | \\ \\ \\ \\\n \\\\/  ___)| |_)| | | | | || (_| |  ) ) ) )\n  \'  |____| .__|_| |_|_| |_\\\\__, | / / / /\n =========|_|==============|___/=/_/_/_/\n\nSpring Boot application started successfully!\nListening on http://localhost:8080', 'success');
             }
-            // Mock Project
             else if (courseId === '6') {
-                output.textContent = 'Project structure initialized:\n\n✓ src/main/java created\n✓ src/main/resources created\n✓ src/test/java created\n✓ pom.xml configured\n✓ dependencies installed\n\nProject is ready for development!';
+                setOutput('Project structure initialized:\n\n✓ src/main/java created\n✓ src/main/resources created\n✓ src/test/java created\n✓ pom.xml configured\n✓ dependencies installed\n\nProject is ready for development!', 'success');
             }
-            // Practice courses
             else if (courseId === 'java-basics') {
-                if (code.includes('println')) {
-                    const match = code.match(/println\s*\(\s*"([^"]*)"\s*\)/);
-                    if (match) {
-                        output.textContent = match[1];
-                    } else {
-                        output.textContent = 'Hello, Java Basics!';
-                    }
+                const lines = [];
+                for (const m of code.matchAll(/(?:System\.out\.)?print(?:ln)?\s*\(\s*"([^"]*)"\s*\)\s*;?/g)) {
+                    lines.push(m[1]);
+                }
+                if (lines.length > 0) {
+                    setOutput(lines.join('\n'), 'success');
+                } else if (code.includes('print')) {
+                    setOutput('Hello, Java Basics!', 'success');
                 } else {
-                    output.textContent = 'Code executed successfully.';
+                    setOutput('Code executed successfully.', 'success');
                 }
             }
             else if (courseId === 'cloud-fundamentals') {
                 if (code.includes('aws')) {
-                    output.textContent = '$ ' + code + '\nresponse: Command executed successfully on AWS.\n\nBucket listing:\n- my-bucket-1\n- my-bucket-2\n- archive-data\n- backup-2024';
+                    setOutput('$ ' + code + '\nresponse: Command executed successfully on AWS.\n\nBucket listing:\n- my-bucket-1\n- my-bucket-2\n- archive-data\n- backup-2024', 'success');
                 } else {
-                    output.textContent = 'Please write an AWS CLI command (e.g., aws s3 ls)';
+                    setOutput('Please write an AWS CLI command (e.g., aws s3 ls)', 'error');
                 }
             }
             else if (courseId === 'python-basics') {
                 if (code.includes('print')) {
-                    const match = code.match(/print\s*\(\s*['\"]([^'\"]*)['\"]\s*\)/);
-                    if (match) {
-                        output.textContent = match[1];
-                    } else {
-                        output.textContent = 'Hello, Python!';
+                    const lines = [];
+                    for (const m of code.matchAll(/print\s*\(\s*['"]([^'"]*)['"]\s*\)/g)) {
+                        lines.push(m[1]);
                     }
+                    setOutput(lines.length > 0 ? lines.join('\n') : 'Hello, Python!', 'success');
                 } else {
-                    output.textContent = 'Run a Python print statement such as print("Hello, World!")';
+                    setOutput('Run a Python print statement such as print("Hello, World!")', 'error');
                 }
             }
             else if (courseId === 'dotnet-basics') {
                 if (code.includes('Console.WriteLine')) {
                     const match = code.match(/Console\.WriteLine\s*\(\s*['\"]([^'\"]*)['\"]\s*\)/);
                     if (match) {
-                        output.textContent = match[1];
+                        setOutput(match[1], 'success');
                     } else {
-                        output.textContent = 'Hello, .NET!';
+                        setOutput('Hello, .NET!', 'success');
                     }
                 } else {
-                    output.textContent = 'Use Console.WriteLine("Hello, .NET!") to run a simple example.';
+                    setOutput('Use Console.WriteLine("Hello, .NET!") to run a simple example.', 'error');
                 }
             }
             else if (courseId === 'data-analytics') {
                 if (code.includes('SELECT')) {
-                    output.textContent = '$ mysql> ' + code + '\n\nQuery Execution Result:\n─────────────────────────\nfirst_name\tlast_name\tDepartment\n─────────────────────────\nJohn\t\tDoe\t\tSales\nJane\t\tSmith\t\tSales\nMike\t\tJones\t\tSales\n─────────────────────────\n3 rows returned.';
+                    setOutput('$ mysql> ' + code + '\n\nQuery Execution Result:\n─────────────────────────\nfirst_name\tlast_name\tDepartment\n─────────────────────────\nJohn\t\tDoe\t\tSales\nJane\t\tSmith\t\tSales\nMike\t\tJones\t\tSales\n─────────────────────────\n3 rows returned.', 'success');
                 } else {
-                    output.textContent = 'Please write a SELECT query to analyze data.';
+                    setOutput('Please write a SELECT query to analyze data.', 'error');
                 }
             }
             else {
-                output.textContent = 'Code execution for this course is not yet available.';
+                setOutput('Code execution for this course is not yet available.', 'error');
             }
         }
 
         function clearCode() {
-            const courseId = getQueryParam('courseId');
-            const course = courseDetails[courseId];
             const codeEditor = document.getElementById('codeEditor');
-            const output = document.getElementById('practiceOutput');
-            
-            codeEditor.value = course ? course.codeDemo : '';
-            output.textContent = 'Click Run to see output...';
+            codeEditor.value = '';
+            codeEditor.scrollTop = 0;
+            codeEditor.scrollLeft = 0;
+            codeEditor.focus();
+            setOutput('Click Run to see output...');
+        }
+
+        let copyDemoTimeout;
+        function copyCodeDemo() {
+            const code = document.getElementById('detailCode').textContent;
+            const btn = document.getElementById('copyDemoBtn');
+            const label = document.getElementById('copyDemoLabel');
+            const icon = document.getElementById('copyDemoIcon');
+
+            if (!code.trim()) return;
+
+            navigator.clipboard.writeText(code).then(() => {
+                btn.classList.add('copied');
+                icon.className = 'fas fa-check';
+                label.textContent = 'Copied!';
+                clearTimeout(copyDemoTimeout);
+                copyDemoTimeout = setTimeout(() => {
+                    btn.classList.remove('copied');
+                    icon.className = 'fas fa-copy';
+                    label.textContent = 'Copy';
+                }, 2000);
+            }).catch(() => {
+                label.textContent = 'Failed';
+                clearTimeout(copyDemoTimeout);
+                copyDemoTimeout = setTimeout(() => { label.textContent = 'Copy'; }, 2000);
+            });
         }
 
         function scrollToTop() {
