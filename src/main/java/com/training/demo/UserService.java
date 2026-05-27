@@ -1,6 +1,7 @@
 package com.training.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Value("${app.admin.email:thirithiriminmin@gmail.com}")
+    private String reservedAdminEmail;
+
     public User registerUser(String firstName, String lastName, String username, String email, String password) throws Exception {
         String trimmedFirst = trim(firstName);
         String trimmedLast = trim(lastName);
@@ -26,6 +30,10 @@ public class UserService {
             throw new Exception("First name, last name, username, and email are required.");
         }
         validateUsername(normalizedUsername);
+
+        if (trimmedEmail.equalsIgnoreCase(reservedAdminEmail.trim())) {
+            throw new Exception("This email is reserved for the system admin account. Please sign in instead of registering.");
+        }
 
         if (userRepository.existsByUsernameIgnoreCase(normalizedUsername)) {
             throw new Exception("Username is already taken!");

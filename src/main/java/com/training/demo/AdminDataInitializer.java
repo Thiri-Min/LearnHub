@@ -1,5 +1,8 @@
 package com.training.demo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -9,12 +12,28 @@ import org.springframework.stereotype.Component;
 @Order(1)
 public class AdminDataInitializer implements ApplicationRunner {
 
-    private static final String ADMIN_EMAIL = "thirithiriminmin@gmail.com";
-    private static final String ADMIN_USERNAME = "thirimin";
-    private static final String DEFAULT_ADMIN_PASSWORD = "Admin@123456";
+    private static final Logger log = LoggerFactory.getLogger(AdminDataInitializer.class);
 
     private final UserRepository userRepository;
     private final UserService userService;
+
+    @Value("${app.admin.email:thirithiriminmin@gmail.com}")
+    private String adminEmail;
+
+    @Value("${app.admin.username:thirimin}")
+    private String adminUsername;
+
+    @Value("${app.admin.password:Admin@123456}")
+    private String adminPassword;
+
+    @Value("${app.admin.first-name:Thiri}")
+    private String adminFirstName;
+
+    @Value("${app.admin.last-name:Min}")
+    private String adminLastName;
+
+    @Value("${app.admin.sync-password-on-startup:false}")
+    private boolean syncPasswordOnStartup;
 
     public AdminDataInitializer(UserRepository userRepository, UserService userService) {
         this.userRepository = userRepository;
@@ -24,19 +43,26 @@ public class AdminDataInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         backfillMissingUsernames();
+        ensureAdminAccount();
+    }
 
-        userRepository.findByEmailIgnoreCase(ADMIN_EMAIL).ifPresentOrElse(user -> {
-            if (user.getUsername() == null || user.getUsername().isBlank()) {
-                user.setUsername(ADMIN_USERNAME);
+    private void ensureAdminAccount() {
+        String email = adminEmail.trim();
+        String username = userService.normalizeUsername(adminUsername);
+
+        userRepository.findByEmailIgnoreCase(email).ifPresentOrElse(user -> {
+            user.setUsername(username);
+            user.setRole("ADMIN");
+            if (syncPasswordOnStartup) {
+                user.setPassword(adminPassword);
             }
-            if (!user.isAdmin()) {
-                user.setRole("ADMIN");
-            }
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
+            log.info("Admin account verified for email {} (username: {})", email, username);
         }, () -> {
-            User admin = new User("Thiri", "Min", ADMIN_USERNAME, ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD);
+            User admin = new User(adminFirstName, adminLastName, username, email, adminPassword);
             admin.setRole("ADMIN");
             userRepository.saveAndFlush(admin);
+            log.info("Admin account created for email {} (username: {})", email, username);
         });
     }
 
