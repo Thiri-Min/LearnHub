@@ -20,10 +20,10 @@ public class AdminDataInitializer implements ApplicationRunner {
     @Value("${app.admin.email:thirithiriminmin@gmail.com}")
     private String adminEmail;
 
-    @Value("${app.admin.username:thirimin}")
+    @Value("${app.admin.username:thiri}")
     private String adminUsername;
 
-    @Value("${app.admin.password:Admin@123456}")
+    @Value("${app.admin.password:111}")
     private String adminPassword;
 
     @Value("${app.admin.first-name:Thiri}")
@@ -48,18 +48,19 @@ public class AdminDataInitializer implements ApplicationRunner {
 
     private void ensureAdminAccount() {
         String email = adminEmail.trim();
-        String username = userService.normalizeUsername(adminUsername);
+        String username = userService.normalizeUsername(adminUsername.trim());
+        String password = adminPassword.trim();
 
         userRepository.findByEmailIgnoreCase(email).ifPresentOrElse(user -> {
             user.setUsername(username);
             user.setRole("ADMIN");
             if (syncPasswordOnStartup) {
-                user.setPassword(adminPassword);
+                user.setPassword(password);
             }
             userRepository.saveAndFlush(user);
             log.info("Admin account verified for email {} (username: {})", email, username);
         }, () -> {
-            User admin = new User(adminFirstName, adminLastName, username, email, adminPassword);
+            User admin = new User(adminFirstName, adminLastName, username, email, password);
             admin.setRole("ADMIN");
             userRepository.saveAndFlush(admin);
             log.info("Admin account created for email {} (username: {})", email, username);

@@ -61,12 +61,14 @@ public class AuthController {
     public String loginUser(@RequestParam String emailOrUsername, @RequestParam String password, Model model,
                             HttpSession session, HttpServletRequest request,
                             RedirectAttributes redirectAttributes) {
-        var userOpt = userService.findByEmailOrUsername(emailOrUsername);
-        if (userOpt.isEmpty() || !userOpt.get().getPassword().equals(password)) {
+        String loginId = emailOrUsername == null ? "" : emailOrUsername.trim();
+        String loginPassword = password == null ? "" : password.trim();
+        var userOpt = userService.findByEmailOrUsername(loginId);
+        if (userOpt.isEmpty() || !userOpt.get().getPassword().equals(loginPassword)) {
             populateHomeModel(session, model);
             model.addAttribute("authMode", "login");
             model.addAttribute("loginError", "Invalid email/username or password. Please try again.");
-            model.addAttribute("loginEmailOrUsername", emailOrUsername);
+            model.addAttribute("loginEmailOrUsername", loginId);
             return "home";
         }
 
