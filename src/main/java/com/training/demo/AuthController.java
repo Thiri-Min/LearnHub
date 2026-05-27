@@ -74,9 +74,6 @@ public class AuthController {
         loggedIn = userService.findById(loggedIn.getId()).orElse(loggedIn);
         session.setAttribute("loggedInUser", loggedIn);
         redirectAttributes.addFlashAttribute("trackLocation", true);
-        if (loggedIn.isAdmin()) {
-            return "redirect:/admin";
-        }
         return "redirect:/home";
     }
 
@@ -171,6 +168,12 @@ public class AuthController {
         }
         model.addAttribute("user", user);
         model.addAttribute("cartCount", getCart(session).size());
+        model.addAttribute("sqlPreIntermediateQuestions", getQuestions("SQL", "Pre-Intermediate"));
+        model.addAttribute("sqlIntermediateQuestions", getQuestions("SQL", "Intermediate"));
+        model.addAttribute("sqlAdvancedQuestions", getQuestions("SQL", "Advanced"));
+        model.addAttribute("gitPreIntermediateQuestions", getQuestions("Git", "Pre-Intermediate"));
+        model.addAttribute("gitIntermediateQuestions", getQuestions("Git", "Intermediate"));
+        model.addAttribute("gitAdvancedQuestions", getQuestions("Git", "Advanced"));
         return "tech";
     }
 

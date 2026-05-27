@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Quiz questions aligned with tech.html skill sets (Java, SQL, Python × 3 levels).
+ * Quiz questions aligned with tech.html skill sets (Java, SQL, Python, Git × 3 levels).
  */
 public final class TechQuizCatalog {
 
@@ -16,6 +16,7 @@ public final class TechQuizCatalog {
         registerJava();
         registerSql();
         registerPython();
+        registerGit();
     }
 
     private TechQuizCatalog() {
@@ -66,6 +67,14 @@ public final class TechQuizCatalog {
         levels.put("Intermediate", pythonIntermediate());
         levels.put("Advanced", pythonAdvanced());
         QUESTIONS.put("Python", levels);
+    }
+
+    private static void registerGit() {
+        Map<String, List<Map<String, Object>>> levels = new LinkedHashMap<>();
+        levels.put("Pre-Intermediate", gitPreIntermediate());
+        levels.put("Intermediate", gitIntermediate());
+        levels.put("Advanced", gitAdvanced());
+        QUESTIONS.put("Git", levels);
     }
 
     private static Map<String, Object> q(String question, List<String> options, int answer) {
@@ -251,29 +260,32 @@ public final class TechQuizCatalog {
 
     private static List<Map<String, Object>> sqlPreIntermediate() {
         List<Map<String, Object>> list = new ArrayList<>();
-        list.add(q("Which SQL statement is used to retrieve data from a table?",
-                List.of("SELECT", "GET", "FETCH", "READ"), 0));
-        list.add(q("What does a PRIMARY KEY do?",
-                List.of("Uniquely identifies each row", "Encrypts the table", "Sorts rows automatically",
-                        "Links two tables"), 0));
-        list.add(q("Which clause filters rows in a SELECT query?",
-                List.of("WHERE", "FILTER", "HAVING", "ORDER"), 0));
-        list.add(q("Which statement adds new rows to a table?",
-                List.of("INSERT", "ADD", "CREATE ROW", "APPEND"), 0));
-        list.add(q("What does COUNT(*) return?",
-                List.of("The number of rows", "The sum of all columns", "The largest value",
-                        "The table size in MB"), 0));
-        list.add(q("Which keyword removes duplicate rows from a result set?",
-                List.of("DISTINCT", "UNIQUE", "ONLY", "SINGLE"), 0));
-        list.add(q("Which statement modifies existing data?",
-                List.of("UPDATE", "CHANGE", "MODIFY", "ALTER ROW"), 0));
-        list.add(q("Which clause sorts query results?",
-                List.of("ORDER BY", "SORT BY", "GROUP BY", "ARRANGE"), 0));
-        list.add(q("What does DELETE do?",
-                List.of("Removes rows from a table", "Drops the entire table", "Clears the database",
-                        "Hides columns"), 0));
-        list.add(q("In SQL, NULL means:",
-                List.of("Unknown or missing value", "Zero", "Empty string", "False"), 0));
+        list.add(q("Which SQL clause groups rows that share the same values?",
+                List.of("GROUP BY", "ORDER BY", "JOIN", "PARTITION"), 0));
+        list.add(q("What is the purpose of a FOREIGN KEY?",
+                List.of("Ensures referential integrity", "Creates a unique index", "Encrypts sensitive data",
+                        "Automatically sorts rows"), 0));
+        list.add(q("Which type of JOIN returns all rows from both tables, matching rows where possible?",
+                List.of("FULL OUTER JOIN", "INNER JOIN", "LEFT JOIN", "CROSS JOIN"), 0));
+        list.add(q("What does the HAVING clause do?",
+                List.of("Filters groups after aggregation", "Filters rows before grouping",
+                        "Sorts aggregated results", "Limits query output"), 0));
+        list.add(q("Which SQL statement creates a new table?",
+                List.of("CREATE TABLE", "MAKE TABLE", "NEW TABLE", "ADD TABLE"), 0));
+        list.add(q("What is the difference between CHAR and VARCHAR?",
+                List.of("CHAR is fixed-length, VARCHAR is variable-length",
+                        "CHAR stores numbers, VARCHAR stores text", "CHAR is faster, VARCHAR is slower",
+                        "CHAR is case-sensitive, VARCHAR is not"), 0));
+        list.add(q("Which index type improves query performance by avoiding full table scans?",
+                List.of("B-Tree Index", "Hash Index", "Clustered Index", "Bitmap Index"), 0));
+        list.add(q("What does the SQL UNION operator do?",
+                List.of("Combines results of two queries and removes duplicates", "Joins two tables on a key",
+                        "Aggregates multiple columns", "Merges rows into one"), 0));
+        list.add(q("Which constraint ensures that a column cannot have NULL values?",
+                List.of("NOT NULL", "PRIMARY KEY", "UNIQUE", "CHECK"), 0));
+        list.add(q("What is the purpose of the EXPLAIN command in SQL?",
+                List.of("Shows query execution plan", "Runs the query step by step", "Explains syntax errors",
+                        "Displays table schema"), 0));
         return list;
     }
 
@@ -336,6 +348,102 @@ public final class TechQuizCatalog {
         list.add(q("EXPLAIN (or similar) is used to:",
                 List.of("Analyze query execution plan", "Insert sample data", "Grant permissions",
                         "Drop constraints"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> gitPreIntermediate() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("What type of version control system is Git?",
+                List.of("Distributed", "Centralized only", "Local only", "Manual file copy"), 0));
+        list.add(q("Which command creates a new local Git repository?",
+                List.of("git init", "git start", "git new", "git create"), 0));
+        list.add(q("Which command copies a remote repository to your machine?",
+                List.of("git clone", "git copy", "git download", "git pull only"), 0));
+        list.add(q("What does git add do?",
+                List.of("Stages changes for the next commit", "Commits changes immediately",
+                        "Pushes to remote", "Creates a new branch"), 0));
+        list.add(q("What does git commit do?",
+                List.of("Saves a snapshot of staged changes with a message", "Uploads to GitHub only",
+                        "Deletes a branch", "Merges two branches"), 0));
+        list.add(q("What is the default name of the primary remote repository?",
+                List.of("origin", "main", "master", "remote"), 0));
+        list.add(q("Which command shows the state of your working directory?",
+                List.of("git status", "git show", "git list", "git state"), 0));
+        list.add(q("What is a branch in Git?",
+                List.of("An independent line of development", "A remote server", "A backup folder",
+                        "A type of commit message"), 0));
+        list.add(q("Which command sends local commits to a remote repository?",
+                List.of("git push", "git send", "git upload", "git publish"), 0));
+        list.add(q("What does git pull do?",
+                List.of("Fetches and merges changes from remote", "Only downloads without merging",
+                        "Deletes local commits", "Creates a tag"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> gitIntermediate() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("What does git merge do?",
+                List.of("Combines changes from another branch into the current branch",
+                        "Deletes a remote branch", "Renames a repository", "Stages all files"), 0));
+        list.add(q("What is the difference between git fetch and git pull?",
+                List.of("fetch downloads only; pull downloads and merges", "They are identical",
+                        "pull does not contact remote", "fetch deletes local branches"), 0));
+        list.add(q("What causes a merge conflict?",
+                List.of("The same lines were changed differently on two branches",
+                        "The repository is empty", "You forgot git add", "The remote is named origin"), 0));
+        list.add(q("Which command lists local branches?",
+                List.of("git branch", "git list-branch", "git branches", "git show-branch"), 0));
+        list.add(q("What does git checkout (or git switch) do?",
+                List.of("Changes the active branch or restores files", "Commits staged files",
+                        "Adds a remote", "Shows commit history"), 0));
+        list.add(q("What does HEAD usually refer to?",
+                List.of("The current commit/branch you are on", "The first commit ever made",
+                        "The remote server URL", "The .gitignore file"), 0));
+        list.add(q("What is the purpose of a .gitignore file?",
+                List.of("Specifies files Git should not track", "Stores commit messages",
+                        "Lists all branches", "Encrypts the repository"), 0));
+        list.add(q("What does git diff show?",
+                List.of("Differences between working directory and staged/committed files",
+                        "Only remote branches", "User permissions", "Repository size"), 0));
+        list.add(q("Which command adds a connection to a remote repository?",
+                List.of("git remote add", "git connect", "git link", "git origin set"), 0));
+        list.add(q("What does git log display?",
+                List.of("Commit history", "Only current branch name", "Remote URLs only",
+                        "Staged file list"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> gitAdvanced() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("What does git rebase do?",
+                List.of("Replays commits on top of another branch for a linear history",
+                        "Deletes all branches", "Pushes tags only", "Creates a submodule"), 0));
+        list.add(q("When should you avoid git rebase?",
+                List.of("On commits already pushed to a shared remote branch",
+                        "On a new local feature branch", "Before git add", "When cloning a repo"), 0));
+        list.add(q("What is a Git submodule?",
+                List.of("A Git repository embedded inside another repository",
+                        "A type of merge conflict", "A backup of .git folder", "A remote named origin"), 0));
+        list.add(q("In Git Flow, which branch is reserved for production releases?",
+                List.of("main (or master)", "develop", "feature", "hotfix only"), 0));
+        list.add(q("In Git Flow, which branch is used to integrate completed features?",
+                List.of("develop", "main", "release only", "staging"), 0));
+        list.add(q("GitHub Flow is best described as:",
+                List.of("Branch from main, open PR, merge to main, deploy",
+                        "Only use git rebase for all merges", "No branches allowed",
+                        "Multiple production branches per environment only"), 0));
+        list.add(q("What does git stash do?",
+                List.of("Temporarily saves uncommitted changes for later",
+                        "Permanently deletes commits", "Pushes to remote", "Creates a release tag"), 0));
+        list.add(q("What is trunk-based development?",
+                List.of("Developers commit frequently to the main branch with strong CI",
+                        "No commits allowed on main", "Only Git submodules", "Centralized CVS workflow"), 0));
+        list.add(q("What does git cherry-pick do?",
+                List.of("Applies a specific commit from one branch to another",
+                        "Deletes a remote branch", "Renames a repository", "Stages all files"), 0));
+        list.add(q("git reset --soft HEAD~1 typically:",
+                List.of("Undoes the last commit but keeps changes staged",
+                        "Deletes the repository", "Force-pushes to remote", "Removes all branches"), 0));
         return list;
     }
 }

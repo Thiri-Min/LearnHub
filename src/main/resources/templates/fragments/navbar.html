@@ -51,11 +51,8 @@
         <i class="fas fa-user-circle me-1"></i>Profile
     </a>
     <a class="nav-link" th:if="${user == null and !useAuthModal}" href="/?authMode=login">Login</a>
-    <a class="nav-link" th:if="${user == null and !useAuthModal}" href="/?authMode=signup">Sign Up</a>
     <a class="nav-link" th:if="${user == null and useAuthModal}" href="#authBox"
        onclick="showAuthBox('login'); return false;">Login</a>
-    <a class="nav-link" th:if="${user == null and useAuthModal}" href="#authBox"
-       onclick="showAuthBox('signup'); return false;">Sign Up</a>
 </div>
 </body>
 </html>
