@@ -5,11 +5,84 @@
   activeTech: tests | rich-content | mentoring | (empty)
   homeHref: / or /home
 -->
-<div th:fragment="navLinks(homeActive, coursesActive, activeTech, homeHref, useAuthModal)"
-     class="navbar-nav ms-auto align-items-center">
-    <a class="nav-link" th:href="${homeHref}" th:classappend="${homeActive} ? 'active' : ''">Home</a>
-    <a class="nav-link" href="/courses" th:classappend="${coursesActive} ? 'active' : ''">Courses</a>
+<style th:fragment="navbarStyles">
+    .lms-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1100;
+        backdrop-filter: blur(8px);
+        background: rgba(27, 38, 59, 0.35) !important;
+    }
+    .lms-navbar .nav-link {
+        color: rgba(255, 255, 255, 0.88);
+    }
+    .lms-navbar .nav-link:hover,
+    .lms-navbar .nav-link:focus {
+        color: #fff;
+    }
+    .lms-navbar .nav-link.active {
+        color: #fff;
+        font-weight: 600;
+    }
+    .lms-navbar .dropdown-menu {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+        padding: 0.35rem;
+    }
+    .lms-navbar .dropdown-item {
+        border-radius: 8px;
+        padding: 0.5rem 0.85rem;
+        font-weight: 500;
+    }
+    .lms-navbar .dropdown-item.active,
+    .lms-navbar .dropdown-item:active {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: #fff;
+    }
+    .lms-navbar .dropdown-item.active i {
+        color: #fff;
+    }
+    .lms-navbar .nav-link.admin-link {
+        color: #fbbf24 !important;
+    }
+    .lms-navbar .nav-link.admin-link:hover {
+        color: #fde68a !important;
+    }
+    .lms-navbar .nav-link.admin-link.active {
+        color: #fff !important;
+        background: rgba(251, 191, 36, 0.2);
+        border-radius: 8px;
+    }
+</style>
 
+<nav th:fragment="navbarShell(homeActive, coursesActive, activeTech, homeHref, useAuthModal, activeNav)"
+     class="navbar navbar-expand-lg navbar-dark bg-transparent lms-navbar">
+    <div class="container">
+        <a class="navbar-brand" href="/home">
+            <i class="fas fa-graduation-cap me-2"></i>LMS
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul th:replace="~{fragments/navbar :: navLinks(${homeActive}, ${coursesActive}, ${activeTech}, ${homeHref}, ${useAuthModal}, ${activeNav})}"></ul>
+        </div>
+    </div>
+</nav>
+
+<ul th:fragment="navLinks(homeActive, coursesActive, activeTech, homeHref, useAuthModal, activeNav)"
+    class="navbar-nav ms-auto align-items-lg-center">
+    <li class="nav-item">
+        <a class="nav-link" th:href="${homeHref}" th:classappend="${homeActive} ? 'active' : ''">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/courses" th:classappend="${coursesActive} ? 'active' : ''">Courses</a>
+    </li>
+    <li class="nav-item" th:if="${user}">
+        <a class="nav-link" href="/feedback" th:classappend="${activeNav == 'feedback'} ? 'active' : ''">Feedback</a>
+    </li>
     <li class="nav-item dropdown" th:if="${user}">
         <a class="nav-link dropdown-toggle" href="#" id="techNavDropdown" role="button"
            data-bs-toggle="dropdown" aria-expanded="false"
@@ -35,24 +108,39 @@
             </li>
         </ul>
     </li>
-    <a class="nav-link" th:if="${user == null}" href="/?authMode=login">Tech</a>
-
-    <a class="nav-link position-relative" href="/cart" th:if="${user}">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              th:if="${cartCount != null and cartCount > 0}" th:text="${cartCount}"></span>
-    </a>
-    <span class="nav-link text-white" th:if="${user}">Hello, <span th:text="${user.firstName}"></span></span>
-    <a class="nav-link text-warning fw-semibold" href="/admin" th:if="${user != null and user.admin}">
-        <i class="fas fa-shield-halved me-1"></i>Admin
-    </a>
-    <a class="nav-link" href="/logout" th:if="${user}">Logout</a>
-    <a class="nav-link" href="/profile" th:if="${user}">
-        <i class="fas fa-user-circle me-1"></i>Profile
-    </a>
-    <a class="nav-link" th:if="${user == null and !useAuthModal}" href="/?authMode=login">Login</a>
-    <a class="nav-link" th:if="${user == null and useAuthModal}" href="#authBox"
-       onclick="showAuthBox('login'); return false;">Login</a>
-</div>
+    <li class="nav-item" th:if="${user == null}">
+        <a class="nav-link" href="/?authMode=login">Tech</a>
+    </li>
+    <li class="nav-item" th:if="${user}">
+        <a class="nav-link position-relative" href="/cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  th:if="${cartCount != null and cartCount > 0}" th:text="${cartCount}"></span>
+        </a>
+    </li>
+    <li class="nav-item" th:if="${user}">
+        <span class="nav-link">Hello, <span th:text="${user.firstName}"></span></span>
+    </li>
+    <li class="nav-item" th:if="${isAdminUser}">
+        <a class="nav-link admin-link fw-semibold" href="/admin"
+           th:classappend="${activeNav == 'admin'} ? 'active' : ''">
+            <i class="fas fa-shield-halved me-1"></i>Admin
+        </a>
+    </li>
+    <li class="nav-item" th:if="${user}">
+        <a class="nav-link" href="/logout">Logout</a>
+    </li>
+    <li class="nav-item" th:if="${user}">
+        <a class="nav-link" href="/profile">
+            <i class="fas fa-user-circle me-1"></i>Profile
+        </a>
+    </li>
+    <li class="nav-item" th:if="${user == null and !useAuthModal}">
+        <a class="nav-link" href="/?authMode=login">Login</a>
+    </li>
+    <li class="nav-item" th:if="${user == null and useAuthModal}">
+        <a class="nav-link" href="#authBox" onclick="showAuthBox('login'); return false;">Login</a>
+    </li>
+</ul>
 </body>
 </html>

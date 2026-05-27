@@ -15,10 +15,6 @@
             display: flex;
             flex-direction: column;
         }
-        .navbar {
-            backdrop-filter: blur(8px);
-            background: rgba(27, 38, 59, 0.35) !important;
-        }
         .page-header {
             padding: 4rem 0 2rem;
             text-align: center;
@@ -50,27 +46,10 @@
             margin-top: auto;
         }
     </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
-        <div class="container">
-            <a class="navbar-brand" href="/home"><i class="fas fa-graduation-cap me-2"></i>LMS</a>
-            <div class="navbar-nav ms-auto align-items-center">
-                <a class="nav-link" href="/home">Home</a>
-                <a class="nav-link" href="/courses">Courses</a>
-                <a class="nav-link" href="/tech">Tech Tests</a>
-                <a class="nav-link active" href="/rich-content">Rich Content</a>
-                <a class="nav-link position-relative" href="/cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                          th:if="${cartCount > 0}" th:text="${cartCount}"></span>
-                </a>
-                <span class="nav-link">Hello, <span th:text="${user.firstName}"></span></span>
-                <a class="nav-link" href="/profile"><i class="fas fa-user-circle me-1"></i>Profile</a>
-                <a class="nav-link" href="/logout">Logout</a>
-            </div>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, 'rich-content', '/home', false, '')}"></nav>
 
     <section class="page-header">
         <div class="container">

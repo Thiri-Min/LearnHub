@@ -13,13 +13,6 @@
             color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 1100;
-            backdrop-filter: blur(8px);
-            background: rgba(27, 38, 59, 0.35) !important;
-        }
         .page-header {
             padding: 5rem 0 2rem;
             text-align: center;
@@ -55,32 +48,10 @@
             justify-content: center;
         }
     </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
-        <div class="container">
-            <a class="navbar-brand" href="/home">
-                <i class="fas fa-graduation-cap me-2"></i>LMS
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarContent">
-                <div class="navbar-nav ms-auto align-items-center">
-                    <a class="nav-link" href="/home">Home</a>
-                    <a class="nav-link" href="/courses">Courses</a>
-                    <a class="nav-link" href="/tech">Tech</a>
-                    <a class="nav-link active" href="/cart">Cart</a>
-                    <span class="nav-link text-white" th:if="${user}">Hello, <span th:text="${user.firstName}"></span></span>
-                    <a class="nav-link" href="/logout" th:if="${user}">Logout</a>
-                    <a class="nav-link" href="/login" th:if="${user == null}">Login</a>
-                    <a class="nav-link" href="/profile" th:if="${user}">
-                        <i class="fas fa-user-circle me-1"></i>Profile
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, '', '/home', false, '')}"></nav>
 
     <section class="page-header">
         <div class="container">

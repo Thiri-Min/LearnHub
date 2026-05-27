@@ -13,17 +13,20 @@ public class AdminService {
     private final QuizAttemptRepository quizAttemptRepository;
     private final RichContentViewRepository richContentViewRepository;
     private final UserFavoriteRepository userFavoriteRepository;
+    private final FeedbackRepository feedbackRepository;
 
     public AdminService(UserRepository userRepository,
                         LoginEventRepository loginEventRepository,
                         QuizAttemptRepository quizAttemptRepository,
                         RichContentViewRepository richContentViewRepository,
-                        UserFavoriteRepository userFavoriteRepository) {
+                        UserFavoriteRepository userFavoriteRepository,
+                        FeedbackRepository feedbackRepository) {
         this.userRepository = userRepository;
         this.loginEventRepository = loginEventRepository;
         this.quizAttemptRepository = quizAttemptRepository;
         this.richContentViewRepository = richContentViewRepository;
         this.userFavoriteRepository = userFavoriteRepository;
+        this.feedbackRepository = feedbackRepository;
     }
 
     public Map<String, Object> getDashboardData() {
@@ -45,6 +48,7 @@ public class AdminService {
         data.put("favorites", userFavoriteRepository.findAll().stream()
                 .sorted(Comparator.comparing(UserFavorite::getAddedAt).reversed())
                 .collect(Collectors.toList()));
+        data.put("feedbacks", feedbackRepository.findAllByOrderBySubmittedAtDesc());
         return data;
     }
 

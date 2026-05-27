@@ -21,19 +21,22 @@ public class AdminController {
     private final QuizAttemptRepository quizAttemptRepository;
     private final RichContentViewRepository richContentViewRepository;
     private final UserFavoriteRepository userFavoriteRepository;
+    private final FeedbackRepository feedbackRepository;
 
     public AdminController(AdminService adminService,
                            UserRepository userRepository,
                            LoginEventRepository loginEventRepository,
                            QuizAttemptRepository quizAttemptRepository,
                            RichContentViewRepository richContentViewRepository,
-                           UserFavoriteRepository userFavoriteRepository) {
+                           UserFavoriteRepository userFavoriteRepository,
+                           FeedbackRepository feedbackRepository) {
         this.adminService = adminService;
         this.userRepository = userRepository;
         this.loginEventRepository = loginEventRepository;
         this.quizAttemptRepository = quizAttemptRepository;
         this.richContentViewRepository = richContentViewRepository;
         this.userFavoriteRepository = userFavoriteRepository;
+        this.feedbackRepository = feedbackRepository;
     }
 
     @GetMapping
@@ -44,15 +47,21 @@ public class AdminController {
         if (user == null) {
             return "redirect:/?authMode=login";
         }
+        if (user.getId() != null) {
+            user = userRepository.findById(user.getId()).orElse(user);
+            session.setAttribute("loggedInUser", user);
+        }
 
         Map<String, Object> data = adminService.getDashboardData();
         model.addAttribute("user", user);
+        model.addAttribute("isAdminUser", user.isAdmin());
         model.addAttribute("users", data.get("users"));
         model.addAttribute("userById", data.get("userById"));
         model.addAttribute("loginEvents", data.get("loginEvents"));
         model.addAttribute("quizAttempts", data.get("quizAttempts"));
         model.addAttribute("richContentViews", data.get("richContentViews"));
         model.addAttribute("favorites", data.get("favorites"));
+        model.addAttribute("feedbacks", data.get("feedbacks"));
         model.addAttribute("activeTab", tab == null ? "users" : tab);
         model.addAttribute("cartCount", 0);
         return "admin/dashboard";
@@ -121,6 +130,16 @@ public class AdminController {
         if (requireAdmin(session) == null) return "redirect:/?authMode=login";
         if (id == null) return "redirect:/admin?tab=" + tab;
         userFavoriteRepository.deleteById(id);
+        return "redirect:/admin?tab=" + tab;
+    }
+
+    @PostMapping("/feedback/{id}/delete")
+    public String deleteFeedback(@PathVariable("id") Long id,
+                                 @RequestParam(value = "tab", defaultValue = "feedback") String tab,
+                                 HttpSession session) {
+        if (requireAdmin(session) == null) return "redirect:/?authMode=login";
+        if (id == null) return "redirect:/admin?tab=" + tab;
+        feedbackRepository.deleteById(id);
         return "redirect:/admin?tab=" + tab;
     }
 

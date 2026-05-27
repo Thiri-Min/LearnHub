@@ -110,21 +110,10 @@
             transform: rotate(180deg);
         }
     </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand text-white" href="/home"><i class="fas fa-graduation-cap me-2"></i>LMS</a>
-            <div class="navbar-nav ms-auto align-items-center">
-                <a class="nav-link text-white" href="/home">Home</a>
-                <a class="nav-link text-white" href="/courses">Courses</a>
-                <a class="nav-link text-white" href="/rich-content">Rich Content</a>
-                <a class="nav-link text-white" href="/tech">Tech</a>
-                <a class="nav-link text-white active" href="/profile">Profile</a>
-                <a class="nav-link text-white" href="/logout">Logout</a>
-            </div>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, '', '/home', false, '')}"></nav>
 
     <div class="container profile-layout">
         <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">

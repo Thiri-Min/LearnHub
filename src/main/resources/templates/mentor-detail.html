@@ -13,7 +13,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #333;
         }
-        .navbar { backdrop-filter: blur(8px); background: rgba(27, 38, 59, 0.45) !important; }
         .panel-card {
             background: rgba(255, 255, 255, 0.97);
             border-radius: 16px;
@@ -72,19 +71,15 @@
         .chat-meta { font-size: 0.75rem; opacity: 0.75; margin-top: 0.25rem; }
         .site-footer { background: rgba(17, 24, 39, 0.45); color: #fff; margin-top: 2rem; }
     </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand text-white" href="/home"><i class="fas fa-graduation-cap me-2"></i>LMS</a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link text-white" href="/mentoring"><i class="fas fa-arrow-left me-1"></i>All Mentors</a>
-                <a class="nav-link text-white" href="/home">Home</a>
-            </div>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, 'mentoring', '/home', false, '')}"></nav>
 
     <div class="container py-4">
+        <a href="/mentoring" class="btn btn-sm btn-outline-light mb-3">
+            <i class="fas fa-arrow-left me-1"></i>All Mentors
+        </a>
         <div th:if="${message}" class="alert alert-success alert-dismissible fade show">
             <span th:text="${message}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>

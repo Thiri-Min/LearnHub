@@ -15,10 +15,6 @@
             display: flex;
             flex-direction: column;
         }
-        .navbar {
-            backdrop-filter: blur(8px);
-            background: rgba(27, 38, 59, 0.35) !important;
-        }
         .detail-card {
             background: rgba(255, 255, 255, 0.95);
             color: #333;
@@ -52,20 +48,10 @@
             margin-top: auto;
         }
     </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
-        <div class="container">
-            <a class="navbar-brand" href="/home"><i class="fas fa-graduation-cap me-2"></i>LMS</a>
-            <div class="navbar-nav ms-auto align-items-center">
-                <a class="nav-link" href="/rich-content"><i class="fas fa-arrow-left me-1"></i>All Topics</a>
-                <a class="nav-link" href="/home">Home</a>
-                <a class="nav-link" href="/tech">Tech Tests</a>
-                <span class="nav-link">Hello, <span th:text="${user.firstName}"></span></span>
-                <a class="nav-link" href="/logout">Logout</a>
-            </div>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, 'rich-content', '/home', false, '')}"></nav>
 
     <div class="container flex-grow-1">
         <div class="detail-card">
