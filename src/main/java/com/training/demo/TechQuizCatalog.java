@@ -1,6 +1,7 @@
 package com.training.demo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,8 @@ public final class TechQuizCatalog {
     private TechQuizCatalog() {
     }
 
+    public static final int QUIZ_QUESTION_COUNT = 10;
+
     public static List<Map<String, Object>> getQuestions(String subject, String level) {
         Map<String, List<Map<String, Object>>> byLevel = QUESTIONS.get(subject);
         if (byLevel == null) {
@@ -31,7 +34,44 @@ public final class TechQuizCatalog {
         if (set == null || set.isEmpty()) {
             return genericQuestions(subject, level);
         }
-        return set;
+        return List.copyOf(set);
+    }
+
+    /** Shuffles question order and option order; returns up to {@code count} questions per attempt. */
+    public static List<Map<String, Object>> getRandomizedQuestions(String subject, String level, int count) {
+        List<Map<String, Object>> source = new ArrayList<>(getQuestions(subject, level));
+        if (source.isEmpty()) {
+            return source;
+        }
+        Collections.shuffle(source);
+        int take = Math.min(count, source.size());
+        List<Map<String, Object>> picked = new ArrayList<>(source.subList(0, take));
+        List<Map<String, Object>> result = new ArrayList<>(picked.size());
+        for (Map<String, Object> question : picked) {
+            result.add(shuffleQuestionOptions(copyQuestion(question)));
+        }
+        return result;
+    }
+
+    private static Map<String, Object> copyQuestion(Map<String, Object> question) {
+        Map<String, Object> copy = new LinkedHashMap<>();
+        copy.put("question", question.get("question"));
+        @SuppressWarnings("unchecked")
+        List<String> options = (List<String>) question.get("options");
+        copy.put("options", new ArrayList<>(options));
+        copy.put("answer", question.get("answer"));
+        return copy;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> shuffleQuestionOptions(Map<String, Object> question) {
+        List<String> options = new ArrayList<>((List<String>) question.get("options"));
+        int answer = (Integer) question.get("answer");
+        String correctText = options.get(answer);
+        Collections.shuffle(options);
+        question.put("options", options);
+        question.put("answer", options.indexOf(correctText));
+        return question;
     }
 
     private static List<Map<String, Object>> genericQuestions(String subject, String level) {
@@ -377,6 +417,18 @@ public final class TechQuizCatalog {
         list.add(q("What does git pull do?",
                 List.of("Fetches and merges changes from remote", "Only downloads without merging",
                         "Deletes local commits", "Creates a tag"), 0));
+        list.add(q("Which command stages all modified tracked files in the current directory?",
+                List.of("git add .", "git stage all", "git commit -a", "git track ."), 0));
+        list.add(q("What is the common default name for the primary branch today?",
+                List.of("main", "origin", "master only", "head"), 0));
+        list.add(q("Who created Git?",
+                List.of("Linus Torvalds", "Microsoft", "Apache Foundation", "Richard Stallman"), 0));
+        list.add(q("Where are Git's version history and metadata stored locally?",
+                List.of("In the .git directory", "In every source file", "On GitHub only",
+                        "In package.json"), 0));
+        list.add(q("Before committing, new or changed files must usually be:",
+                List.of("Staged with git add", "Pushed with git push", "Tagged with git tag",
+                        "Merged with git merge"), 0));
         return list;
     }
 
@@ -410,6 +462,22 @@ public final class TechQuizCatalog {
         list.add(q("What does git log display?",
                 List.of("Commit history", "Only current branch name", "Remote URLs only",
                         "Staged file list"), 0));
+        list.add(q("What does git stash pop do?",
+                List.of("Reapplies the most recent stash and removes it from the stash list",
+                        "Deletes all stashes", "Pushes stashed commits to remote", "Creates a new branch"), 0));
+        list.add(q("A fast-forward merge happens when:",
+                List.of("The target branch has no new commits since the branch being merged",
+                        "There is a merge conflict", "You use git rebase only", "The remote is offline"), 0));
+        list.add(q("What is a detached HEAD state?",
+                List.of("HEAD points to a specific commit instead of a branch name",
+                        "The repository has no commits", "Git cannot connect to remote",
+                        "All branches were deleted"), 0));
+        list.add(q("Which command creates a new branch and switches to it (modern Git)?",
+                List.of("git switch -c branch-name", "git branch only", "git new branch-name",
+                        "git checkout --delete"), 0));
+        list.add(q("git commit -m is used to:",
+                List.of("Create a commit with a message in one step", "Rename a remote",
+                        "Show diff statistics only", "Reset the last commit"), 0));
         return list;
     }
 
@@ -444,6 +512,23 @@ public final class TechQuizCatalog {
         list.add(q("git reset --soft HEAD~1 typically:",
                 List.of("Undoes the last commit but keeps changes staged",
                         "Deletes the repository", "Force-pushes to remote", "Removes all branches"), 0));
+        list.add(q("What does git reflog help you do?",
+                List.of("Recover commits or HEAD positions after mistakes",
+                        "List only remote branches", "Encrypt the repository", "Run CI pipelines"), 0));
+        list.add(q("Why is git push --force dangerous on a shared branch?",
+                List.of("It can overwrite teammates' commits on the remote",
+                        "It only affects local files", "It disables .gitignore", "It cannot be undone locally"), 0));
+        list.add(q("git bisect is primarily used to:",
+                List.of("Find which commit introduced a bug using binary search",
+                        "Merge two release branches", "Sign commits", "Clone submodules"), 0));
+        list.add(q("A squash merge on a pull request typically:",
+                List.of("Combines multiple commits into one before merging",
+                        "Deletes the main branch", "Rebases onto every feature branch daily",
+                        "Removes the remote origin"), 0));
+        list.add(q("git tag is commonly used to:",
+                List.of("Mark a specific commit (e.g. a release version)",
+                        "Stage all modified files", "Resolve merge conflicts automatically",
+                        "Rename a branch"), 0));
         return list;
     }
 }

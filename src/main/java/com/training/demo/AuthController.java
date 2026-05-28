@@ -280,7 +280,11 @@ public class AuthController {
     }
 
     @GetMapping("/quiz")
-    public String quiz(@RequestParam String subject, @RequestParam String level, HttpSession session, Model model) {
+    public String quiz(@RequestParam String subject,
+                       @RequestParam String level,
+                       @RequestParam(defaultValue = "false") boolean fresh,
+                       HttpSession session,
+                       Model model) {
         var user = session.getAttribute("loggedInUser");
         if (user == null) {
             return "redirect:/?authMode=login";
@@ -289,8 +293,13 @@ public class AuthController {
         model.addAttribute("cartCount", getCart(session).size());
         model.addAttribute("subject", subject);
         model.addAttribute("level", level);
-        // For demo, hardcoded questions
-        List<Map<String, Object>> questions = getQuestions(subject, level);
+        String quizSessionKey = quizSessionKey(subject, level);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> questions = (List<Map<String, Object>>) session.getAttribute(quizSessionKey);
+        if (fresh || questions == null) {
+            questions = TechQuizCatalog.getRandomizedQuestions(subject, level, TechQuizCatalog.QUIZ_QUESTION_COUNT);
+            session.setAttribute(quizSessionKey, questions);
+        }
         model.addAttribute("questions", questions);
         return "quiz";
     }
@@ -311,7 +320,12 @@ public class AuthController {
         }
         User current = (User) user;
         adminService.saveQuizAttempt(current.getId(), subject, level, score, total, percentage, grade, timeUp);
+        session.removeAttribute(quizSessionKey(subject, level));
         return Map.of("ok", true);
+    }
+
+    private static String quizSessionKey(String subject, String level) {
+        return "quizQuestions:" + subject + ":" + level;
     }
 
     private List<Map<String, Object>> getQuestions(String subject, String level) {

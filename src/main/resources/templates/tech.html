@@ -213,11 +213,11 @@
             Git: {
                 icon: 'fab fa-git-alt',
                 title: 'Git Test',
-                desc: 'Validate your Git workflow knowledge with branching, merging, and collaboration scenarios.',
+                desc: '10 random MCQs per attempt (order and options shuffled) from a larger Git question bank.',
                 levels: {
-                    'Git Pre-Intermediate': 'Basic Git commands, commits, and repositories.',
-                    'Git Intermediate': 'Branching, merging, and conflict resolution.',
-                    'Git Advanced': 'Advanced workflows, rebasing, and team collaboration.'
+                    'Git Pre-Intermediate': 'repos, staging, commits, remotes (random each attempt).',
+                    'Git Intermediate': ' branches, merge, conflicts, stash (random each attempt).',
+                    'Git Advanced': ' rebase, Git Flow, reflog, team workflows (random each attempt).'
                 }
             },
             DotNet: {
@@ -433,13 +433,40 @@
             }
         ];
 
-        /* SQL & Git quiz sets: loaded from TechQuizCatalog.java (same data as /quiz page) */
+        /* SQL & Git quiz sets: loaded from TechQuizCatalog.java (Git: 15 per level, 10 shown random on /quiz) */
         const sqlPreIntermediateQuestions = /*[[${sqlPreIntermediateQuestions}]]*/ [];
         const sqlIntermediateQuestions = /*[[${sqlIntermediateQuestions}]]*/ [];
         const sqlAdvancedQuestions = /*[[${sqlAdvancedQuestions}]]*/ [];
         const gitPreIntermediateQuestions = /*[[${gitPreIntermediateQuestions}]]*/ [];
         const gitIntermediateQuestions = /*[[${gitIntermediateQuestions}]]*/ [];
         const gitAdvancedQuestions = /*[[${gitAdvancedQuestions}]]*/ [];
+        const GIT_QUIZ_SIZE = 10;
+
+        function shuffleArray(items) {
+            const arr = [...items];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        /** Picks count questions in random order and shuffles each question's options. */
+        function randomizeQuizSet(questions, count = GIT_QUIZ_SIZE) {
+            if (!questions || !questions.length) return [];
+            const picked = shuffleArray(questions).slice(0, Math.min(count, questions.length));
+            return picked.map((q) => {
+                const answerIdx = q.answer !== undefined ? q.answer : q.correct;
+                const options = shuffleArray(q.options);
+                const correctText = q.options[answerIdx];
+                return {
+                    question: q.question,
+                    options,
+                    answer: options.indexOf(correctText),
+                    correct: options.indexOf(correctText)
+                };
+            });
+        }
 
         const pythonPreIntermediateQuestions = [
             {
@@ -703,7 +730,7 @@
             const normalizedLevel = normalizeLevel(level, subject);
             const tiers = ['Pre-Intermediate', 'Intermediate', 'Advanced'];
             if (tiers.includes(normalizedLevel)) {
-                window.location.href = `/quiz?subject=${encodeURIComponent(subject)}&level=${encodeURIComponent(normalizedLevel)}`;
+                window.location.href = `/quiz?subject=${encodeURIComponent(subject)}&level=${encodeURIComponent(normalizedLevel)}&fresh=1`;
                 return;
             }
             alert(`Quiz for ${subject} ${level} is not available yet.`);
@@ -803,9 +830,11 @@
                 if (level === 'Advanced') return pythonAdvancedQuestions;
             }
             if (subject === 'Git') {
-                if (level === 'Pre-Intermediate') return gitPreIntermediateQuestions;
-                if (level === 'Intermediate') return gitIntermediateQuestions;
-                if (level === 'Advanced') return gitAdvancedQuestions;
+                let bank = null;
+                if (level === 'Pre-Intermediate') bank = gitPreIntermediateQuestions;
+                if (level === 'Intermediate') bank = gitIntermediateQuestions;
+                if (level === 'Advanced') bank = gitAdvancedQuestions;
+                return bank ? randomizeQuizSet(bank, GIT_QUIZ_SIZE) : null;
             }
             return null;
         }
