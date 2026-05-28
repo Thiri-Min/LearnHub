@@ -80,7 +80,7 @@
     <li class="nav-item">
         <a class="nav-link" href="/courses" th:classappend="${coursesActive} ? 'active' : ''">Courses</a>
     </li>
-    <li class="nav-item" th:if="${user}">
+    <li class="nav-item" th:if="${user != null and !isAdminUser}">
         <a class="nav-link" href="/feedback" th:classappend="${activeNav == 'feedback'} ? 'active' : ''">Feedback</a>
     </li>
     <li class="nav-item dropdown" th:if="${user}">
