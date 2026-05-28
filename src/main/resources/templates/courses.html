@@ -63,6 +63,51 @@
             align-items: center;
             justify-content: center;
         }
+        .cart-success-modal .modal-content {
+            border: none;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+        }
+        .cart-success-modal .modal-header {
+            border-bottom: none;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+        }
+        .cart-success-modal .modal-title {
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+        .cart-success-modal .modal-body {
+            color: #1f2937;
+            font-size: 1rem;
+            padding-top: 1.25rem;
+        }
+        .cart-success-modal .icon-wrap {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
+            font-size: 1.35rem;
+            margin-bottom: 0.85rem;
+        }
+        .cart-success-modal .modal-footer {
+            border-top: none;
+            gap: 0.5rem;
+        }
+        .btn-view-cart {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            border: none;
+        }
+        .btn-view-cart:hover {
+            color: #fff;
+            filter: brightness(0.95);
+        }
     </style>
     <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
 </head>
@@ -73,7 +118,6 @@
         <div class="container">
             <h1>Available Courses</h1>
             <p>Choose the courses you want to add to your learning cart.</p>
-            <div th:if="${message}" class="alert alert-success text-dark mt-3" th:text="${message}"></div>
         </div>
     </section>
 
@@ -109,6 +153,26 @@
             <p class="mb-0">&copy; 2026 Learning Management System. All rights reserved.</p>
         </div>
     </footer>
+    <div class="modal fade cart-success-modal" id="cartSuccessModal" tabindex="-1" aria-labelledby="cartSuccessTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cartSuccessTitle"><i class="fas fa-cart-check me-2"></i>Added to Cart</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="icon-wrap mx-auto">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <p id="cartSuccessMessage" class="mb-0">Course added to cart.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Continue Shopping</button>
+                    <a href="/cart" class="btn btn-view-cart">View Cart</a>
+                </div>
+            </div>
+        </div>
+    </div>
     <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" aria-label="Back to top">
         <i class="fas fa-arrow-up"></i>
     </button>
@@ -164,6 +228,20 @@
         window.addEventListener('DOMContentLoaded', function() {
             updateFavoriteButtons();
             syncFavoritesToServer();
+            const params = new URLSearchParams(window.location.search);
+            const message = params.get('message');
+            if (message) {
+                const msgEl = document.getElementById('cartSuccessMessage');
+                if (msgEl) msgEl.textContent = message;
+                const modalEl = document.getElementById('cartSuccessModal');
+                if (modalEl && window.bootstrap) {
+                    new bootstrap.Modal(modalEl).show();
+                }
+                params.delete('message');
+                const newQuery = params.toString();
+                const cleanUrl = window.location.pathname + (newQuery ? `?${newQuery}` : '');
+                window.history.replaceState({}, '', cleanUrl);
+            }
         });
 
         window.addEventListener('scroll', () => {
