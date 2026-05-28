@@ -76,8 +76,9 @@
     <script th:inline="javascript">
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
+        const gaMeasurementId = /*[[${ga4MeasurementId}]]*/ '';
         gtag('js', new Date());
-        gtag('config', [[${ga4MeasurementId}]]);
+        gtag('config', gaMeasurementId);
 
         const gaTrackLoginSuccess = /*[[${gaTrackLoginSuccess}]]*/ false;
         if (gaTrackLoginSuccess) {
