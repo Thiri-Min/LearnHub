@@ -71,6 +71,22 @@
         </div>
     </div>
 </nav>
+<th:block th:if="${ga4MeasurementId != null and !#strings.isEmpty(ga4MeasurementId)}">
+    <script async th:src="'https://www.googletagmanager.com/gtag/js?id=' + ${ga4MeasurementId}"></script>
+    <script th:inline="javascript">
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', [[${ga4MeasurementId}]]);
+
+        const gaTrackLoginSuccess = /*[[${gaTrackLoginSuccess}]]*/ false;
+        if (gaTrackLoginSuccess) {
+            gtag('event', 'login_success', {
+                method: 'password'
+            });
+        }
+    </script>
+</th:block>
 
 <ul th:fragment="navLinks(homeActive, coursesActive, activeTech, homeHref, useAuthModal, activeNav)"
     class="navbar-nav ms-auto align-items-lg-center">

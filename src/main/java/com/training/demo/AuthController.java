@@ -76,6 +76,7 @@ public class AuthController {
         loggedIn = userService.findById(loggedIn.getId()).orElse(loggedIn);
         session.setAttribute("loggedInUser", loggedIn);
         redirectAttributes.addFlashAttribute("trackLocation", true);
+        redirectAttributes.addFlashAttribute("gaTrackLoginSuccess", true);
         return "redirect:/home";
     }
 
