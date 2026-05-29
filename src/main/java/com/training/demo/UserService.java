@@ -131,6 +131,25 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /** Simple reset flow for demo apps: identify account and set a new password. */
+    public void resetPasswordByIdentifier(String emailOrUsername, String newPassword, String confirmPassword) throws Exception {
+        String identifier = trim(emailOrUsername);
+        if (identifier.isEmpty()) {
+            throw new Exception("Email or username is required.");
+        }
+        if (newPassword == null || newPassword.length() < 4) {
+            throw new Exception("New password must be at least 4 characters.");
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            throw new Exception("Passwords do not match.");
+        }
+
+        User user = findByEmailOrUsername(identifier)
+                .orElseThrow(() -> new Exception("No account found with that email or username."));
+        user.setPassword(newPassword);
+        userRepository.saveAndFlush(user);
+    }
+
     public String normalizeUsername(String username) {
         if (username == null) {
             return "";

@@ -112,6 +112,30 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "redirect:/?authMode=login";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestParam String emailOrUsername,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            userService.resetPasswordByIdentifier(emailOrUsername, newPassword, confirmPassword);
+            redirectAttributes.addAttribute("authMode", "login");
+            redirectAttributes.addAttribute("signupSuccess", "Password reset successful. Please sign in with your new password.");
+            return "redirect:/";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("showResetModal", true);
+            redirectAttributes.addFlashAttribute("resetError", e.getMessage());
+            redirectAttributes.addFlashAttribute("resetEmailOrUsername", emailOrUsername);
+            redirectAttributes.addAttribute("authMode", "login");
+            return "redirect:/";
+        }
+    }
+
     private void preserveSignupForm(Model model, String firstName, String lastName, String username, String email) {
         model.addAttribute("signupFirstName", firstName);
         model.addAttribute("signupLastName", lastName);
