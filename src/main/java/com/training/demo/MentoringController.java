@@ -49,16 +49,21 @@ public class MentoringController {
         }
         model.addAttribute("user", user);
         model.addAttribute("cartCount", getCartCount(session));
-        model.addAttribute("mentor", mentorOpt.get());
+        Mentor mentor = mentorOpt.get();
+        model.addAttribute("mentor", mentor);
         model.addAttribute("slots", mentoringService.getUpcomingSlots(mentorId));
         model.addAttribute("bookings", mentoringService.getUserBookingsForMentor(user.getId(), mentorId));
         model.addAttribute("chatMessages", mentoringService.getChatMessages(user.getId(), mentorId));
+        model.addAttribute("defaultStudentName", buildDisplayName(user));
+        model.addAttribute("defaultStudentEmail", user.getEmail() != null ? user.getEmail() : "");
         return "mentor-detail";
     }
 
     @PostMapping("/mentoring/book")
     public String bookSlot(@RequestParam Long slotId,
                            @RequestParam Long mentorId,
+                           @RequestParam String studentName,
+                           @RequestParam String studentEmail,
                            @RequestParam(required = false) String studentNote,
                            HttpSession session,
                            RedirectAttributes redirectAttributes) {
@@ -67,13 +72,25 @@ public class MentoringController {
             return "redirect:/?authMode=login";
         }
         try {
-            mentoringService.requestBooking(user.getId(), slotId, studentNote);
-            redirectAttributes.addFlashAttribute("message",
-                    "Booking request submitted! Your mentor will confirm the consultation slot.");
+            mentoringService.requestBooking(user.getId(), slotId, studentName, studentEmail, studentNote);
+            var mentorOpt = mentoringService.getMentor(mentorId);
+            String mentorName = mentorOpt.map(Mentor::getName).orElse("your mentor");
+            redirectAttributes.addFlashAttribute("registrationSuccess", true);
+            redirectAttributes.addFlashAttribute("registeredMentorName", mentorName);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/mentoring/mentor?mentorId=" + mentorId;
+    }
+
+    private String buildDisplayName(User user) {
+        String first = user.getFirstName() != null ? user.getFirstName().trim() : "";
+        String last = user.getLastName() != null ? user.getLastName().trim() : "";
+        String full = (first + " " + last).trim();
+        if (!full.isEmpty()) {
+            return full;
+        }
+        return user.getUsername() != null ? user.getUsername() : "";
     }
 
     @PostMapping("/mentoring/chat")

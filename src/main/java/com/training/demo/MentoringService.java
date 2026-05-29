@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +25,35 @@ public class MentoringService {
     private MentorChatMessageRepository mentorChatMessageRepository;
 
     public List<Mentor> getAllMentors() {
-        return mentorRepository.findAll();
+        return mentorRepository.findAll().stream()
+                .sorted(Comparator.comparingInt(this::mentorDisplayOrder))
+                .toList();
+    }
+
+    private int mentorDisplayOrder(Mentor mentor) {
+        if (mentor.getName() == null) {
+            return 999;
+        }
+        String normalized = mentor.getName().replace(".", "").trim().toLowerCase();
+        if (normalized.contains("thiri")) {
+            return 0;
+        }
+        if (normalized.contains("tu") && normalized.startsWith("mr")) {
+            return 1;
+        }
+        if (normalized.contains("hai")) {
+            return 2;
+        }
+        if (normalized.contains("mai")) {
+            return 3;
+        }
+        if (normalized.contains("hieu")) {
+            return 4;
+        }
+        if (normalized.contains("loan")) {
+            return 5;
+        }
+        return 100 + mentor.getId().intValue();
     }
 
     public Optional<Mentor> getMentor(Long mentorId) {
@@ -49,7 +78,18 @@ public class MentoringService {
     }
 
     @Transactional
-    public MentorBooking requestBooking(Long userId, Long slotId, String studentNote) throws Exception {
+    public MentorBooking requestBooking(Long userId, Long slotId, String studentName,
+                                        String studentEmail, String studentNote) throws Exception {
+        if (studentName == null || studentName.isBlank()) {
+            throw new Exception("Student name is required.");
+        }
+        if (studentEmail == null || studentEmail.isBlank()) {
+            throw new Exception("Email is required.");
+        }
+        if (!studentEmail.contains("@")) {
+            throw new Exception("Please enter a valid email address.");
+        }
+
         MentorSlot slot = mentorSlotRepository.findById(slotId)
                 .orElseThrow(() -> new Exception("Time slot not found."));
 
@@ -74,6 +114,8 @@ public class MentoringService {
         booking.setMentorId(slot.getMentorId());
         booking.setSlotId(slotId);
         booking.setStatus("REQUESTED");
+        booking.setStudentName(studentName.trim());
+        booking.setStudentEmail(studentEmail.trim());
         booking.setStudentNote(studentNote != null ? studentNote.trim() : "");
         booking.setRequestedAt(LocalDateTime.now());
         return mentorBookingRepository.save(booking);

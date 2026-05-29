@@ -11,4 +11,6 @@ public interface MentorBookingRepository extends JpaRepository<MentorBooking, Lo
     List<MentorBooking> findByUserIdAndMentorIdOrderByRequestedAtDesc(Long userId, Long mentorId);
 
     Optional<MentorBooking> findBySlotIdAndUserId(Long slotId, Long userId);
+
+    void deleteByMentorId(Long mentorId);
 }

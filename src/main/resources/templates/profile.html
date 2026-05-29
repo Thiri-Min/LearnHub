@@ -106,8 +106,27 @@
             transition: transform 0.25s ease;
             color: #6c757d;
         }
-        .progress-toggle[aria-expanded="true"] .collapse-chevron {
-            transform: rotate(180deg);
+        .otp-badge {
+            font-family: 'Courier New', monospace;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: 0.35rem;
+            color: #005baa;
+            background: #eff6ff;
+            border: 2px dashed #005baa;
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            display: inline-block;
+        }
+        .payment-card {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            background: #fafbfc;
+        }
+        .payment-card.vnpay {
+            border-left: 4px solid #005baa;
         }
     </style>
     <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
@@ -209,6 +228,11 @@
                             </button>
                         </li>
                         <li class="nav-item">
+                            <button type="button" class="nav-link" data-tab="dashboard" id="tabBtnDashboard">
+                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                            </button>
+                        </li>
+                        <li class="nav-item">
                             <button type="button" class="nav-link" data-tab="progress" id="tabBtnProgress">
                                 <i class="fas fa-chart-line me-1"></i>Track Progress
                             </button>
@@ -232,6 +256,39 @@
                                             Added <span th:text="${#temporals.format(fav.addedAt, 'dd MMM yyyy')}"></span>
                                         </p>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard (VNPay OTP) -->
+                    <div id="panelDashboard" class="tab-panel">
+                        <div class="mb-4">
+                            <h4 class="mb-1"><i class="fas fa-qrcode me-2 text-primary"></i>Payment Dashboard</h4>
+                            <p class="text-muted mb-0">Your VNPay payment OTP codes appear here after checkout. They are not shown on the order confirmation page.</p>
+                        </div>
+                        <div th:if="${#lists.isEmpty(paymentOrders)}" class="empty-hint">
+                            <i class="fas fa-receipt fa-2x mb-2 d-block"></i>
+                            No VNPay payments yet. Pay with VNPay QR at checkout to receive an OTP here.
+                        </div>
+                        <div th:unless="${#lists.isEmpty(paymentOrders)}">
+                            <div class="payment-card vnpay" th:each="order : ${paymentOrders}">
+                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                                    <div>
+                                        <span class="badge bg-primary me-1" th:text="${order.paymentMethod}">VNPay QR</span>
+                                        <span class="badge bg-success" th:text="${order.status}">PAID</span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        <span th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy HH:mm')}"></span>
+                                    </small>
+                                </div>
+                                <p class="mb-1"><strong>Order:</strong> <span th:text="${order.orderCode}"></span></p>
+                                <p class="mb-1"><strong>Amount:</strong> $<span th:text="${order.amount}"></span></p>
+                                <p class="mb-2 text-muted small" th:text="${order.courseSummary}"></p>
+                                <div class="text-center py-2">
+                                    <p class="small text-muted mb-1">Your payment OTP</p>
+                                    <div class="otp-badge" th:text="${order.otp}">000000</div>
                                 </div>
                             </div>
                         </div>
@@ -390,11 +447,24 @@
         function showTab(tab) {
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('#profileTabs .nav-link').forEach(b => b.classList.remove('active'));
-            const panel = document.getElementById(tab === 'progress' ? 'panelProgress' : 'panelFavorites');
-            const btn = document.getElementById(tab === 'progress' ? 'tabBtnProgress' : 'tabBtnFavorites');
+            const panelMap = {
+                favorites: 'panelFavorites',
+                dashboard: 'panelDashboard',
+                progress: 'panelProgress'
+            };
+            const btnMap = {
+                favorites: 'tabBtnFavorites',
+                dashboard: 'tabBtnDashboard',
+                progress: 'tabBtnProgress'
+            };
+            const panel = document.getElementById(panelMap[tab] || 'panelFavorites');
+            const btn = document.getElementById(btnMap[tab] || 'tabBtnFavorites');
             if (panel) panel.classList.add('active');
             if (btn) btn.classList.add('active');
-            history.replaceState(null, '', tab === 'progress' ? '/profile?tab=progress' : '/profile?tab=favorites');
+            const url = tab === 'progress' ? '/profile?tab=progress'
+                : tab === 'dashboard' ? '/profile?tab=dashboard'
+                : '/profile?tab=favorites';
+            history.replaceState(null, '', url);
         }
 
         document.querySelectorAll('#profileTabs [data-tab]').forEach(btn => {

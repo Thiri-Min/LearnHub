@@ -11,4 +11,6 @@ public interface MentorSlotRepository extends JpaRepository<MentorSlot, Long> {
     List<MentorSlot> findByMentorIdAndStatusOrderByStartTimeAsc(Long mentorId, String status);
 
     long countByMentorIdAndStatus(Long mentorId, String status);
+
+    void deleteByMentorId(Long mentorId);
 }

@@ -6,6 +6,7 @@
     <title th:text="${mentor.name} + ' - Mentor Session'">Mentor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.css" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(135deg, #2d4059 0%, #4a6572 100%);
@@ -30,20 +31,281 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2rem;
+            flex-shrink: 0;
         }
-        .slot-row {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
+        .booking-panel {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .booking-panel-header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            padding: 1.25rem 1.5rem;
+        }
+        .booking-panel-header h4 { margin: 0; font-weight: 700; }
+        .booking-panel-body { padding: 0; }
+        .meeting-request-flow {
+            display: flex;
+            flex-direction: column;
+        }
+        .meeting-step {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e8eaed;
+        }
+        .meeting-step:last-child {
+            border-bottom: none;
+        }
+        .meeting-step-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #1a73e8;
+            margin-bottom: 0.35rem;
+        }
+        .meeting-step h5 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 1rem;
+        }
+        .meeting-step h5 i {
+            color: #5f6368;
+            margin-right: 0.35rem;
+        }
+        .gcal-wrap {
+            background: #fff;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            box-shadow: none;
+        }
+        #mentorBookingCalendar {
+            --fc-border-color: #dadce0;
+            --fc-button-bg-color: #fff;
+            --fc-button-border-color: #dadce0;
+            --fc-button-text-color: #3c4043;
+            --fc-button-hover-bg-color: #f1f3f4;
+            --fc-button-hover-border-color: #dadce0;
+            --fc-button-active-bg-color: #e8f0fe;
+            --fc-button-active-border-color: #1a73e8;
+            --fc-today-bg-color: transparent;
+            --fc-event-border-color: transparent;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+        #mentorBookingCalendar .fc-toolbar-title {
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: #3c4043;
+        }
+        #mentorBookingCalendar .fc-col-header-cell-cushion {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: #70757a;
+            text-transform: uppercase;
+            padding: 0.5rem 0;
+        }
+        #mentorBookingCalendar .fc-daygrid-day-number {
+            font-size: 0.82rem;
+            color: #3c4043;
+            padding: 6px 8px;
+            text-decoration: none;
+        }
+        #mentorBookingCalendar .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+            background: #1a73e8;
+            color: #fff;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 4px;
+            padding: 0;
+        }
+        #mentorBookingCalendar .fc-daygrid-day.fc-day-selected:not(.fc-day-today) .fc-daygrid-day-number {
+            background: #1a73e8;
+            color: #fff;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 4px;
+            padding: 0;
+        }
+        #mentorBookingCalendar .fc-daygrid-day.fc-day-today.fc-day-selected .fc-daygrid-day-number {
+            background: #1a73e8;
+            color: #fff;
+        }
+        #mentorBookingCalendar .fc-daygrid-day.fc-has-slots {
+            cursor: pointer;
+        }
+        #mentorBookingCalendar .fc-daygrid-day.fc-has-slots:hover {
             background: #f8f9fa;
         }
+        #mentorBookingCalendar .fc-daygrid-day:not(.fc-has-slots) {
+            cursor: default;
+        }
+        #mentorBookingCalendar .fc-daygrid-day:not(.fc-has-slots) .fc-daygrid-day-number {
+            color: #9aa0a6;
+        }
+        #mentorBookingCalendar .fc-event.slot-availability {
+            font-size: 0.65rem;
+            border-radius: 4px;
+            padding: 1px 4px;
+            margin: 1px 2px 0;
+            cursor: pointer;
+        }
+        #mentorBookingCalendar .fc-daygrid-event-harness {
+            margin-top: 2px;
+        }
+        .gcal-legend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.78rem;
+            color: #5f6368;
+            margin-top: 0.65rem;
+            padding-left: 0.25rem;
+        }
+        .gcal-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            background: #1a73e8;
+        }
+        .meeting-date-display {
+            background: #e8f0fe;
+            border: 1px solid #c6dafc;
+            border-radius: 8px;
+            padding: 0.65rem 1rem;
+            font-size: 0.9rem;
+            color: #1967d2;
+            font-weight: 500;
+            margin-bottom: 0.85rem;
+            display: none;
+        }
+        .meeting-date-display.visible { display: block; }
+        .meeting-times-wrap .times-placeholder {
+            color: #80868b;
+            font-size: 0.88rem;
+            padding: 0.5rem 0;
+            margin: 0;
+        }
+        .meeting-times-wrap .time-slots-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .time-slots-section h6 {
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 0.75rem;
+        }
+        .time-slots-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+            min-height: 44px;
+        }
+        .time-slot-btn {
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            border-radius: 10px;
+            padding: 0.5rem 0.85rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s;
+        }
+        .time-slot-btn:hover:not(:disabled) {
+            border-color: #6366f1;
+            color: #4f46e5;
+            background: #eef2ff;
+        }
+        .time-slot-btn.selected {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-color: transparent;
+            color: #fff;
+        }
+        .time-slot-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .booking-form .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+        .btn-register {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            padding: 0.85rem;
+            border-radius: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-register:hover:not(:disabled) {
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+        }
+        .btn-register:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+        .selected-slot-summary {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 0.65rem 1rem;
+            font-size: 0.88rem;
+            color: #166534;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .selected-slot-summary.visible { display: block; }
+        .no-slots-msg {
+            text-align: center;
+            color: #94a3b8;
+            padding: 2.5rem 1.5rem;
+        }
+        .meeting-step-calendar .gcal-wrap {
+            max-width: 100%;
+        }
+        #mentorBookingCalendar .fc {
+            max-width: 100%;
+        }
+        #registrationModal .modal-content {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        #registrationModal .modal-body {
+            padding: 2.5rem 2rem;
+        }
+        .success-icon-wrap {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #ecfdf5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+        }
+        .success-icon-wrap i { font-size: 2.25rem; color: #10b981; }
         .chat-box {
             height: 320px;
             overflow-y: auto;
@@ -69,11 +331,44 @@
             border: 1px solid #dee2e6;
         }
         .chat-meta { font-size: 0.75rem; opacity: 0.75; margin-top: 0.25rem; }
+        .skill-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .skill-icon {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.15rem;
+            min-width: 48px;
+            padding: 0.35rem 0.4rem;
+            border-radius: 8px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+        }
+        .skill-icon i { font-size: 1.1rem; }
+        .skill-icon span { font-size: 0.58rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        .skill-icon.java i { color: #e76f00; }
+        .skill-icon.spring i { color: #6db33f; }
+        .skill-icon.fullstack i { color: #6366f1; }
+        .skill-icon.azure i { color: #0078d4; }
+        .skill-icon.cloud i { color: #0ea5e9; }
+        .skill-icon.python i { color: #3776ab; }
+        .skill-icon.dsa i { color: #8b5cf6; }
+        .skill-icon.frontend i { color: #e34f26; }
+        .skill-icon.react i { color: #61dafb; }
+        .skill-icon.angular i { color: #dd0031; }
+        .skill-icon.dotnet i { color: #512bd4; }
+        .skill-icon.testing i { color: #0d9488; }
+        .skill-icon.qa i { color: #dc2626; }
+        .skill-icon.automation i { color: #7c3aed; }
         .site-footer { background: rgba(17, 24, 39, 0.45); color: #fff; margin-top: 2rem; }
     </style>
     <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
 </head>
-<body>
+<body th:attr="data-registration-success=${registrationSuccess}, data-registered-mentor=${registeredMentorName}">
     <nav th:replace="~{fragments/navbar :: navbarShell(false, false, 'mentoring', '/home', false, '')}"></nav>
 
     <div class="container py-4">
@@ -95,72 +390,152 @@
                 <div>
                     <h2 class="mb-1" th:text="${mentor.name}">Mentor</h2>
                     <span class="badge bg-primary mb-2" th:text="${mentor.position}">Technical Trainer</span>
-                    <p class="text-muted mb-0" th:text="${mentor.expertise}"></p>
+                    <div class="skill-icons"
+                         th:if="${mentor.expertise != null and not #strings.contains(mentor.expertise, 'Front-End') and (#strings.contains(mentor.expertise, 'Spring Boot') or #strings.contains(mentor.expertise, 'Spring') or (#strings.contains(mentor.expertise, 'Java') and not #strings.contains(mentor.expertise, 'JavaScript')))}">
+                        <div class="skill-icon java" title="Java"><i class="fab fa-java"></i><span>Java</span></div>
+                        <div class="skill-icon spring" title="Spring"><i class="fas fa-seedling"></i><span>Spring</span></div>
+                        <div class="skill-icon fullstack" title="Full-stack design"><i class="fas fa-layer-group"></i><span>Full stack</span></div>
+                    </div>
+                    <div class="skill-icons"
+                         th:if="${mentor.expertise != null and #strings.contains(mentor.expertise, 'Azure')}">
+                        <div class="skill-icon azure" title="Microsoft Azure"><i class="fab fa-microsoft"></i><span>Azure</span></div>
+                        <div class="skill-icon cloud" title="Cloud"><i class="fas fa-cloud"></i><span>Cloud</span></div>
+                    </div>
+                    <div class="skill-icons"
+                         th:if="${mentor.expertise != null and #strings.contains(mentor.expertise, 'Python')}">
+                        <div class="skill-icon python" title="Python"><i class="fab fa-python"></i><span>Python</span></div>
+                        <div class="skill-icon dsa" title="DSA"><i class="fas fa-project-diagram"></i><span>DSA</span></div>
+                    </div>
+                    <div class="skill-icons"
+                         th:if="${mentor.expertise != null and #strings.contains(mentor.expertise, '.NET')}">
+                        <div class="skill-icon dotnet" title=".NET"><i class="fab fa-microsoft"></i><span>.NET</span></div>
+                        <div class="skill-icon fullstack" title="Full-stack"><i class="fas fa-layer-group"></i><span>Full stack</span></div>
+                    </div>
+                    <div class="skill-icons"
+                         th:if="${mentor.expertise != null and (#strings.contains(mentor.expertise, 'Testing') or #strings.contains(mentor.expertise, 'QA') or #strings.contains(mentor.expertise, 'automation'))}">
+                        <div class="skill-icon testing" title="Software Testing"><i class="fas fa-vial"></i><span>Testing</span></div>
+                        <div class="skill-icon qa" title="QA"><i class="fas fa-bug"></i><span>QA</span></div>
+                        <div class="skill-icon automation" title="Test automation"><i class="fas fa-robot"></i><span>Automation</span></div>
+                    </div>
+                    <div class="skill-icons"
+                         th:if="${mentor.expertise != null and (#strings.contains(mentor.expertise, 'Front-End') or #strings.contains(mentor.expertise, 'React') or #strings.contains(mentor.expertise, 'Angular'))}">
+                        <div class="skill-icon frontend" title="Front-End"><i class="fas fa-laptop-code"></i><span>Front end</span></div>
+                        <div class="skill-icon react" title="React"><i class="fab fa-react"></i><span>React</span></div>
+                        <div class="skill-icon angular" title="Angular"><i class="fab fa-angular"></i><span>Angular</span></div>
+                    </div>
+                    <p class="text-muted mb-0 mt-2" th:text="${mentor.expertise}"></p>
                 </div>
             </div>
-            <p class="mt-3 mb-0" th:text="${mentor.bio}"></p>
+            <p class="mt-3 mb-0 text-secondary" th:text="${mentor.bio}"></p>
         </div>
 
         <div class="row">
             <div class="col-lg-7">
-                <div class="panel-card">
-                    <h4 class="mb-3"><i class="fas fa-calendar-alt me-2 text-primary"></i>Available Time Slots</h4>
-                    <p class="text-muted small">Select a slot and submit a booking request for consultation or discussion.</p>
-
-                    <div th:if="${#lists.isEmpty(slots)}" class="text-center text-muted py-4">
-                        No upcoming slots. Please check back later.
+                <div class="panel-card p-0 booking-panel">
+                    <div class="booking-panel-header">
+                        <h4><i class="fas fa-calendar-check me-2"></i>Book a Session</h4>
+                        <p class="mb-0 mt-1 small opacity-90">
+                            Create a meeting request with <strong th:text="${mentor.name}">your mentor</strong>
+                        </p>
                     </div>
+                    <div class="booking-panel-body">
+                        <div id="slotStore" class="d-none">
+                            <span th:each="slot : ${slots}"
+                                  th:attr="data-id=${slot.id},
+                                           data-date=${#temporals.format(slot.startTime, 'yyyy-MM-dd')},
+                                           data-time=${#temporals.format(slot.startTime, 'HH:mm') + ' – ' + #temporals.format(slot.endTime, 'HH:mm')},
+                                           data-status=${slot.status}"></span>
+                        </div>
 
-                    <div th:each="slot : ${slots}">
-                        <div class="slot-row">
-                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                                <div>
-                                    <strong th:text="${#temporals.format(slot.startTime, 'EEE, dd MMM yyyy')}">Date</strong>
-                                    <div class="text-muted">
-                                        <i class="fas fa-clock me-1"></i>
-                                        <span th:text="${#temporals.format(slot.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(slot.endTime, 'HH:mm')}">Time</span>
+                        <div th:if="${#lists.isEmpty(slots)}" class="no-slots-msg">
+                            <i class="fas fa-calendar-times fa-2x mb-2 d-block"></i>
+                            No upcoming slots. Please check back later.
+                        </div>
+
+                        <div id="bookingCalendarWrap" class="meeting-request-flow" th:unless="${#lists.isEmpty(slots)}">
+                            <div class="meeting-step meeting-step-calendar">
+                                <p class="meeting-step-title">Step 1</p>
+                                <h5><i class="far fa-calendar-alt"></i>Select a date</h5>
+                                <div class="gcal-wrap">
+                                    <div id="mentorBookingCalendar"></div>
+                                    <div class="gcal-legend">
+                                        <span class="gcal-legend-dot"></span>
+                                        Blue bars show days with open sessions
                                     </div>
                                 </div>
-                                <span class="badge"
-                                      th:classappend="${slot.status == 'AVAILABLE'} ? 'bg-success' : (${slot.status == 'REQUESTED'} ? 'bg-warning text-dark' : 'bg-secondary')"
-                                      th:text="${slot.status}">STATUS</span>
                             </div>
 
-                            <form th:if="${slot.status == 'AVAILABLE'}" method="POST" action="/mentoring/book" class="mt-3">
-                                <input type="hidden" name="slotId" th:value="${slot.id}" />
-                                <input type="hidden" name="mentorId" th:value="${mentor.id}" />
-                                <div class="mb-2">
-                                    <label class="form-label small mb-0">Topic / note for mentor (optional)</label>
-                                    <textarea name="studentNote" class="form-control form-control-sm" rows="2"
-                                              placeholder="e.g. Need help with Spring Boot REST API design"></textarea>
+                            <div class="meeting-step">
+                                <p class="meeting-step-title">Step 2</p>
+                                <h5><i class="far fa-clock"></i>Select a time</h5>
+                                <div class="meeting-date-display" id="meetingDateDisplay">
+                                    <i class="fas fa-calendar-day me-2"></i><span id="selectedDateLabel">—</span>
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-paper-plane me-1"></i>Request Booking
-                                </button>
-                            </form>
-                            <p th:if="${slot.status == 'REQUESTED'}" class="small text-warning mb-0 mt-2">
-                                <i class="fas fa-hourglass-half me-1"></i>Pending confirmation
-                            </p>
+                                <div class="meeting-times-wrap">
+                                    <div class="time-slots-grid" id="timeSlotsGrid">
+                                        <p class="times-placeholder mb-0">Choose a date on the calendar above to see available times.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="meeting-step">
+                                <p class="meeting-step-title">Step 3</p>
+                                <h5><i class="fas fa-user-edit"></i>Meeting request details</h5>
+                                <div class="selected-slot-summary" id="selectedSlotSummary">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    <span id="selectedSlotText"></span>
+                                </div>
+                                <form method="POST" action="/mentoring/book" class="booking-form" id="bookingForm">
+                                    <input type="hidden" name="mentorId" th:value="${mentor.id}" />
+                                    <input type="hidden" name="slotId" id="slotIdInput" value="" />
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label" for="studentName">Student name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="studentName" name="studentName"
+                                                   th:value="${defaultStudentName}" required
+                                                   placeholder="Your full name" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label" for="studentEmail">Email <span class="text-danger">*</span></label>
+                                            <input type="email" class="form-control" id="studentEmail" name="studentEmail"
+                                                   th:value="${defaultStudentEmail}" required
+                                                   placeholder="you@example.com" />
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="studentNote">Agenda / message (optional)</label>
+                                            <textarea class="form-control" id="studentNote" name="studentNote" rows="3"
+                                                      placeholder="What would you like to discuss in this session?"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-register w-100" id="submitBookingBtn" disabled>
+                                                <i class="fas fa-paper-plane me-2"></i>Send meeting request
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="panel-card" th:unless="${#lists.isEmpty(bookings)}">
-                    <h5 class="mb-3"><i class="fas fa-list me-2"></i>Your Booking Requests</h5>
+                    <h5 class="mb-3"><i class="fas fa-list me-2"></i>Your Registrations</h5>
                     <div class="table-responsive">
-                        <table class="table table-sm">
+                        <table class="table table-sm align-middle">
                             <thead>
                                 <tr>
-                                    <th>Requested</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
                                     <th>Status</th>
-                                    <th>Note</th>
+                                    <th>Requested</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:each="b : ${bookings}">
-                                    <td th:text="${#temporals.format(b.requestedAt, 'dd MMM yyyy HH:mm')}">—</td>
+                                    <td th:text="${b.studentName != null ? b.studentName : '—'}">—</td>
+                                    <td th:text="${b.studentEmail != null ? b.studentEmail : '—'}">—</td>
                                     <td><span class="badge bg-info" th:text="${b.status}">—</span></td>
-                                    <td th:text="${#strings.isEmpty(b.studentNote)} ? '—' : ${b.studentNote}">—</td>
+                                    <td th:text="${#temporals.format(b.requestedAt, 'dd MMM yyyy HH:mm')}">—</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -202,16 +577,200 @@
         </div>
     </div>
 
+    <div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="registrationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg">
+                <div class="modal-body text-center">
+                    <div class="success-icon-wrap">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" id="registrationModalLabel">Registration successful</h5>
+                    <p class="text-muted mb-4" id="registrationSuccessMessage">
+                        You are registered successfully.
+                    </p>
+                    <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer class="site-footer">
         <div class="container py-4 text-center">
             <p class="mb-0">&copy; 2026 Learning Management System.</p>
         </div>
     </footer>
-    <script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
             const chatBox = document.getElementById('chatBox');
             if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+            const body = document.body;
+            if (body.dataset.registrationSuccess === 'true') {
+                const mentorName = body.dataset.registeredMentor || 'your mentor';
+                const msgEl = document.getElementById('registrationSuccessMessage');
+                if (msgEl) {
+                    msgEl.textContent = 'You are registered to "' + mentorName + '" successfully.';
+                }
+                const modalEl = document.getElementById('registrationModal');
+                if (modalEl) {
+                    new bootstrap.Modal(modalEl).show();
+                }
+            }
+
+            initBookingCalendar();
         });
+
+        function toIsoDate(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + day;
+        }
+
+        function initBookingCalendar() {
+            const store = document.getElementById('slotStore');
+            const calendarEl = document.getElementById('mentorBookingCalendar');
+            if (!store || !calendarEl || typeof FullCalendar === 'undefined') return;
+
+            const slots = Array.from(store.querySelectorAll('[data-id]')).map(el => ({
+                id: el.dataset.id,
+                date: el.dataset.date,
+                timeLabel: el.dataset.time,
+                status: el.dataset.status
+            })).filter(s => s.status === 'AVAILABLE');
+
+            if (slots.length === 0) return;
+
+            const datesWithSlots = new Set(slots.map(s => s.date));
+            let selectedDate = null;
+            let selectedSlotId = null;
+
+            const timeSlotsGrid = document.getElementById('timeSlotsGrid');
+            const selectedDateLabel = document.getElementById('selectedDateLabel');
+            const meetingDateDisplay = document.getElementById('meetingDateDisplay');
+            const slotIdInput = document.getElementById('slotIdInput');
+            const submitBtn = document.getElementById('submitBookingBtn');
+            const summary = document.getElementById('selectedSlotSummary');
+            const summaryText = document.getElementById('selectedSlotText');
+            const bookingForm = document.getElementById('bookingForm');
+
+            function formatDateLabel(iso) {
+                const d = new Date(iso + 'T12:00:00');
+                return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            }
+
+            function buildAvailabilityEvents() {
+                const byDate = {};
+                slots.forEach(s => {
+                    if (!byDate[s.date]) byDate[s.date] = 0;
+                    byDate[s.date]++;
+                });
+                return Object.keys(byDate).sort().map(date => ({
+                    title: byDate[date] + (byDate[date] === 1 ? ' slot' : ' slots'),
+                    start: date,
+                    allDay: true,
+                    classNames: ['slot-availability'],
+                    backgroundColor: '#1a73e8',
+                    borderColor: '#1a73e8',
+                    extendedProps: { date: date }
+                }));
+            }
+
+            function updateSubmitState() {
+                submitBtn.disabled = !(selectedSlotId && slotIdInput.value);
+            }
+
+            function selectDate(dateStr) {
+                if (!datesWithSlots.has(dateStr)) return;
+                selectedDate = dateStr;
+                selectedSlotId = null;
+                slotIdInput.value = '';
+                summary.classList.remove('visible');
+                calendar.render();
+                renderTimeSlots();
+                updateSubmitState();
+            }
+
+            function renderTimeSlots() {
+                timeSlotsGrid.innerHTML = '';
+                if (!selectedDate) {
+                    if (meetingDateDisplay) meetingDateDisplay.classList.remove('visible');
+                    timeSlotsGrid.innerHTML = '<p class="times-placeholder mb-0">Choose a date on the calendar above to see available times.</p>';
+                    if (selectedDateLabel) selectedDateLabel.textContent = '—';
+                    return;
+                }
+                if (meetingDateDisplay) meetingDateDisplay.classList.add('visible');
+                if (selectedDateLabel) selectedDateLabel.textContent = formatDateLabel(selectedDate);
+                const daySlots = slots.filter(s => s.date === selectedDate);
+                if (daySlots.length === 0) {
+                    timeSlotsGrid.innerHTML = '<p class="times-placeholder mb-0">No available times on this date.</p>';
+                    return;
+                }
+                daySlots.forEach(slot => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'time-slot-btn' + (selectedSlotId === slot.id ? ' selected' : '');
+                    btn.textContent = slot.timeLabel;
+                    btn.addEventListener('click', () => {
+                        selectedSlotId = slot.id;
+                        slotIdInput.value = slot.id;
+                        summaryText.textContent = formatDateLabel(selectedDate) + ' · ' + slot.timeLabel;
+                        summary.classList.add('visible');
+                        renderTimeSlots();
+                        updateSubmitState();
+                    });
+                    timeSlotsGrid.appendChild(btn);
+                });
+            }
+
+            const firstSlotDate = slots.map(s => s.date).sort()[0];
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                initialDate: firstSlotDate,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: ''
+                },
+                fixedWeekCount: false,
+                showNonCurrentDates: true,
+                height: 'auto',
+                firstDay: 0,
+                navLinks: false,
+                selectable: false,
+                events: buildAvailabilityEvents(),
+                dateClick: function(info) {
+                    selectDate(info.dateStr);
+                },
+                eventClick: function(info) {
+                    info.jsEvent.preventDefault();
+                    const dateStr = info.event.startStr.slice(0, 10);
+                    selectDate(dateStr);
+                },
+                dayCellClassNames: function(arg) {
+                    const iso = toIsoDate(arg.date);
+                    const classes = [];
+                    if (datesWithSlots.has(iso)) classes.push('fc-has-slots');
+                    if (selectedDate === iso) classes.push('fc-day-selected');
+                    return classes;
+                }
+            });
+
+            calendar.render();
+
+            if (bookingForm) {
+                bookingForm.addEventListener('submit', function(e) {
+                    if (!slotIdInput.value) {
+                        e.preventDefault();
+                        alert('Please complete Step 1 and Step 2 — select a date and time — before sending your meeting request.');
+                    }
+                });
+            }
+
+            updateSubmitState();
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

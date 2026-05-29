@@ -59,6 +59,11 @@
                         <p class="mb-0">Payment method: <strong th:text="${paymentMethod}"></strong></p>
                         <p class="mt-2 text-success" th:text="${paymentSummary}"></p>
                         <p class="mt-2 text-muted" th:text="${orderMessage}"></p>
+                        <div th:if="${showOtpOnDashboard}" class="alert alert-info mt-3 mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            Your payment OTP is available on your
+                            <a href="/profile?tab=dashboard" class="alert-link fw-semibold">Profile Dashboard</a>.
+                        </div>
                     </div>
 
                     <div class="mb-4">

@@ -26,6 +26,12 @@ public class MentorBooking {
     @Column(length = 500)
     private String studentNote;
 
+    @Column(length = 120)
+    private String studentName;
+
+    @Column(length = 255)
+    private String studentEmail;
+
     @Column(nullable = false)
     private LocalDateTime requestedAt;
 
@@ -75,6 +81,22 @@ public class MentorBooking {
 
     public void setStudentNote(String studentNote) {
         this.studentNote = studentNote;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public String getStudentEmail() {
+        return studentEmail;
+    }
+
+    public void setStudentEmail(String studentEmail) {
+        this.studentEmail = studentEmail;
     }
 
     public LocalDateTime getRequestedAt() {

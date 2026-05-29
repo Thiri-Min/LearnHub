@@ -3,6 +3,7 @@ package com.training.demo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +15,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -36,6 +40,18 @@ public class AuthController {
 
     @Autowired
     private UserFavoriteRepository userFavoriteRepository;
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @Autowired
+    private VnPayTokenService vnPayTokenService;
+
+    @Autowired
+    private AppUrlResolver appUrlResolver;
+
+    @Value("${app.public-url:}")
+    private String configuredPublicUrl;
 
     private static final List<Course> COURSE_CATALOG = List.of(
         new Course(1, "SQL Mastery", "Learn SQL query writing, joins, indexing, and database design fundamentals.", "fas fa-database", 89.0),
@@ -375,16 +391,49 @@ public class AuthController {
     }
 
     @GetMapping("/cart")
-    public String cart(HttpSession session, Model model, @RequestParam(required = false) String message) {
+    public String cart(HttpSession session, Model model, HttpServletRequest request,
+                       @RequestParam(required = false) String message) {
         var user = session.getAttribute("loggedInUser");
         if (user == null) {
             return "redirect:/?authMode=login";
         }
         List<Course> cart = getCart(session);
+        User currentUser = (User) user;
+        double cartTotal = cart.stream().mapToDouble(Course::getPrice).sum();
+
+        String formToken = (String) session.getAttribute(PaymentController.SESSION_VNPAY_TOKEN);
+        Optional<VnPayTokenService.VnPayTokenData> existingToken =
+                formToken != null ? vnPayTokenService.find(formToken) : Optional.empty();
+
+        String orderRef;
+        if (existingToken.isPresent() && existingToken.get().isConfirmed()) {
+            orderRef = existingToken.get().getVerifiedOrderRef();
+        } else if (existingToken.isPresent()) {
+            orderRef = existingToken.get().getOrderRef();
+        } else {
+            orderRef = paymentService.generateOrderCode();
+            formToken = vnPayTokenService.createToken(currentUser.getId(), cartTotal, orderRef);
+            session.setAttribute(PaymentController.SESSION_VNPAY_TOKEN, formToken);
+        }
+
+        String baseUrl = appUrlResolver.resolvePublicBaseUrl(request, configuredPublicUrl);
+        String vnpayFormUrl = baseUrl + "/payment/vnpay/scan?t=" + formToken;
         model.addAttribute("user", user);
         model.addAttribute("cartItems", cart);
         model.addAttribute("cartCount", cart.size());
-        model.addAttribute("cartTotal", cart.stream().mapToDouble(Course::getPrice).sum());
+        model.addAttribute("cartTotal", cartTotal);
+        model.addAttribute("vnpayOrderRef", orderRef);
+        model.addAttribute("vnpayFormUrl", vnpayFormUrl);
+        model.addAttribute("vnpayFormToken", formToken);
+        model.addAttribute("vnpayQrUrl", "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data="
+                + URLEncoder.encode(vnpayFormUrl, StandardCharsets.UTF_8));
+
+        Object verifiedRef = session.getAttribute(PaymentController.SESSION_VNPAY_VERIFIED);
+        model.addAttribute("vnpayConfirmed", verifiedRef != null);
+        if (verifiedRef != null) {
+            model.addAttribute("vnpayBillingName", session.getAttribute(PaymentController.SESSION_VNPAY_BILLING_NAME));
+            model.addAttribute("vnpayBillingEmail", session.getAttribute(PaymentController.SESSION_VNPAY_BILLING_EMAIL));
+        }
         if (message != null) {
             model.addAttribute("message", message);
         }
@@ -400,40 +449,125 @@ public class AuthController {
                            @RequestParam(required = false) String cardExpiry,
                            @RequestParam(required = false) String cardCvv,
                            Model model) {
+        Map<String, Object> result = processCheckout(session, paymentMethod, billingName, billingAddress,
+                cardNumber, cardExpiry, cardCvv);
+        if (!(Boolean) result.get("success")) {
+            return "redirect:/cart?message=" + encodeRedirectMessage((String) result.get("message"));
+        }
+
+        User currentUser = (User) session.getAttribute("loggedInUser");
+        @SuppressWarnings("unchecked")
+        List<Course> orderItems = (List<Course>) result.get("orderItems");
+        model.addAttribute("user", currentUser);
+        model.addAttribute("cartCount", 0);
+        model.addAttribute("orderItems", orderItems);
+        model.addAttribute("orderTotal", result.get("orderTotal"));
+        model.addAttribute("paymentMethod", result.get("paymentLabel"));
+        model.addAttribute("paymentSummary", result.get("paymentSummary"));
+        model.addAttribute("billingName", billingName);
+        model.addAttribute("billingAddress", billingAddress);
+        model.addAttribute("userEmail", currentUser.getEmail());
+        model.addAttribute("orderMessage", result.get("orderMessage"));
+        model.addAttribute("showOtpOnDashboard", result.get("showOtpOnDashboard"));
+        return "order-confirmation";
+    }
+
+    @PostMapping("/api/checkout")
+    @ResponseBody
+    public Map<String, Object> apiCheckout(HttpSession session,
+                                           @RequestParam String paymentMethod,
+                                           @RequestParam String billingName,
+                                           @RequestParam(required = false) String billingAddress,
+                                           @RequestParam(required = false) String billingEmail,
+                                           @RequestParam(required = false) String cardNumber,
+                                           @RequestParam(required = false) String cardExpiry,
+                                           @RequestParam(required = false) String cardCvv) {
+        String billingDetail = "qrpay".equals(paymentMethod)
+                ? (billingEmail != null ? billingEmail : "")
+                : (billingAddress != null ? billingAddress : "");
+        Map<String, Object> result = processCheckout(session, paymentMethod, billingName, billingDetail,
+                cardNumber, cardExpiry, cardCvv);
+        if ((Boolean) result.get("success")) {
+            result.put("message", "Thank you! Your courses are now in your account. Open Courses anytime to start learning.");
+        }
+        return result;
+    }
+
+    private Map<String, Object> processCheckout(HttpSession session,
+                                                String paymentMethod,
+                                                String billingName,
+                                                String billingDetail,
+                                                String cardNumber,
+                                                String cardExpiry,
+                                                String cardCvv) {
+        Map<String, Object> result = new HashMap<>();
         var user = session.getAttribute("loggedInUser");
         if (user == null) {
-            return "redirect:/?authMode=login";
+            result.put("success", false);
+            result.put("message", "Please log in to continue.");
+            return result;
         }
+
         User currentUser = (User) user;
         List<Course> cart = getCart(session);
         if (cart.isEmpty()) {
-            return "redirect:/cart?message=Your+cart+is+empty.";
+            result.put("success", false);
+            result.put("message", "Your cart is empty.");
+            return result;
         }
 
         double total = cart.stream().mapToDouble(Course::getPrice).sum();
         String paymentSummary;
+        String paymentLabel;
+        boolean isVnpay = "qrpay".equals(paymentMethod);
         if ("card".equals(paymentMethod)) {
             paymentSummary = "Paid by Card ending " + (cardNumber != null && cardNumber.length() >= 4 ? cardNumber.substring(cardNumber.length() - 4) : "xxxx") + ".";
+            paymentLabel = "Card";
+        } else if (isVnpay) {
+            Object verifiedRef = session.getAttribute(PaymentController.SESSION_VNPAY_VERIFIED);
+            Object verifiedAmount = session.getAttribute(PaymentController.SESSION_VNPAY_AMOUNT);
+            if (verifiedRef == null || verifiedAmount == null || Math.abs(((Number) verifiedAmount).doubleValue() - total) > 0.01) {
+                result.put("success", false);
+                result.put("message", "Please scan the VNPay QR and confirm payment before placing your order.");
+                return result;
+            }
+            paymentSummary = "VNPay QR payment confirmed. Reference: " + verifiedRef + ".";
+            paymentLabel = "VNPay QR";
         } else {
-            paymentSummary = "Cash on Delivery (COD) selected.";
+            result.put("success", false);
+            result.put("message", "Please select a valid payment method.");
+            return result;
         }
 
-        String successMessage = "Order successfully placed for " + currentUser.getFirstName() + " (" + currentUser.getEmail() + ") using " + (paymentMethod.equals("cod") ? "Cash on Delivery" : "Card") + ".";
+        String successMessage = "Order successfully placed for " + currentUser.getFirstName() + " (" + currentUser.getEmail() + ") using " + paymentLabel + ".";
+        if (isVnpay) {
+            paymentService.createVnpayOrder(currentUser, total, billingName, billingDetail, cart);
+            successMessage += " Your payment OTP is available on your Profile dashboard.";
+            session.removeAttribute(PaymentController.SESSION_VNPAY_VERIFIED);
+            session.removeAttribute(PaymentController.SESSION_VNPAY_AMOUNT);
+            session.removeAttribute(PaymentController.SESSION_VNPAY_BILLING_NAME);
+            session.removeAttribute(PaymentController.SESSION_VNPAY_BILLING_EMAIL);
+            String formToken = (String) session.getAttribute(PaymentController.SESSION_VNPAY_TOKEN);
+            vnPayTokenService.remove(formToken);
+            session.removeAttribute(PaymentController.SESSION_VNPAY_TOKEN);
+        }
 
-        model.addAttribute("user", currentUser);
-        model.addAttribute("cartCount", 0);
-        model.addAttribute("orderItems", new ArrayList<>(cart));
-        model.addAttribute("orderTotal", total);
-        model.addAttribute("paymentMethod", paymentMethod.equals("cod") ? "Cash on Delivery" : "Card");
-        model.addAttribute("paymentSummary", paymentSummary);
-        model.addAttribute("billingName", billingName);
-        model.addAttribute("billingAddress", billingAddress);
-        model.addAttribute("userEmail", currentUser.getEmail());
-        model.addAttribute("orderMessage", successMessage);
+        List<Course> orderItems = new ArrayList<>(cart);
+        cart.clear();
         session.setAttribute("lastOrderMessage", successMessage);
 
-        cart.clear();
-        return "order-confirmation";
+        result.put("success", true);
+        result.put("orderItems", orderItems);
+        result.put("orderTotal", total);
+        result.put("paymentSummary", paymentSummary);
+        result.put("paymentLabel", paymentLabel);
+        result.put("orderMessage", successMessage);
+        result.put("showOtpOnDashboard", isVnpay);
+        return result;
+    }
+
+    private static String encodeRedirectMessage(String message) {
+        return URLEncoder.encode(message, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
     @PostMapping("/cart/remove")
@@ -463,8 +597,11 @@ public class AuthController {
         User currentUser = userService.findById(((User) user).getId()).orElse((User) user);
         session.setAttribute("loggedInUser", currentUser);
         populateProfileModel(session, model, currentUser);
-        model.addAttribute("activeTab", "progress".equals(tab) ? "progress" : "favorites");
+        String activeTab = "dashboard".equals(tab) ? "dashboard"
+                : "progress".equals(tab) ? "progress" : "favorites";
+        model.addAttribute("activeTab", activeTab);
         model.addAttribute("lastOrderMessage", session.getAttribute("lastOrderMessage"));
+        model.addAttribute("paymentOrders", paymentService.getOrdersForUser(currentUser.getId()));
         return "profile";
     }
 
@@ -553,6 +690,7 @@ public class AuthController {
         model.addAttribute("richContentViews", progress.get("richContentViews"));
         model.addAttribute("quizAttempts", progress.get("quizAttempts"));
         model.addAttribute("favorites", progress.get("favorites"));
+        model.addAttribute("paymentOrders", paymentService.getOrdersForUser(user.getId()));
         if (user.getProfileImage() != null && user.getProfileImage().length > 0) {
             String imageBase64 = Base64.getEncoder().encodeToString(user.getProfileImage());
             model.addAttribute("hasProfileImage", true);

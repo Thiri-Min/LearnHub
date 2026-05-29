@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VNPay Billing — Google Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Roboto, Arial, sans-serif;
+            background: #f0ebf8;
+            color: #202124;
+            min-height: 100vh;
+        }
+        .form-top-bar {
+            height: 10px;
+            background: rgb(103, 58, 183);
+        }
+        .google-forms-brand {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 1.25rem 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #5f6368;
+            font-size: 0.875rem;
+        }
+        .google-forms-brand svg {
+            width: 22px;
+            height: 22px;
+        }
+        .form-wrap {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 0.5rem 1rem 3rem;
+        }
+        .form-card {
+            background: #fff;
+            border: 1px solid #dadce0;
+            border-top: 8px solid rgb(103, 58, 183);
+            border-radius: 8px;
+            padding: 1.5rem 1.5rem 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .form-card h1 {
+            font-family: "Google Sans", Roboto, Arial, sans-serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin: 0 0 0.5rem;
+            line-height: 1.25;
+        }
+        .form-card .subtitle {
+            color: #5f6368;
+            font-size: 0.95rem;
+            margin-bottom: 0.35rem;
+        }
+        .required-note {
+            color: #d93025;
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+        }
+        .field-card {
+            background: #fff;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem 1rem;
+            margin-bottom: 0.75rem;
+            transition: box-shadow 0.2s ease;
+        }
+        .field-card:focus-within {
+            box-shadow: inset 0 0 0 2px rgb(103, 58, 183);
+        }
+        .field-card label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+        .field-card label span.req {
+            color: #d93025;
+        }
+        .field-card input {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #dadce0;
+            padding: 0.35rem 0 0.5rem;
+            font-size: 1rem;
+            outline: none;
+            font-family: inherit;
+            background: transparent;
+        }
+        .field-card input:focus {
+            border-bottom: 2px solid rgb(103, 58, 183);
+            margin-bottom: -1px;
+        }
+        .submit-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        .btn-submit {
+            background: rgb(103, 58, 183);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.65rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-submit:hover {
+            background: rgb(90, 50, 163);
+            box-shadow: 0 1px 2px rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+        }
+        .btn-clear {
+            background: none;
+            border: none;
+            color: rgb(103, 58, 183);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .alert-error {
+            background: #fce8e6;
+            color: #c5221f;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .vnpay-badge {
+            display: inline-block;
+            background: #005baa;
+            color: #fff;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.65rem;
+        }
+        .vnpay-badge span { color: #e82127; }
+        .success-card {
+            background: #fff;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+        .success-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #e6f4ea;
+            color: #137333;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+        .success-card h2 {
+            font-family: "Google Sans", Roboto, Arial, sans-serif;
+            font-weight: 500;
+            color: #137333;
+            margin: 0 0 0.75rem;
+            font-size: 1.35rem;
+        }
+        .success-card p {
+            color: #5f6368;
+            margin: 0;
+            line-height: 1.55;
+        }
+        .form-footer {
+            max-width: 640px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            text-align: center;
+            color: #70757a;
+            font-size: 0.75rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-top-bar"></div>
+    <div class="google-forms-brand">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#7248b9" d="M22 8.24V6.5A2.5 2.5 0 0 0 19.5 4h-15A2.5 2.5 0 0 0 2 6.5v11A2.5 2.5 0 0 0 4.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-1.74l-2-1.13V18.5a.5.5 0 0 1-.5.5h-15a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 .5.5v1.63L22 8.24z"/><path fill="#34a853" d="M12 13 2.89 7.36l1.07-1.85L12 10.3l8.04-4.79 1.07 1.85L12 13z"/></svg>
+        <span>Google Forms</span>
+    </div>
+    <div class="form-wrap">
+        <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+        <div th:if="${submitted}" class="success-card">
+            <div class="success-icon">✓</div>
+            <div class="vnpay-badge">VN<span>Pay</span></div>
+            <h2>Your response has been recorded</h2>
+            <p>Billing name and email submitted successfully.<br>You can close this page and return to checkout — <strong>Payment Confirmed</strong> will appear with your details.</p>
+        </div>
+
+        <div th:unless="${submitted}">
+            <div class="form-card">
+                <div class="vnpay-badge">VN<span>Pay</span></div>
+                <h1>VNPay Billing Information</h1>
+                <p class="subtitle">Complete this Google Form after scanning the VNPay QR code.</p>
+                <p class="subtitle">Order ref: <strong th:text="${vnpayOrderRef}">VNP000</strong> · Amount: $<span th:text="${cartTotal}">0</span></p>
+                <p class="required-note">* Indicates required question</p>
+            </div>
+
+            <form th:action="@{/payment/vnpay-form(t=${formToken})}" method="post">
+                <input type="hidden" name="t" th:value="${formToken}">
+                <div class="field-card">
+                    <label for="billingName">
+                        Billing name <span class="req">*</span>
+                        <input type="text" id="billingName" name="billingName" required placeholder="Your answer" autocomplete="name">
+                    </label>
+                </div>
+                <div class="field-card">
+                    <label for="billingEmail">
+                        Email <span class="req">*</span>
+                        <input type="email" id="billingEmail" name="billingEmail" required placeholder="Your email address" autocomplete="email">
+                    </label>
+                </div>
+                <div class="submit-row">
+                    <button type="submit" class="btn-submit">Submit</button>
+                    <button type="reset" class="btn-clear">Clear form</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="form-footer">
+        Never submit passwords through Google Forms.<br>
+        This form was created for VNPay QR checkout demo.
+    </div>
+</body>
+</html>

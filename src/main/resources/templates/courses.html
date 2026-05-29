@@ -108,6 +108,61 @@
             color: #fff;
             filter: brightness(0.95);
         }
+        .fav-success-modal .modal-content {
+            border: none;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+        }
+        .fav-success-modal .modal-header {
+            border-bottom: none;
+            color: #fff;
+        }
+        .fav-success-modal .modal-header.fav-added {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        .fav-success-modal .modal-header.fav-removed {
+            background: linear-gradient(135deg, #64748b, #475569);
+        }
+        .fav-success-modal .modal-title {
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+        .fav-success-modal .modal-body {
+            color: #1f2937;
+            font-size: 1rem;
+            padding-top: 1.25rem;
+        }
+        .fav-success-modal .icon-wrap {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            margin-bottom: 0.85rem;
+        }
+        .fav-success-modal .icon-wrap.added {
+            background: rgba(239, 68, 68, 0.12);
+            color: #dc2626;
+        }
+        .fav-success-modal .icon-wrap.removed {
+            background: rgba(100, 116, 139, 0.12);
+            color: #475569;
+        }
+        .fav-success-modal .modal-footer {
+            border-top: none;
+        }
+        .btn-view-favorites {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            border: none;
+        }
+        .btn-view-favorites:hover {
+            color: #fff;
+            filter: brightness(0.95);
+        }
     </style>
     <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
 </head>
@@ -173,6 +228,26 @@
             </div>
         </div>
     </div>
+    <div class="modal fade fav-success-modal" id="favSuccessModal" tabindex="-1" aria-labelledby="favSuccessTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header fav-added" id="favModalHeader">
+                    <h5 class="modal-title" id="favSuccessTitle"><i class="fas fa-heart me-2"></i>Added to Favorites</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="icon-wrap added mx-auto" id="favModalIconWrap">
+                        <i class="fas fa-heart" id="favModalIcon"></i>
+                    </div>
+                    <p id="favSuccessMessage" class="mb-0">Course added to favorites.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Continue Browsing</button>
+                    <a href="/profile?tab=favorites" class="btn btn-view-favorites">View Favorites</a>
+                </div>
+            </div>
+        </div>
+    </div>
     <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()" aria-label="Back to top">
         <i class="fas fa-arrow-up"></i>
     </button>
@@ -180,16 +255,50 @@
     <script>
         let favoriteCourseIds = JSON.parse(localStorage.getItem('favoriteCourseIds') || '[]').map(String);
 
+        function showFavModal(added, courseTitle) {
+            const header = document.getElementById('favModalHeader');
+            const titleEl = document.getElementById('favSuccessTitle');
+            const msgEl = document.getElementById('favSuccessMessage');
+            const iconWrap = document.getElementById('favModalIconWrap');
+            const iconEl = document.getElementById('favModalIcon');
+            const modalEl = document.getElementById('favSuccessModal');
+            if (!header || !titleEl || !msgEl || !modalEl) return;
+
+            const name = courseTitle || 'Course';
+            if (added) {
+                header.className = 'modal-header fav-added';
+                titleEl.innerHTML = '<i class="fas fa-heart me-2"></i>Added to Favorites';
+                msgEl.textContent = name + ' added to your favorites.';
+                if (iconWrap) {
+                    iconWrap.className = 'icon-wrap added mx-auto';
+                }
+                if (iconEl) iconEl.className = 'fas fa-heart';
+            } else {
+                header.className = 'modal-header fav-removed';
+                titleEl.innerHTML = '<i class="far fa-heart me-2"></i>Removed from Favorites';
+                msgEl.textContent = name + ' removed from your favorites.';
+                if (iconWrap) {
+                    iconWrap.className = 'icon-wrap removed mx-auto';
+                }
+                if (iconEl) iconEl.className = 'far fa-heart';
+            }
+            if (window.bootstrap) {
+                new bootstrap.Modal(modalEl).show();
+            }
+        }
+
         function toggleFavorite(courseId, courseTitle) {
             courseId = String(courseId);
             const index = favoriteCourseIds.indexOf(courseId);
-            if (index >= 0) {
-                favoriteCourseIds.splice(index, 1);
-            } else {
+            const added = index < 0;
+            if (added) {
                 favoriteCourseIds.push(courseId);
+            } else {
+                favoriteCourseIds.splice(index, 1);
             }
             localStorage.setItem('favoriteCourseIds', JSON.stringify(favoriteCourseIds));
             updateFavoriteButtons();
+            showFavModal(added, courseTitle);
 
             const body = new URLSearchParams();
             body.append('courseId', courseId);
