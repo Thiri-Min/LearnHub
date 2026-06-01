@@ -6,7 +6,6 @@
     <title th:text="${mentor.name} + ' - Mentor Session'">Mentor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.css" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(135deg, #2d4059 0%, #4a6572 100%);
@@ -87,87 +86,133 @@
             padding: 0.75rem;
             box-shadow: none;
         }
-        #mentorBookingCalendar {
-            --fc-border-color: #dadce0;
-            --fc-button-bg-color: #fff;
-            --fc-button-border-color: #dadce0;
-            --fc-button-text-color: #3c4043;
-            --fc-button-hover-bg-color: #f1f3f4;
-            --fc-button-hover-border-color: #dadce0;
-            --fc-button-active-bg-color: #e8f0fe;
-            --fc-button-active-border-color: #1a73e8;
-            --fc-today-bg-color: transparent;
-            --fc-event-border-color: transparent;
-            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+        .gcal-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+            flex-wrap: wrap;
         }
-        #mentorBookingCalendar .fc-toolbar-title {
-            font-size: 1.15rem;
-            font-weight: 500;
+        .gcal-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .gcal-btn {
+            border: 1px solid #dadce0;
+            background: #fff;
             color: #3c4043;
+            border-radius: 4px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.82rem;
+            font-weight: 500;
+            line-height: 1.2;
         }
-        #mentorBookingCalendar .fc-col-header-cell-cushion {
-            font-size: 0.72rem;
+        .gcal-btn:hover { background: #f1f3f4; }
+        .gcal-btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gcal-title {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #3c4043;
+            margin: 0;
+        }
+        #mentorBookingCalendar {
+            min-height: 320px;
+        }
+        .gcal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .gcal-dow {
+            text-align: center;
+            font-size: 0.68rem;
             font-weight: 500;
             color: #70757a;
-            text-transform: uppercase;
-            padding: 0.5rem 0;
+            padding: 0.55rem 0.25rem;
+            background: #fff;
+            border-bottom: 1px solid #dadce0;
         }
-        #mentorBookingCalendar .fc-daygrid-day-number {
-            font-size: 0.82rem;
+        .gcal-cell {
+            min-height: 88px;
+            border-right: 1px solid #dadce0;
+            border-bottom: 1px solid #dadce0;
+            padding: 0.35rem;
+            background: #fff;
+            vertical-align: top;
+        }
+        .gcal-cell:nth-child(7n) { border-right: none; }
+        .gcal-cell.other-month { background: #f8f9fa; }
+        .gcal-cell.other-month .gcal-day-num { color: #9aa0a6; }
+        .gcal-day-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
             color: #3c4043;
-            padding: 6px 8px;
-            text-decoration: none;
-        }
-        #mentorBookingCalendar .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
-            background: #1a73e8;
-            color: #fff;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin: 4px;
-            padding: 0;
+            margin-bottom: 0.2rem;
         }
-        #mentorBookingCalendar .fc-daygrid-day.fc-day-selected:not(.fc-day-today) .fc-daygrid-day-number {
+        .gcal-cell.today .gcal-day-num {
             background: #1a73e8;
             color: #fff;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin: 4px;
-            padding: 0;
+            font-weight: 600;
         }
-        #mentorBookingCalendar .fc-daygrid-day.fc-day-today.fc-day-selected .fc-daygrid-day-number {
+        .gcal-cell.selected .gcal-day-num {
             background: #1a73e8;
             color: #fff;
+            font-weight: 600;
         }
-        #mentorBookingCalendar .fc-daygrid-day.fc-has-slots {
+        .gcal-cell.has-open {
             cursor: pointer;
         }
-        #mentorBookingCalendar .fc-daygrid-day.fc-has-slots:hover {
+        .gcal-cell.has-open:hover {
             background: #f8f9fa;
         }
-        #mentorBookingCalendar .fc-daygrid-day:not(.fc-has-slots) {
-            cursor: default;
-        }
-        #mentorBookingCalendar .fc-daygrid-day:not(.fc-has-slots) .fc-daygrid-day-number {
-            color: #9aa0a6;
-        }
-        #mentorBookingCalendar .fc-event.slot-availability {
-            font-size: 0.65rem;
-            border-radius: 4px;
+        .gcal-event {
+            display: block;
+            font-size: 0.62rem;
+            line-height: 1.25;
             padding: 1px 4px;
-            margin: 1px 2px 0;
+            margin-top: 2px;
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             cursor: pointer;
         }
-        #mentorBookingCalendar .fc-daygrid-event-harness {
-            margin-top: 2px;
+        .gcal-event.open {
+            background: #1a73e8;
+            color: #fff;
         }
+        .gcal-event.booked {
+            background: #e8eaed;
+            color: #5f6368;
+        }
+        .calendar-load-error {
+            display: none;
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            color: #92400e;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.88rem;
+            margin-bottom: 0.75rem;
+        }
+        .calendar-load-error.visible { display: block; }
         .gcal-legend {
             display: flex;
             align-items: center;
@@ -282,9 +327,6 @@
             padding: 2.5rem 1.5rem;
         }
         .meeting-step-calendar .gcal-wrap {
-            max-width: 100%;
-        }
-        #mentorBookingCalendar .fc {
             max-width: 100%;
         }
         #registrationModal .modal-content {
@@ -457,7 +499,11 @@
                                 <p class="meeting-step-title">Step 1</p>
                                 <h5><i class="far fa-calendar-alt"></i>Select a date</h5>
                                 <div class="gcal-wrap">
-                                    <div id="mentorBookingCalendar"></div>
+                                    <div id="calendarLoadError" class="calendar-load-error">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Calendar could not load. Please refresh the page.
+                                    </div>
+                                    <div id="mentorBookingCalendar" aria-label="Session booking calendar"></div>
                                     <div class="gcal-legend">
                                         <span class="gcal-legend-dot"></span>
                                         Blue bars show days with open sessions
@@ -599,7 +645,6 @@
             <p class="mb-0">&copy; 2026 Learning Management System.</p>
         </div>
     </footer>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
             const chatBox = document.getElementById('chatBox');
@@ -631,18 +676,30 @@
         function initBookingCalendar() {
             const store = document.getElementById('slotStore');
             const calendarEl = document.getElementById('mentorBookingCalendar');
-            if (!store || !calendarEl || typeof FullCalendar === 'undefined') return;
+            const loadError = document.getElementById('calendarLoadError');
+            if (!store || !calendarEl) return;
 
-            const slots = Array.from(store.querySelectorAll('[data-id]')).map(el => ({
+            const allSlots = Array.from(store.querySelectorAll('[data-id]')).map(el => ({
                 id: el.dataset.id,
                 date: el.dataset.date,
                 timeLabel: el.dataset.time,
                 status: el.dataset.status
-            })).filter(s => s.status === 'AVAILABLE');
+            }));
 
-            if (slots.length === 0) return;
+            if (allSlots.length === 0) return;
 
-            const datesWithSlots = new Set(slots.map(s => s.date));
+            const availableSlots = allSlots.filter(s => s.status === 'AVAILABLE');
+            const openDates = new Set(availableSlots.map(s => s.date));
+            const slotsByDate = {};
+            allSlots.forEach(s => {
+                if (!slotsByDate[s.date]) {
+                    slotsByDate[s.date] = { open: 0, booked: 0 };
+                }
+                if (s.status === 'AVAILABLE') slotsByDate[s.date].open++;
+                else slotsByDate[s.date].booked++;
+            });
+
+            let viewYear, viewMonth;
             let selectedDate = null;
             let selectedSlotId = null;
 
@@ -655,44 +712,37 @@
             const summaryText = document.getElementById('selectedSlotText');
             const bookingForm = document.getElementById('bookingForm');
 
+            const firstDateStr = (availableSlots.length ? availableSlots : allSlots).map(s => s.date).sort()[0];
+            const initial = new Date(firstDateStr + 'T12:00:00');
+            viewYear = initial.getFullYear();
+            viewMonth = initial.getMonth();
+
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const dowLabels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
             function formatDateLabel(iso) {
                 const d = new Date(iso + 'T12:00:00');
                 return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
             }
 
-            function buildAvailabilityEvents() {
-                const byDate = {};
-                slots.forEach(s => {
-                    if (!byDate[s.date]) byDate[s.date] = 0;
-                    byDate[s.date]++;
-                });
-                return Object.keys(byDate).sort().map(date => ({
-                    title: byDate[date] + (byDate[date] === 1 ? ' slot' : ' slots'),
-                    start: date,
-                    allDay: true,
-                    classNames: ['slot-availability'],
-                    backgroundColor: '#1a73e8',
-                    borderColor: '#1a73e8',
-                    extendedProps: { date: date }
-                }));
-            }
-
             function updateSubmitState() {
-                submitBtn.disabled = !(selectedSlotId && slotIdInput.value);
+                if (submitBtn) submitBtn.disabled = !(selectedSlotId && slotIdInput && slotIdInput.value);
             }
 
             function selectDate(dateStr) {
-                if (!datesWithSlots.has(dateStr)) return;
+                if (!openDates.has(dateStr)) return;
                 selectedDate = dateStr;
                 selectedSlotId = null;
-                slotIdInput.value = '';
-                summary.classList.remove('visible');
-                calendar.render();
+                if (slotIdInput) slotIdInput.value = '';
+                if (summary) summary.classList.remove('visible');
+                renderCalendar();
                 renderTimeSlots();
                 updateSubmitState();
             }
 
             function renderTimeSlots() {
+                if (!timeSlotsGrid) return;
                 timeSlotsGrid.innerHTML = '';
                 if (!selectedDate) {
                     if (meetingDateDisplay) meetingDateDisplay.classList.remove('visible');
@@ -702,9 +752,9 @@
                 }
                 if (meetingDateDisplay) meetingDateDisplay.classList.add('visible');
                 if (selectedDateLabel) selectedDateLabel.textContent = formatDateLabel(selectedDate);
-                const daySlots = slots.filter(s => s.date === selectedDate);
+                const daySlots = availableSlots.filter(s => s.date === selectedDate);
                 if (daySlots.length === 0) {
-                    timeSlotsGrid.innerHTML = '<p class="times-placeholder mb-0">No available times on this date.</p>';
+                    timeSlotsGrid.innerHTML = '<p class="times-placeholder mb-0">No open times on this date. Pick another day with a blue slot label.</p>';
                     return;
                 }
                 daySlots.forEach(slot => {
@@ -714,9 +764,9 @@
                     btn.textContent = slot.timeLabel;
                     btn.addEventListener('click', () => {
                         selectedSlotId = slot.id;
-                        slotIdInput.value = slot.id;
-                        summaryText.textContent = formatDateLabel(selectedDate) + ' · ' + slot.timeLabel;
-                        summary.classList.add('visible');
+                        if (slotIdInput) slotIdInput.value = slot.id;
+                        if (summaryText) summaryText.textContent = formatDateLabel(selectedDate) + ' · ' + slot.timeLabel;
+                        if (summary) summary.classList.add('visible');
                         renderTimeSlots();
                         updateSubmitState();
                     });
@@ -724,51 +774,116 @@
                 });
             }
 
-            const firstSlotDate = slots.map(s => s.date).sort()[0];
+            function renderCalendar() {
+                try {
+                    calendarEl.innerHTML = '';
+                    const todayIso = toIsoDate(new Date());
 
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                initialDate: firstSlotDate,
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: ''
-                },
-                fixedWeekCount: false,
-                showNonCurrentDates: true,
-                height: 'auto',
-                firstDay: 0,
-                navLinks: false,
-                selectable: false,
-                events: buildAvailabilityEvents(),
-                dateClick: function(info) {
-                    selectDate(info.dateStr);
-                },
-                eventClick: function(info) {
-                    info.jsEvent.preventDefault();
-                    const dateStr = info.event.startStr.slice(0, 10);
-                    selectDate(dateStr);
-                },
-                dayCellClassNames: function(arg) {
-                    const iso = toIsoDate(arg.date);
-                    const classes = [];
-                    if (datesWithSlots.has(iso)) classes.push('fc-has-slots');
-                    if (selectedDate === iso) classes.push('fc-day-selected');
-                    return classes;
+                    const toolbar = document.createElement('div');
+                    toolbar.className = 'gcal-toolbar';
+                    toolbar.innerHTML =
+                        '<div class="gcal-toolbar-left">' +
+                        '<button type="button" class="gcal-btn gcal-btn-icon" data-nav="prev" title="Previous month"><i class="fas fa-chevron-left"></i></button>' +
+                        '<button type="button" class="gcal-btn gcal-btn-icon" data-nav="next" title="Next month"><i class="fas fa-chevron-right"></i></button>' +
+                        '<button type="button" class="gcal-btn" data-nav="today">Today</button>' +
+                        '</div>' +
+                        '<h3 class="gcal-title"></h3>';
+                    calendarEl.appendChild(toolbar);
+                    toolbar.querySelector('.gcal-title').textContent = monthNames[viewMonth] + ' ' + viewYear;
+
+                    const grid = document.createElement('div');
+                    grid.className = 'gcal-grid';
+                    dowLabels.forEach(label => {
+                        const head = document.createElement('div');
+                        head.className = 'gcal-dow';
+                        head.textContent = label;
+                        grid.appendChild(head);
+                    });
+
+                    const firstOfMonth = new Date(viewYear, viewMonth, 1);
+                    const startOffset = firstOfMonth.getDay();
+                    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+                    const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
+
+                    for (let i = 0; i < totalCells; i++) {
+                        const dayNum = i - startOffset + 1;
+                        const cellDate = new Date(viewYear, viewMonth, dayNum);
+                        const iso = toIsoDate(cellDate);
+                        const isCurrentMonth = dayNum >= 1 && dayNum <= daysInMonth;
+
+                        const cell = document.createElement('div');
+                        cell.className = 'gcal-cell';
+                        if (!isCurrentMonth) cell.classList.add('other-month');
+                        if (iso === todayIso) cell.classList.add('today');
+                        if (selectedDate === iso) cell.classList.add('selected');
+
+                        const daySpan = document.createElement('span');
+                        daySpan.className = 'gcal-day-num';
+                        daySpan.textContent = isCurrentMonth ? dayNum : cellDate.getDate();
+                        cell.appendChild(daySpan);
+
+                        if (isCurrentMonth && slotsByDate[iso]) {
+                            const info = slotsByDate[iso];
+                            if (info.open > 0) {
+                                cell.classList.add('has-open');
+                                const ev = document.createElement('span');
+                                ev.className = 'gcal-event open';
+                                ev.textContent = info.open + (info.open === 1 ? ' open slot' : ' open slots');
+                                ev.title = 'Click to book';
+                                cell.appendChild(ev);
+                                cell.addEventListener('click', () => selectDate(iso));
+                            } else if (info.booked > 0) {
+                                const ev = document.createElement('span');
+                                ev.className = 'gcal-event booked';
+                                ev.textContent = 'Fully booked';
+                                cell.appendChild(ev);
+                            }
+                        }
+
+                        grid.appendChild(cell);
+                    }
+
+                    calendarEl.appendChild(grid);
+
+                    toolbar.querySelector('[data-nav="prev"]').addEventListener('click', () => {
+                        viewMonth--;
+                        if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+                        renderCalendar();
+                    });
+                    toolbar.querySelector('[data-nav="next"]').addEventListener('click', () => {
+                        viewMonth++;
+                        if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+                        renderCalendar();
+                    });
+                    toolbar.querySelector('[data-nav="today"]').addEventListener('click', () => {
+                        const now = new Date();
+                        viewYear = now.getFullYear();
+                        viewMonth = now.getMonth();
+                        renderCalendar();
+                    });
+
+                    if (loadError) loadError.classList.remove('visible');
+                } catch (err) {
+                    console.error('Calendar render failed', err);
+                    if (loadError) loadError.classList.add('visible');
                 }
-            });
-
-            calendar.render();
+            }
 
             if (bookingForm) {
                 bookingForm.addEventListener('submit', function(e) {
-                    if (!slotIdInput.value) {
+                    if (!slotIdInput || !slotIdInput.value) {
                         e.preventDefault();
                         alert('Please complete Step 1 and Step 2 — select a date and time — before sending your meeting request.');
                     }
                 });
             }
 
+            renderCalendar();
+            if (availableSlots.length === 0) {
+                if (timeSlotsGrid) {
+                    timeSlotsGrid.innerHTML = '<p class="times-placeholder mb-0">All upcoming sessions are booked. Please check another mentor or try again later.</p>';
+                }
+            }
             updateSubmitState();
         }
     </script>
