@@ -43,7 +43,7 @@ public class DatabaseConfig {
         }
 
         if (env.acceptsProfiles("prod")) {
-            return "jdbc:h2:file:./data/demodb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE";
+            return "jdbc:h2:file:./data/demodb;DB_CLOSE_DELAY=-1";
         }
 
         return "jdbc:mysql://localhost:3306/demo_db?createDatabaseIfNotExist=true&serverTimezone=UTC";
