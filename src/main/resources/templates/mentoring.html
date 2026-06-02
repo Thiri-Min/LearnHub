@@ -312,6 +312,37 @@
         .btn-book:hover::after {
             left: 120%;
         }
+        .mentor-card-meta {
+            display: grid;
+            gap: 0.65rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.79rem;
+            font-weight: 700;
+            border: 1px solid rgba(15, 23, 43, 0.08);
+            background: rgba(248, 250, 252, 0.92);
+            color: #334155;
+        }
+        .status-pill.available { background: rgba(219, 234, 254, 0.95); color: #1d4ed8; }
+        .status-pill.booked { background: rgba(254, 242, 242, 0.95); color: #b91c1c; }
+        .calendar-ready {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            color: #64748b;
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+        .calendar-ready i { color: #1a73e8; }
 
         /* Per-trainer color themes */
         .theme-0 { --accent-a: #6366f1; --accent-b: #8b5cf6; --accent-glow: rgba(99,102,241,0.4); --badge-bg: #eef2ff; --badge-text: #4338ca; }
@@ -355,7 +386,7 @@
                     Live mentor sessions
                 </div>
                 <h1><i class="fas fa-users me-2"></i>Interactive Learning</h1>
-                <p class="lead">Book 1-on-1 consultations with expert Technical Trainers. Chat, ask questions, and grow your skills in a guided session.</p>
+                <p class="lead">Book 1-on-1 consultations with expert Technical Trainers. Every session can be planned and saved directly to Google Calendar for easy reminders and follow-up.</p>
                 <div class="il-stats">
                     <div class="il-stat">
                         <strong th:text="${#lists.size(mentors)}">6</strong>
@@ -471,10 +502,17 @@
                             </div>
                             <p class="expertise-line" th:text="${mentor.expertise}">Expertise</p>
                             <p class="mentor-bio" th:text="${mentor.bio}">Bio</p>
+                            <div class="mentor-card-meta">
+                                <span class="status-pill" th:classappend="${availableCounts[mentor.id]} > 0 ? ' available' : ' booked'"
+                                      th:text="${availableCounts[mentor.id]} > 0 ? availableCounts[mentor.id] + ' open slots' : 'No available slots'">Open slots</span>
+                                <div class="calendar-ready">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    <span>Google Calendar ready in trainer booking</span>
+                                </div>
+                            </div>
                             <a th:href="@{/mentoring/mentor(mentorId=${mentor.id})}" class="btn btn-book w-100">
-                                <i class="fas fa-calendar-check me-2"></i>Book &amp; Chat
+                                <i class="fas fa-calendar-check me-2"></i>Book &amp; Save
                             </a>
-                            <small class="d-block text-muted mt-2"><i class="fas fa-calendar-plus me-1"></i>Google Calendar ready</small>
                         </div>
                     </div>
                 </div>
