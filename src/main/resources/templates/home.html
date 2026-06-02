@@ -657,6 +657,7 @@
 
     <script th:inline="javascript">
         const aiChatEnabled = /*[[${aiChatEnabled}]]*/ false;
+        const aiLiveEnabled = /*[[${aiLiveEnabled}]]*/ false;
     </script>
     <script>
         let favoriteCourseIds = JSON.parse(localStorage.getItem('favoriteCourseIds') || '[]').map(String);
@@ -847,10 +848,14 @@
                 if (welcomed) return;
                 welcomed = true;
                 if (aiChatEnabled) {
-                    appendBubble('Hi! I can help you with courses, Git quizzes, mentoring, cart, practice labs, and how to use Learn Hub. What would you like to know?', 'bot');
+                    if (aiLiveEnabled) {
+                        appendBubble('Hi! I can help you with courses, Git quizzes, mentoring, cart, practice labs, and how to use Learn Hub. What would you like to know?', 'bot');
+                    } else {
+                        appendBubble('Hi! I am in help mode with built-in answers. For full AI replies, copy application-local.properties.example to application-local.properties, add your OpenAI or Gemini API key, and restart the app.', 'bot');
+                    }
                     showQuickQuestions();
                 } else {
-                    appendBubble('The AI assistant is not configured yet. Add your OpenAI API key in application.properties (app.ai.openai-api-key) or set OPENAI_API_KEY on your server, then restart the app.', 'bot error');
+                    appendBubble('Chat is disabled. Set app.ai.fallback-enabled=true or add an API key in application-local.properties, then restart the app.', 'bot error');
                 }
             }
 
@@ -875,7 +880,7 @@
                 const text = (optionalText !== undefined ? String(optionalText) : input.value).trim();
                 if (!text) return;
                 if (!aiChatEnabled) {
-                    appendBubble('Please configure the OpenAI API key to enable chat.', 'bot error');
+                    appendBubble('Chat is not available. Check application-local.properties or restart the server.', 'bot error');
                     return;
                 }
 

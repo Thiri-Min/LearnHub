@@ -387,7 +387,7 @@ public class AuthController {
                 cart.add(course);
             }
         }
-        return "redirect:/courses?message=Course+added+to+cart.";
+        return "redirect:/courses?message=Course+added+successfully.+Proceed+to+checkout+when+you+are+ready.";
     }
 
     @GetMapping("/cart")

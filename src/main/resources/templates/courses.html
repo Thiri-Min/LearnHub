@@ -172,7 +172,7 @@
     <section class="page-header">
         <div class="container">
             <h1>Available Courses</h1>
-            <p>Choose the courses you want to add to your learning cart.</p>
+            <p>Browse our catalog and buy the courses you want to learn.</p>
         </div>
     </section>
 
@@ -186,7 +186,7 @@
                     <div class="mt-auto d-grid gap-2">
                         <form th:action="@{/cart/add}" method="post">
                             <input type="hidden" name="courseId" th:value="${course.id}" />
-                            <button type="submit" class="btn btn-course w-100"><i class="fas fa-cart-plus me-2"></i>Add to Cart</button>
+                            <button type="submit" class="btn btn-course w-100"><i class="fas fa-shopping-bag me-2"></i>Buy Course</button>
                         </form>
                         <button type="button" class="btn btn-outline-danger w-100"
                                 th:id="'favBtn-' + ${course.id}"
@@ -212,18 +212,18 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="cartSuccessTitle"><i class="fas fa-cart-check me-2"></i>Added to Cart</h5>
+                    <h5 class="modal-title" id="cartSuccessTitle"><i class="fas fa-check-circle me-2"></i>Course Added</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
                     <div class="icon-wrap mx-auto">
                         <i class="fas fa-check"></i>
                     </div>
-                    <p id="cartSuccessMessage" class="mb-0">Course added to cart.</p>
+                    <p id="cartSuccessMessage" class="mb-0">Course added successfully. Proceed to checkout when you are ready.</p>
                 </div>
                 <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Continue Shopping</button>
-                    <a href="/cart" class="btn btn-view-cart">View Cart</a>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Browse More Courses</button>
+                    <a href="/cart" class="btn btn-view-cart">Proceed to Checkout</a>
                 </div>
             </div>
         </div>

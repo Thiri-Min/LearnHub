@@ -29,5 +29,6 @@ public class GlobalModelAttributes {
         }
         model.addAttribute("ga4MeasurementId", ga4MeasurementId);
         model.addAttribute("aiChatEnabled", chatBotService.isEnabled());
+        model.addAttribute("aiLiveEnabled", chatBotService.isLiveAiConfigured());
     }
 }

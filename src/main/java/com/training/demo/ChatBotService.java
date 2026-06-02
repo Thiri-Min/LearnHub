@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class ChatBotService {
 
             Website pages and features:
             - Home (/ or /home): landing page with login, signup, featured courses, forgot password
-            - Courses (/courses): catalog with Add to Cart, Favorites, and Read for each course
+            - Courses (/courses): catalog with Buy Course, Favorites, and Read for each course
             - Course detail (/course-detail?courseId=): Code Demo and Practice Lab (Mock Project has HTML/CSS/JS editors with live UI preview; other courses use Input Code and Output)
             - Cart (/cart): shopping cart for courses
             - Tech (/tech): Git MCQ quizzes at Pre-Intermediate, Intermediate, Advanced levels (10 random questions per attempt)
@@ -68,7 +69,7 @@ public class ChatBotService {
     @Value("${app.ai.gemini-api-key:}")
     private String geminiApiKey;
 
-    @Value("${app.ai.gemini-model:gemini-2.0-flash}")
+    @Value("${app.ai.gemini-model:gemini-2.5-flash}")
     private String geminiModel;
 
     @Value("${app.ai.fallback-enabled:true}")
@@ -79,8 +80,27 @@ public class ChatBotService {
         this.geminiClient = RestClient.builder().baseUrl(GEMINI_BASE).build();
     }
 
+    /** True when chat UI and /api/chat should accept messages (live AI and/or built-in fallback). */
     public boolean isEnabled() {
+        return isLiveAiConfigured() || fallbackEnabled;
+    }
+
+    /** True when OpenAI or Gemini API key is loaded. */
+    public boolean isLiveAiConfigured() {
         return hasOpenAiKey() || hasGeminiKey();
+    }
+
+    @PostConstruct
+    void logAiConfiguration() {
+        log.info("AI chat — OpenAI: {}, Gemini: {}, model: {}, fallback: {}",
+                hasOpenAiKey() ? "configured" : "not set",
+                hasGeminiKey() ? "configured" : "not set",
+                openAiModel,
+                fallbackEnabled ? "enabled" : "disabled");
+        if (!isLiveAiConfigured() && fallbackEnabled) {
+            log.info("AI chat will use built-in answers until you set keys in application-local.properties "
+                    + "(see application-local.properties.example)");
+        }
     }
 
     public String chat(String userMessage) {
@@ -301,7 +321,7 @@ public class ChatBotService {
                     4. Java Essentials
                     5. Spring Framework
                     6. Mock Project
-                    Click Read on a course for Code Demo and Practice Lab, or Add to Cart to save it.""";
+                    Click Read on a course for Code Demo and Practice Lab, or Buy Course to purchase it.""";
         }
         if (q.contains("mock") || q.contains("html") || q.contains("css") || q.contains("javascript")) {
             return """
@@ -320,7 +340,7 @@ public class ChatBotService {
             return "Use Forgot password on the home page login area to reset your password with your email/username and a new password.";
         }
         if (q.contains("cart") || q.contains("buy") || q.contains("purchase")) {
-            return "Browse /courses, click Add to Cart on any course, then open /cart to review your selections.";
+            return "Browse /courses, click Buy Course on any course, then open /cart to review and complete checkout.";
         }
         if (q.contains("mentor")) {
             return "Visit /mentoring to browse mentors, book sessions, and chat with them on the mentor detail page.";
