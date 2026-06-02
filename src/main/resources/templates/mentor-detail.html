@@ -310,6 +310,22 @@
             opacity: 0.55;
             cursor: not-allowed;
         }
+        .google-calendar-button {
+            border-color: #1a73e8;
+            color: #1a73e8;
+            transition: all 0.2s ease;
+        }
+        .google-calendar-button:hover:not(.disabled) {
+            color: #fff;
+            background: #1a73e8;
+            border-color: #1a73e8;
+            box-shadow: 0 12px 26px rgba(26, 115, 232, 0.24);
+        }
+        .google-calendar-button.disabled,
+        .google-calendar-button[aria-disabled="true"] {
+            pointer-events: none;
+            opacity: 0.55;
+        }
         .selected-slot-summary {
             background: #f0fdf4;
             border: 1px solid #bbf7d0;
@@ -557,6 +573,11 @@
                                                 <i class="fas fa-paper-plane me-2"></i>Send meeting request
                                             </button>
                                         </div>
+                                        <div class="col-12">
+                                            <a id="googleCalendarLink" class="btn btn-outline-primary w-100 mt-3 google-calendar-button disabled" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">
+                                                <i class="fas fa-calendar-plus me-2"></i>Save this session to Google Calendar
+                                            </a>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -711,6 +732,8 @@
             const summary = document.getElementById('selectedSlotSummary');
             const summaryText = document.getElementById('selectedSlotText');
             const bookingForm = document.getElementById('bookingForm');
+            const googleCalendarLink = document.getElementById('googleCalendarLink');
+            const mentorName = /*[[${mentor.name}]]*/ 'Mentor';
 
             const firstDateStr = (availableSlots.length ? availableSlots : allSlots).map(s => s.date).sort()[0];
             const initial = new Date(firstDateStr + 'T12:00:00');
@@ -730,6 +753,56 @@
                 if (submitBtn) submitBtn.disabled = !(selectedSlotId && slotIdInput && slotIdInput.value);
             }
 
+            function updateGoogleCalendarButton() {
+                if (!googleCalendarLink) return;
+                if (!selectedSlotId) {
+                    googleCalendarLink.classList.add('disabled');
+                    googleCalendarLink.setAttribute('aria-disabled', 'true');
+                    googleCalendarLink.href = '#';
+                    googleCalendarLink.title = 'Select a date and time first';
+                    return;
+                }
+                const selectedSlot = availableSlots.find(s => s.id === selectedSlotId);
+                if (!selectedSlot || !selectedDate) {
+                    googleCalendarLink.classList.add('disabled');
+                    googleCalendarLink.setAttribute('aria-disabled', 'true');
+                    googleCalendarLink.href = '#';
+                    googleCalendarLink.title = 'Select a date and time first';
+                    return;
+                }
+                const gcalUrl = buildGoogleCalendarUrl(selectedDate, selectedSlot.timeLabel);
+                googleCalendarLink.href = gcalUrl;
+                googleCalendarLink.classList.remove('disabled');
+                googleCalendarLink.removeAttribute('aria-disabled');
+                googleCalendarLink.title = 'Open Google Calendar with this session details';
+            }
+
+            function toGoogleCalendarDate(date) {
+                const pad = (value) => String(value).padStart(2, '0');
+                return date.getUTCFullYear()
+                    + pad(date.getUTCMonth() + 1)
+                    + pad(date.getUTCDate()) + 'T'
+                    + pad(date.getUTCHours())
+                    + pad(date.getUTCMinutes())
+                    + pad(date.getUTCSeconds()) + 'Z';
+            }
+
+            function buildGoogleCalendarUrl(dateIso, timeLabel) {
+                const [startTime, endTime] = timeLabel.split('–').map(t => t.trim());
+                const [startHour, startMinute] = startTime.split(':').map(Number);
+                const [endHour, endMinute] = endTime.split(':').map(Number);
+                const startDate = new Date(`${dateIso}T${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}:00`);
+                const endDate = new Date(`${dateIso}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`);
+                const href = new URL('https://calendar.google.com/calendar/render');
+                href.searchParams.set('action', 'TEMPLATE');
+                href.searchParams.set('text', `Mentor session with ${mentorName}`);
+                href.searchParams.set('dates', `${toGoogleCalendarDate(startDate)}/${toGoogleCalendarDate(endDate)}`);
+                href.searchParams.set('details', `Book a mentorship session with ${mentorName} on Learn Hub. Add your meeting agenda when you save the event.`);
+                href.searchParams.set('location', 'Online session');
+                href.searchParams.set('trp', 'false');
+                return href.toString();
+            }
+
             function selectDate(dateStr) {
                 if (!openDates.has(dateStr)) return;
                 selectedDate = dateStr;
@@ -739,6 +812,7 @@
                 renderCalendar();
                 renderTimeSlots();
                 updateSubmitState();
+                updateGoogleCalendarButton();
             }
 
             function renderTimeSlots() {
@@ -767,6 +841,7 @@
                         if (slotIdInput) slotIdInput.value = slot.id;
                         if (summaryText) summaryText.textContent = formatDateLabel(selectedDate) + ' · ' + slot.timeLabel;
                         if (summary) summary.classList.add('visible');
+                        updateGoogleCalendarButton();
                         renderTimeSlots();
                         updateSubmitState();
                     });
@@ -885,6 +960,7 @@
                 }
             }
             updateSubmitState();
+            updateGoogleCalendarButton();
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
