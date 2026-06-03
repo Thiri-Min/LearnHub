@@ -8,4 +8,6 @@ public interface QuizAttemptRepository extends JpaRepository<QuizAttempt, Long> 
     List<QuizAttempt> findByUserIdOrderByCompletedAtDesc(Long userId);
 
     List<QuizAttempt> findAllByOrderByCompletedAtDesc();
+
+    long countByUserIdAndSubjectAndLevel(Long userId, String subject, String level);
 }

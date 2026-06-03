@@ -103,6 +103,10 @@
     <section class="container pb-5">
         <div class="row justify-content-center">
             <div class="col-12">
+                <div th:if="${message}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 <div class="card test-card p-4">
                     <div class="text-center mb-4">
                         <div class="d-flex flex-wrap justify-content-center gap-2 mb-4" role="group" aria-label="Tech filters">
@@ -138,7 +142,9 @@
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <script>
+    <script th:inline="javascript">
+        const dsaAttemptCounts = /*[[${dsaAttemptCounts}]]*/ {};
+        const dsaMaxAttempts = /*[[${dsaMaxAttempts}]]*/ 3;
         const testData = {
             Java: {
                 icon: 'fab fa-java',
@@ -685,6 +691,14 @@
                     } else {
                         const data = testData[filter];
                         Object.entries(data.levels).forEach(([level, desc]) => {
+                            const tier = normalizeLevel(level, filter);
+                            let btnDisabled = '';
+                            if (filter === 'DSA') {
+                                const used = Number(dsaAttemptCounts[tier] || 0);
+                                if (used >= dsaMaxAttempts) {
+                                    btnDisabled = 'disabled';
+                                }
+                            }
                             const levelCard = document.createElement('div');
                             levelCard.className = 'col-md-4';
                             levelCard.innerHTML = `
@@ -693,7 +707,7 @@
                                         <i class="${data.icon} test-icon"></i>
                                         <h5 class="card-title">${level}</h5>
                                         <p class="card-text">${desc}</p>
-                                        <button class="btn btn-primary start-test-btn" data-subject="${filter}" data-level="${level}">Start Test</button>
+                                        <button class="btn btn-primary start-test-btn" data-subject="${filter}" data-level="${level}" ${btnDisabled}>Start Test</button>
                                     </div>
                                 </div>
                             `;
@@ -730,6 +744,12 @@
             const normalizedLevel = normalizeLevel(level, subject);
             const tiers = ['Pre-Intermediate', 'Intermediate', 'Advanced'];
             if (tiers.includes(normalizedLevel)) {
+                if (subject === 'DSA') {
+                    const used = Number(dsaAttemptCounts[normalizedLevel] || 0);
+                    if (used >= dsaMaxAttempts) {
+                        return;
+                    }
+                }
                 window.location.href = `/quiz?subject=${encodeURIComponent(subject)}&level=${encodeURIComponent(normalizedLevel)}&fresh=1`;
                 return;
             }

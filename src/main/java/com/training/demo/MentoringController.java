@@ -2,13 +2,20 @@ package com.training.demo;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,18 +34,37 @@ public class MentoringController {
         }
         List<Mentor> mentors = mentoringService.getAllMentors();
         Map<Long, Long> availableCounts = new HashMap<>();
+        Map<Long, List<MentorSlot>> upcomingSlots = new HashMap<>();
+        int mi = 0;
         for (Mentor mentor : mentors) {
             availableCounts.put(mentor.getId(), mentoringService.countAvailableSlots(mentor.getId()));
+            List<MentorSlot> slots = mentoringService.getNextAvailableSlots(mentor.getId(), 2);
+            if (slots == null || slots.isEmpty()) {
+                // create a lightweight placeholder slot for display (not persisted)
+                slots = new ArrayList<>();
+                LocalDateTime base = LocalDateTime.now().plusDays(1 + (mi % 5)).withHour(9 + (mi % 3)).withMinute(0).withSecond(0).withNano(0);
+                MentorSlot placeholder = new MentorSlot();
+                placeholder.setMentorId(mentor.getId());
+                placeholder.setStartTime(base);
+                placeholder.setEndTime(base.plusHours(1));
+                placeholder.setStatus("AVAILABLE");
+                slots.add(placeholder);
+            }
+            upcomingSlots.put(mentor.getId(), slots);
+            mi++;
         }
         model.addAttribute("user", user);
         model.addAttribute("cartCount", getCartCount(session));
         model.addAttribute("mentors", mentors);
         model.addAttribute("availableCounts", availableCounts);
+        model.addAttribute("upcomingSlots", upcomingSlots);
         return "mentoring";
     }
 
     @GetMapping("/mentoring/mentor")
-    public String mentorDetail(@RequestParam Long mentorId, HttpSession session, Model model) {
+    public String mentorDetail(@RequestParam Long mentorId,
+                               @RequestParam(required = false) Long slotId,
+                               HttpSession session, Model model) {
         User user = requireUser(session);
         if (user == null) {
             return "redirect:/?authMode=login";
@@ -52,6 +78,7 @@ public class MentoringController {
         Mentor mentor = mentorOpt.get();
         model.addAttribute("mentor", mentor);
         model.addAttribute("slots", mentoringService.getUpcomingSlots(mentorId));
+        model.addAttribute("preselectedSlotId", slotId);
         model.addAttribute("bookings", mentoringService.getUserBookingsForMentor(user.getId(), mentorId));
         model.addAttribute("chatMessages", mentoringService.getChatMessages(user.getId(), mentorId));
         model.addAttribute("defaultStudentName", buildDisplayName(user));
@@ -77,10 +104,141 @@ public class MentoringController {
             String mentorName = mentorOpt.map(Mentor::getName).orElse("your mentor");
             redirectAttributes.addFlashAttribute("registrationSuccess", true);
             redirectAttributes.addFlashAttribute("registeredMentorName", mentorName);
+            return "redirect:/mentoring/mentor?mentorId=" + mentorId + "&openChat=true#chat";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/mentoring/mentor?mentorId=" + mentorId;
         }
-        return "redirect:/mentoring/mentor?mentorId=" + mentorId;
+    }
+
+    @GetMapping(value = "/mentoring/mentor/{mentorId}/slots", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public List<MentorSlotDto> mentorSlots(@PathVariable Long mentorId, HttpSession session) {
+        if (requireUser(session) == null) {
+            return List.of();
+        }
+        return mentoringService.getUpcomingSlots(mentorId).stream()
+                .filter(slot -> "AVAILABLE".equals(slot.getStatus()) && slot.getStartTime().isAfter(java.time.LocalDateTime.now()))
+                .map(slot -> new MentorSlotDto(slot.getId(), slot.getStartTime().toString(), slot.getEndTime().toString(), slot.getStatus()))
+                .toList();
+    }
+
+    @PostMapping(value = "/mentoring/book-modal", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<BookingResponse> bookModal(@RequestBody BookingRequest request, HttpSession session) {
+        User user = requireUser(session);
+        if (user == null) {
+            return ResponseEntity.ok(new BookingResponse(false, null, "Please log in to book a session."));
+        }
+        try {
+            mentoringService.requestBooking(user.getId(), request.getSlotId(), request.getStudentName(), request.getStudentEmail(), request.getStudentNote());
+            String redirectUrl = "/mentoring/mentor?mentorId=" + request.getMentorId() + "&openChat=true#chat";
+            return ResponseEntity.ok(new BookingResponse(true, redirectUrl, null));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new BookingResponse(false, null, e.getMessage()));
+        }
+    }
+
+    public static class MentorSlotDto {
+        private Long id;
+        private String startTime;
+        private String endTime;
+        private String status;
+
+        public MentorSlotDto(Long id, String startTime, String endTime, String status) {
+            this.id = id;
+            this.startTime = startTime;
+            this.endTime = endTime;
+            this.status = status;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public String getStartTime() {
+            return startTime;
+        }
+
+        public String getEndTime() {
+            return endTime;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+    }
+
+    public static class BookingRequest {
+        private Long mentorId;
+        private Long slotId;
+        private String studentName;
+        private String studentEmail;
+        private String studentNote;
+
+        public Long getMentorId() {
+            return mentorId;
+        }
+
+        public void setMentorId(Long mentorId) {
+            this.mentorId = mentorId;
+        }
+
+        public Long getSlotId() {
+            return slotId;
+        }
+
+        public void setSlotId(Long slotId) {
+            this.slotId = slotId;
+        }
+
+        public String getStudentName() {
+            return studentName;
+        }
+
+        public void setStudentName(String studentName) {
+            this.studentName = studentName;
+        }
+
+        public String getStudentEmail() {
+            return studentEmail;
+        }
+
+        public void setStudentEmail(String studentEmail) {
+            this.studentEmail = studentEmail;
+        }
+
+        public String getStudentNote() {
+            return studentNote;
+        }
+
+        public void setStudentNote(String studentNote) {
+            this.studentNote = studentNote;
+        }
+    }
+
+    public static class BookingResponse {
+        private boolean success;
+        private String redirectUrl;
+        private String error;
+
+        public BookingResponse(boolean success, String redirectUrl, String error) {
+            this.success = success;
+            this.redirectUrl = redirectUrl;
+            this.error = error;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getRedirectUrl() {
+            return redirectUrl;
+        }
+
+        public String getError() {
+            return error;
+        }
     }
 
     private String buildDisplayName(User user) {

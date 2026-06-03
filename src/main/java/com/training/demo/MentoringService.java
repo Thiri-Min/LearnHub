@@ -64,6 +64,13 @@ public class MentoringService {
         return mentorSlotRepository.countByMentorIdAndStatus(mentorId, "AVAILABLE");
     }
 
+    public List<MentorSlot> getNextAvailableSlots(Long mentorId, int limit) {
+        return mentorSlotRepository.findByMentorIdAndStatusOrderByStartTimeAsc(mentorId, "AVAILABLE").stream()
+                .filter(slot -> slot.getStartTime().isAfter(LocalDateTime.now()))
+                .limit(limit)
+                .toList();
+    }
+
     public List<MentorSlot> getUpcomingSlots(Long mentorId) {
         return mentorSlotRepository.findByMentorIdAndStartTimeAfterOrderByStartTimeAsc(
                 mentorId, LocalDateTime.now().minusHours(1));

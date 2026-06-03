@@ -32,7 +32,7 @@ public class ChatBotService {
             - Courses (/courses): catalog with Buy Course, Favorites, and Read for each course
             - Course detail (/course-detail?courseId=): Code Demo and Practice Lab (Mock Project has HTML/CSS/JS editors with live UI preview; other courses use Input Code and Output)
             - Cart (/cart): shopping cart for courses
-            - Tech (/tech): Git MCQ quizzes at Pre-Intermediate, Intermediate, Advanced levels (10 random questions per attempt)
+            - Tech (/tech): Skill MCQ tests (Java, SQL, Python, Git, DSA) at Pre-Intermediate, Intermediate, Advanced — 10 random questions per attempt; DSA allows 3 attempts per level with a new random set each time
             - Quiz (/quiz): take quizzes from the tech page
             - Rich content library for learning materials
             - Mentoring (/mentoring): book mentors and chat
@@ -50,7 +50,7 @@ public class ChatBotService {
             6. Mock Project - build a mock project with web practice lab (HTML, CSS, JavaScript)
 
             Counts: 6 courses in the catalog, 6 mentors on the mentoring page, 9 tech skill areas on the Tech page (Java, SQL, Git, DSA, Spring, Mock Project, Python, C++, .NET).
-            Git quizzes: 3 levels (Pre-Intermediate, Intermediate, Advanced), 10 random questions per attempt, start from /tech then /quiz.
+            Skill quizzes: 3 levels (Pre-Intermediate, Intermediate, Advanced), 10 random questions per attempt, start from /tech then /quiz. DSA tests: up to 3 attempts per user per level, new random MCQs each attempt.
 
             Users can sign up, log in, reset password via forgot password on the home page, add courses to cart, favorite courses, read course materials, take Git quizzes, and use mentoring.
             Do not invent features or prices not listed above. Stay focused on helping users navigate and use Learn Hub.

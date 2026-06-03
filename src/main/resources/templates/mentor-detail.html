@@ -39,14 +39,18 @@
             flex-shrink: 0;
         }
         .booking-panel {
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
+            border: none;
+            border-radius: 14px;
             overflow: hidden;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            box-shadow: 0 20px 40px rgba(16,24,40,0.15);
         }
         .booking-panel-header {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            background: linear-gradient(135deg, #7c3aed, #9f7aea);
             color: #fff;
-            padding: 1.25rem 1.5rem;
+            padding: 1.35rem 1.5rem;
+            border-top-left-radius: 14px;
+            border-top-right-radius: 14px;
         }
         .booking-panel-header h4 { margin: 0; font-weight: 700; }
         .booking-panel-body { padding: 0; }
@@ -81,8 +85,8 @@
         }
         .gcal-wrap {
             background: #fff;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
+            border: 1px solid #e6eefc;
+            border-radius: 10px;
             padding: 0.75rem;
             box-shadow: none;
         }
@@ -288,27 +292,75 @@
             cursor: not-allowed;
         }
         .booking-form .form-label {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #475569;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #000000;
+        }
+        .form-control, .form-select {
+            height: 44px;
+            padding: 0.6rem 0.75rem;
+            border-radius: 10px;
+            border: 1px solid #e6eefc;
+            background: #fff;
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 6px 18px rgba(99,102,241,0.12);
+            border-color: #7c3aed;
         }
         .btn-register {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(90deg, #6ee7b7, #10b981);
             border: none;
             color: #fff;
             font-weight: 700;
-            padding: 0.85rem;
+            padding: 0.9rem 1rem;
             border-radius: 12px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.12s, box-shadow 0.12s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            font-size: 1rem;
         }
+        .btn-register i { transform: translateY(1px); }
         .btn-register:hover:not(:disabled) {
-            color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(16,185,129,0.18);
         }
         .btn-register:disabled {
-            opacity: 0.55;
+            background: linear-gradient(90deg, #c7f7e2, #9beac9);
+            opacity: 0.65;
             cursor: not-allowed;
+        }
+
+        /* Hai-specific original look */
+        .booking-panel.hai-theme {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.97);
+            box-shadow: none;
+        }
+        .booking-panel.hai-theme .booking-panel-header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            padding: 1.25rem 1.5rem;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+        }
+        .booking-panel.new-theme {
+            /* same as default new look - explicit for selected mentors */
+            border: none;
+            border-radius: 14px;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            box-shadow: 0 20px 40px rgba(16,24,40,0.15);
+        }
+        .booking-panel.new-theme .booking-panel-header {
+            background: linear-gradient(135deg, #7c3aed, #9f7aea);
+            color: #fff;
+            padding: 1.35rem 1.5rem;
+            border-top-left-radius: 14px;
+            border-top-right-radius: 14px;
         }
         .google-calendar-button {
             border-color: #1a73e8;
@@ -489,14 +541,15 @@
 
         <div class="row">
             <div class="col-lg-7">
-                <div class="panel-card p-0 booking-panel">
+                 <div class="panel-card p-0 booking-panel"
+                     th:classappend="${mentor.id != null and (mentor.id == 7 or mentor.id == 1 or mentor.id == 2 or mentor.id == 4 or mentor.id == 5 or mentor.id == 6)} ? ' hai-theme' : (${mentor.name != null and (#strings.contains(mentor.name,'Thiri') or #strings.contains(mentor.name,'Tu') or #strings.contains(mentor.name,'Mai') or #strings.contains(mentor.name,'Hieu') or #strings.contains(mentor.name,'Loan'))} ? ' new-theme' : '')">
                     <div class="booking-panel-header">
                         <h4><i class="fas fa-calendar-check me-2"></i>Book a Session</h4>
                         <p class="mb-0 mt-1 small opacity-90">
                             Create a meeting request with <strong th:text="${mentor.name}">your mentor</strong>
                         </p>
                     </div>
-                    <div class="booking-panel-body">
+                    <div class="booking-panel-body px-4 py-4">
                         <div id="slotStore" class="d-none">
                             <span th:each="slot : ${slots}"
                                   th:attr="data-id=${slot.id},
@@ -510,77 +563,48 @@
                             No upcoming slots. Please check back later.
                         </div>
 
-                        <div id="bookingCalendarWrap" class="meeting-request-flow" th:unless="${#lists.isEmpty(slots)}">
-                            <div class="meeting-step meeting-step-calendar">
-                                <p class="meeting-step-title">Step 1</p>
-                                <h5><i class="far fa-calendar-alt"></i>Select a date</h5>
-                                <div class="gcal-wrap">
-                                    <div id="calendarLoadError" class="calendar-load-error">
-                                        <i class="fas fa-exclamation-triangle me-1"></i>
-                                        Calendar could not load. Please refresh the page.
+                        <div th:unless="${#lists.isEmpty(slots)}">
+                            <form method="POST" action="/mentoring/book" class="booking-form" id="bookingForm">
+                                <input type="hidden" name="mentorId" th:value="${mentor.id}" />
+                                <input type="hidden" name="slotId" id="slotIdInput" value="" />
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="dateSelect">Choose date <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="dateSelect" required>
+                                            <option value="">Select a date</option>
+                                        </select>
                                     </div>
-                                    <div id="mentorBookingCalendar" aria-label="Session booking calendar"></div>
-                                    <div class="gcal-legend">
-                                        <span class="gcal-legend-dot"></span>
-                                        Blue bars show days with open sessions
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="timeSelect">Choose time <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="timeSelect" required disabled>
+                                            <option value="">Select a time</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="studentName">Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="studentName" name="studentName"
+                                               th:value="${defaultStudentName}" placeholder="Your name" required />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="studentEmail">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="studentEmail" name="studentEmail"
+                                               th:value="${defaultStudentEmail}" placeholder="you@example.com" required />
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="studentNote">Agenda / message</label>
+                                        <textarea class="form-control" id="studentNote" name="studentNote" rows="3"
+                                                  placeholder="Add a brief description of what you want to discuss"></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-register w-100" id="submitBookingBtn" disabled>
+                                            <i class="fas fa-paper-plane me-2"></i>Book Session
+                                        </button>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="meeting-step">
-                                <p class="meeting-step-title">Step 2</p>
-                                <h5><i class="far fa-clock"></i>Select a time</h5>
-                                <div class="meeting-date-display" id="meetingDateDisplay">
-                                    <i class="fas fa-calendar-day me-2"></i><span id="selectedDateLabel">—</span>
+                                <div class="form-text text-muted mt-3">
+                                    After booking, you can chat with the mentor on the next page.
                                 </div>
-                                <div class="meeting-times-wrap">
-                                    <div class="time-slots-grid" id="timeSlotsGrid">
-                                        <p class="times-placeholder mb-0">Choose a date on the calendar above to see available times.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="meeting-step">
-                                <p class="meeting-step-title">Step 3</p>
-                                <h5><i class="fas fa-user-edit"></i>Meeting request details</h5>
-                                <div class="selected-slot-summary" id="selectedSlotSummary">
-                                    <i class="fas fa-check-circle me-1"></i>
-                                    <span id="selectedSlotText"></span>
-                                </div>
-                                <form method="POST" action="/mentoring/book" class="booking-form" id="bookingForm">
-                                    <input type="hidden" name="mentorId" th:value="${mentor.id}" />
-                                    <input type="hidden" name="slotId" id="slotIdInput" value="" />
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="studentName">Student name <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="studentName" name="studentName"
-                                                   th:value="${defaultStudentName}" required
-                                                   placeholder="Your full name" />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="studentEmail">Email <span class="text-danger">*</span></label>
-                                            <input type="email" class="form-control" id="studentEmail" name="studentEmail"
-                                                   th:value="${defaultStudentEmail}" required
-                                                   placeholder="you@example.com" />
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label" for="studentNote">Agenda / message (optional)</label>
-                                            <textarea class="form-control" id="studentNote" name="studentNote" rows="3"
-                                                      placeholder="What would you like to discuss in this session?"></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <button type="submit" class="btn btn-register w-100" id="submitBookingBtn" disabled>
-                                                <i class="fas fa-paper-plane me-2"></i>Send meeting request
-                                            </button>
-                                        </div>
-                                        <div class="col-12">
-                                            <a id="googleCalendarLink" class="btn btn-outline-primary w-100 mt-3 google-calendar-button disabled" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">
-                                                <i class="fas fa-calendar-plus me-2"></i>Save this session to Google Calendar
-                                            </a>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -684,21 +708,32 @@
                 }
             }
 
-            initBookingCalendar();
+            const urlParams = new URLSearchParams(window.location.search);
+            const openChat = urlParams.get('openChat') === 'true' || window.location.hash === '#chat';
+            if (openChat) {
+                const chatSection = document.getElementById('chat');
+                if (chatSection) {
+                    chatSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            initBookingForm();
         });
 
-        function toIsoDate(d) {
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return y + '-' + m + '-' + day;
-        }
-
-        function initBookingCalendar() {
+        function initBookingForm() {
+            const preselectedSlotId = /*[[${preselectedSlotId}]]*/ null;
             const store = document.getElementById('slotStore');
-            const calendarEl = document.getElementById('mentorBookingCalendar');
-            const loadError = document.getElementById('calendarLoadError');
-            if (!store || !calendarEl) return;
+            const bookingForm = document.getElementById('bookingForm');
+            const dateSelect = document.getElementById('dateSelect');
+            const timeSelect = document.getElementById('timeSelect');
+            const slotIdInput = document.getElementById('slotIdInput');
+            const submitBtn = document.getElementById('submitBookingBtn');
+            const studentName = document.getElementById('studentName');
+            const studentEmail = document.getElementById('studentEmail');
+
+            if (!store || !bookingForm || !dateSelect || !timeSelect || !submitBtn) {
+                return;
+            }
 
             const allSlots = Array.from(store.querySelectorAll('[data-id]')).map(el => ({
                 id: el.dataset.id,
@@ -707,260 +742,92 @@
                 status: el.dataset.status
             }));
 
-            if (allSlots.length === 0) return;
-
             const availableSlots = allSlots.filter(s => s.status === 'AVAILABLE');
-            const openDates = new Set(availableSlots.map(s => s.date));
-            const slotsByDate = {};
-            allSlots.forEach(s => {
-                if (!slotsByDate[s.date]) {
-                    slotsByDate[s.date] = { open: 0, booked: 0 };
+            const groupedSlots = {};
+            availableSlots.forEach(slot => {
+                if (!groupedSlots[slot.date]) {
+                    groupedSlots[slot.date] = [];
                 }
-                if (s.status === 'AVAILABLE') slotsByDate[s.date].open++;
-                else slotsByDate[s.date].booked++;
+                groupedSlots[slot.date].push(slot);
             });
 
-            let viewYear, viewMonth;
-            let selectedDate = null;
-            let selectedSlotId = null;
+            function formatDateLabel(dateString) {
+                const d = new Date(dateString + 'T12:00:00');
+                return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+            }
 
-            const timeSlotsGrid = document.getElementById('timeSlotsGrid');
-            const selectedDateLabel = document.getElementById('selectedDateLabel');
-            const meetingDateDisplay = document.getElementById('meetingDateDisplay');
-            const slotIdInput = document.getElementById('slotIdInput');
-            const submitBtn = document.getElementById('submitBookingBtn');
-            const summary = document.getElementById('selectedSlotSummary');
-            const summaryText = document.getElementById('selectedSlotText');
-            const bookingForm = document.getElementById('bookingForm');
-            const googleCalendarLink = document.getElementById('googleCalendarLink');
-            const mentorName = /*[[${mentor.name}]]*/ 'Mentor';
+            function populateDates() {
+                dateSelect.innerHTML = '<option value="">Select a date</option>';
+                Object.keys(groupedSlots).sort().forEach(date => {
+                    const option = document.createElement('option');
+                    option.value = date;
+                    option.textContent = formatDateLabel(date);
+                    dateSelect.appendChild(option);
+                });
+            }
 
-            const firstDateStr = (availableSlots.length ? availableSlots : allSlots).map(s => s.date).sort()[0];
-            const initial = new Date(firstDateStr + 'T12:00:00');
-            viewYear = initial.getFullYear();
-            viewMonth = initial.getMonth();
-
-            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'];
-            const dowLabels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
-            function formatDateLabel(iso) {
-                const d = new Date(iso + 'T12:00:00');
-                return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            function populateTimes(date) {
+                slotIdInput.value = '';
+                timeSelect.innerHTML = '<option value="">Select a time</option>';
+                timeSelect.disabled = true;
+                if (!date || !groupedSlots[date]) {
+                    return;
+                }
+                groupedSlots[date].forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot.id;
+                    option.textContent = slot.timeLabel;
+                    timeSelect.appendChild(option);
+                });
+                timeSelect.disabled = false;
             }
 
             function updateSubmitState() {
-                if (submitBtn) submitBtn.disabled = !(selectedSlotId && slotIdInput && slotIdInput.value);
+                const hasSlot = slotIdInput.value.trim().length > 0;
+                const hasName = studentName && studentName.value.trim().length > 0;
+                const hasEmail = studentEmail && studentEmail.value.trim().includes('@');
+                submitBtn.disabled = !(hasSlot && hasName && hasEmail);
             }
 
-            function updateGoogleCalendarButton() {
-                if (!googleCalendarLink) return;
-                if (!selectedSlotId) {
-                    googleCalendarLink.classList.add('disabled');
-                    googleCalendarLink.setAttribute('aria-disabled', 'true');
-                    googleCalendarLink.href = '#';
-                    googleCalendarLink.title = 'Select a date and time first';
-                    return;
-                }
-                const selectedSlot = availableSlots.find(s => s.id === selectedSlotId);
-                if (!selectedSlot || !selectedDate) {
-                    googleCalendarLink.classList.add('disabled');
-                    googleCalendarLink.setAttribute('aria-disabled', 'true');
-                    googleCalendarLink.href = '#';
-                    googleCalendarLink.title = 'Select a date and time first';
-                    return;
-                }
-                const gcalUrl = buildGoogleCalendarUrl(selectedDate, selectedSlot.timeLabel);
-                googleCalendarLink.href = gcalUrl;
-                googleCalendarLink.classList.remove('disabled');
-                googleCalendarLink.removeAttribute('aria-disabled');
-                googleCalendarLink.title = 'Open Google Calendar with this session details';
-            }
-
-            function toGoogleCalendarDate(date) {
-                const pad = (value) => String(value).padStart(2, '0');
-                return date.getUTCFullYear()
-                    + pad(date.getUTCMonth() + 1)
-                    + pad(date.getUTCDate()) + 'T'
-                    + pad(date.getUTCHours())
-                    + pad(date.getUTCMinutes())
-                    + pad(date.getUTCSeconds()) + 'Z';
-            }
-
-            function buildGoogleCalendarUrl(dateIso, timeLabel) {
-                const [startTime, endTime] = timeLabel.split('–').map(t => t.trim());
-                const [startHour, startMinute] = startTime.split(':').map(Number);
-                const [endHour, endMinute] = endTime.split(':').map(Number);
-                const startDate = new Date(`${dateIso}T${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}:00`);
-                const endDate = new Date(`${dateIso}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`);
-                const href = new URL('https://calendar.google.com/calendar/render');
-                href.searchParams.set('action', 'TEMPLATE');
-                href.searchParams.set('text', `Mentor session with ${mentorName}`);
-                href.searchParams.set('dates', `${toGoogleCalendarDate(startDate)}/${toGoogleCalendarDate(endDate)}`);
-                href.searchParams.set('details', `Book a mentorship session with ${mentorName} on Learn Hub. Add your meeting agenda when you save the event.`);
-                href.searchParams.set('location', 'Online session');
-                href.searchParams.set('trp', 'false');
-                return href.toString();
-            }
-
-            function selectDate(dateStr) {
-                if (!openDates.has(dateStr)) return;
-                selectedDate = dateStr;
-                selectedSlotId = null;
-                if (slotIdInput) slotIdInput.value = '';
-                if (summary) summary.classList.remove('visible');
-                renderCalendar();
-                renderTimeSlots();
+            dateSelect.addEventListener('change', function() {
+                populateTimes(this.value);
                 updateSubmitState();
-                updateGoogleCalendarButton();
-            }
+            });
 
-            function renderTimeSlots() {
-                if (!timeSlotsGrid) return;
-                timeSlotsGrid.innerHTML = '';
-                if (!selectedDate) {
-                    if (meetingDateDisplay) meetingDateDisplay.classList.remove('visible');
-                    timeSlotsGrid.innerHTML = '<p class="times-placeholder mb-0">Choose a date on the calendar above to see available times.</p>';
-                    if (selectedDateLabel) selectedDateLabel.textContent = '—';
-                    return;
+            timeSelect.addEventListener('change', function() {
+                slotIdInput.value = this.value;
+                updateSubmitState();
+            });
+
+            [studentName, studentEmail].forEach(field => {
+                if (field) {
+                    field.addEventListener('input', updateSubmitState);
                 }
-                if (meetingDateDisplay) meetingDateDisplay.classList.add('visible');
-                if (selectedDateLabel) selectedDateLabel.textContent = formatDateLabel(selectedDate);
-                const daySlots = availableSlots.filter(s => s.date === selectedDate);
-                if (daySlots.length === 0) {
-                    timeSlotsGrid.innerHTML = '<p class="times-placeholder mb-0">No open times on this date. Pick another day with a blue slot label.</p>';
-                    return;
+            });
+
+            bookingForm.addEventListener('submit', function(e) {
+                if (!slotIdInput.value) {
+                    e.preventDefault();
+                    alert('Please select a date and time before booking your session.');
                 }
-                daySlots.forEach(slot => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'time-slot-btn' + (selectedSlotId === slot.id ? ' selected' : '');
-                    btn.textContent = slot.timeLabel;
-                    btn.addEventListener('click', () => {
-                        selectedSlotId = slot.id;
-                        if (slotIdInput) slotIdInput.value = slot.id;
-                        if (summaryText) summaryText.textContent = formatDateLabel(selectedDate) + ' · ' + slot.timeLabel;
-                        if (summary) summary.classList.add('visible');
-                        updateGoogleCalendarButton();
-                        renderTimeSlots();
+            });
+
+            populateDates();
+            // if navigated with a preselected slot, select it
+            if (preselectedSlotId) {
+                const pre = availableSlots.find(s => String(s.id) === String(preselectedSlotId));
+                if (pre) {
+                    dateSelect.value = pre.date;
+                    populateTimes(pre.date);
+                    // set selected time after population
+                    setTimeout(() => {
+                        timeSelect.value = pre.id;
+                        slotIdInput.value = pre.id;
                         updateSubmitState();
-                    });
-                    timeSlotsGrid.appendChild(btn);
-                });
-            }
-
-            function renderCalendar() {
-                try {
-                    calendarEl.innerHTML = '';
-                    const todayIso = toIsoDate(new Date());
-
-                    const toolbar = document.createElement('div');
-                    toolbar.className = 'gcal-toolbar';
-                    toolbar.innerHTML =
-                        '<div class="gcal-toolbar-left">' +
-                        '<button type="button" class="gcal-btn gcal-btn-icon" data-nav="prev" title="Previous month"><i class="fas fa-chevron-left"></i></button>' +
-                        '<button type="button" class="gcal-btn gcal-btn-icon" data-nav="next" title="Next month"><i class="fas fa-chevron-right"></i></button>' +
-                        '<button type="button" class="gcal-btn" data-nav="today">Today</button>' +
-                        '</div>' +
-                        '<h3 class="gcal-title"></h3>';
-                    calendarEl.appendChild(toolbar);
-                    toolbar.querySelector('.gcal-title').textContent = monthNames[viewMonth] + ' ' + viewYear;
-
-                    const grid = document.createElement('div');
-                    grid.className = 'gcal-grid';
-                    dowLabels.forEach(label => {
-                        const head = document.createElement('div');
-                        head.className = 'gcal-dow';
-                        head.textContent = label;
-                        grid.appendChild(head);
-                    });
-
-                    const firstOfMonth = new Date(viewYear, viewMonth, 1);
-                    const startOffset = firstOfMonth.getDay();
-                    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-                    const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
-
-                    for (let i = 0; i < totalCells; i++) {
-                        const dayNum = i - startOffset + 1;
-                        const cellDate = new Date(viewYear, viewMonth, dayNum);
-                        const iso = toIsoDate(cellDate);
-                        const isCurrentMonth = dayNum >= 1 && dayNum <= daysInMonth;
-
-                        const cell = document.createElement('div');
-                        cell.className = 'gcal-cell';
-                        if (!isCurrentMonth) cell.classList.add('other-month');
-                        if (iso === todayIso) cell.classList.add('today');
-                        if (selectedDate === iso) cell.classList.add('selected');
-
-                        const daySpan = document.createElement('span');
-                        daySpan.className = 'gcal-day-num';
-                        daySpan.textContent = isCurrentMonth ? dayNum : cellDate.getDate();
-                        cell.appendChild(daySpan);
-
-                        if (isCurrentMonth && slotsByDate[iso]) {
-                            const info = slotsByDate[iso];
-                            if (info.open > 0) {
-                                cell.classList.add('has-open');
-                                const ev = document.createElement('span');
-                                ev.className = 'gcal-event open';
-                                ev.textContent = info.open + (info.open === 1 ? ' open slot' : ' open slots');
-                                ev.title = 'Click to book';
-                                cell.appendChild(ev);
-                                cell.addEventListener('click', () => selectDate(iso));
-                            } else if (info.booked > 0) {
-                                const ev = document.createElement('span');
-                                ev.className = 'gcal-event booked';
-                                ev.textContent = 'Fully booked';
-                                cell.appendChild(ev);
-                            }
-                        }
-
-                        grid.appendChild(cell);
-                    }
-
-                    calendarEl.appendChild(grid);
-
-                    toolbar.querySelector('[data-nav="prev"]').addEventListener('click', () => {
-                        viewMonth--;
-                        if (viewMonth < 0) { viewMonth = 11; viewYear--; }
-                        renderCalendar();
-                    });
-                    toolbar.querySelector('[data-nav="next"]').addEventListener('click', () => {
-                        viewMonth++;
-                        if (viewMonth > 11) { viewMonth = 0; viewYear++; }
-                        renderCalendar();
-                    });
-                    toolbar.querySelector('[data-nav="today"]').addEventListener('click', () => {
-                        const now = new Date();
-                        viewYear = now.getFullYear();
-                        viewMonth = now.getMonth();
-                        renderCalendar();
-                    });
-
-                    if (loadError) loadError.classList.remove('visible');
-                } catch (err) {
-                    console.error('Calendar render failed', err);
-                    if (loadError) loadError.classList.add('visible');
-                }
-            }
-
-            if (bookingForm) {
-                bookingForm.addEventListener('submit', function(e) {
-                    if (!slotIdInput || !slotIdInput.value) {
-                        e.preventDefault();
-                        alert('Please complete Step 1 and Step 2 — select a date and time — before sending your meeting request.');
-                    }
-                });
-            }
-
-            renderCalendar();
-            if (availableSlots.length === 0) {
-                if (timeSlotsGrid) {
-                    timeSlotsGrid.innerHTML = '<p class="times-placeholder mb-0">All upcoming sessions are booked. Please check another mentor or try again later.</p>';
+                    }, 0);
                 }
             }
             updateSubmitState();
-            updateGoogleCalendarButton();
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

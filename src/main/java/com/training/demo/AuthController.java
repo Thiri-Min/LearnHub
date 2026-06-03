@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,6 +50,9 @@ public class AuthController {
 
     @Autowired
     private AppUrlResolver appUrlResolver;
+
+    @Autowired
+    private QuizAttemptRepository quizAttemptRepository;
 
     @Value("${app.public-url:}")
     private String configuredPublicUrl;
@@ -204,10 +208,14 @@ public class AuthController {
     }
 
     @GetMapping("/tech")
-    public String tech(HttpSession session, Model model) {
+    public String tech(HttpSession session, Model model,
+                      @RequestParam(required = false) String message) {
         var user = session.getAttribute("loggedInUser");
         if (user == null) {
             return "redirect:/?authMode=login";
+        }
+        if (message != null && !message.isBlank()) {
+            model.addAttribute("message", message);
         }
         model.addAttribute("user", user);
         model.addAttribute("cartCount", getCart(session).size());
@@ -217,7 +225,18 @@ public class AuthController {
         model.addAttribute("gitPreIntermediateQuestions", getQuestions("Git", "Pre-Intermediate"));
         model.addAttribute("gitIntermediateQuestions", getQuestions("Git", "Intermediate"));
         model.addAttribute("gitAdvancedQuestions", getQuestions("Git", "Advanced"));
+        User currentUser = (User) user;
+        model.addAttribute("dsaMaxAttempts", TechQuizCatalog.DSA_MAX_ATTEMPTS);
+        model.addAttribute("dsaAttemptCounts", buildDsaAttemptCounts(currentUser.getId()));
         return "tech";
+    }
+
+    private Map<String, Long> buildDsaAttemptCounts(Long userId) {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        for (String level : List.of("Pre-Intermediate", "Intermediate", "Advanced")) {
+            counts.put(level, quizAttemptRepository.countByUserIdAndSubjectAndLevel(userId, "DSA", level));
+        }
+        return counts;
     }
 
     @GetMapping("/rich-content")
@@ -330,11 +349,19 @@ public class AuthController {
         if (user == null) {
             return "redirect:/?authMode=login";
         }
+        User currentUser = (User) user;
+        if (isDsaQuiz(subject)) {
+            long attemptsUsed = quizAttemptRepository.countByUserIdAndSubjectAndLevel(
+                    currentUser.getId(), "DSA", level);
+            if (fresh && attemptsUsed >= TechQuizCatalog.DSA_MAX_ATTEMPTS) {
+                return "redirect:/tech";
+            }
+        }
         model.addAttribute("user", user);
         model.addAttribute("cartCount", getCart(session).size());
         model.addAttribute("subject", subject);
         model.addAttribute("level", level);
-        String quizSessionKey = quizSessionKey(subject, level);
+        String quizSessionKey = quizSessionKey(session, subject, level);
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> questions = (List<Map<String, Object>>) session.getAttribute(quizSessionKey);
         if (fresh || questions == null) {
@@ -360,13 +387,30 @@ public class AuthController {
             return Map.of("ok", false, "error", "Not logged in");
         }
         User current = (User) user;
+        if (isDsaQuiz(subject)) {
+            long attemptsUsed = quizAttemptRepository.countByUserIdAndSubjectAndLevel(
+                    current.getId(), "DSA", level);
+            if (attemptsUsed >= TechQuizCatalog.DSA_MAX_ATTEMPTS) {
+                return Map.of("ok", false, "error", "This test is not available right now.");
+            }
+        }
         adminService.saveQuizAttempt(current.getId(), subject, level, score, total, percentage, grade, timeUp);
-        session.removeAttribute(quizSessionKey(subject, level));
+        session.removeAttribute(quizSessionKey(session, subject, level));
         return Map.of("ok", true);
     }
 
-    private static String quizSessionKey(String subject, String level) {
-        return "quizQuestions:" + subject + ":" + level;
+    private static boolean isDsaQuiz(String subject) {
+        return subject != null && "DSA".equalsIgnoreCase(subject.trim());
+    }
+
+    private static String quizSessionKey(HttpSession session, String subject, String level) {
+        Object user = session.getAttribute("loggedInUser");
+        long userId = user instanceof User u ? u.getId() : 0L;
+        return "quizQuestions:" + userId + ":" + subject + ":" + level;
+    }
+
+    private static String urlEncode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     private List<Map<String, Object>> getQuestions(String subject, String level) {

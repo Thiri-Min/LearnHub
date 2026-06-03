@@ -343,6 +343,31 @@
             line-height: 1.4;
         }
         .calendar-ready i { color: #1a73e8; }
+        .slot-list {
+            display: grid;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            text-align: left;
+        }
+        .slot-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(99, 102, 241, 0.08);
+            border-radius: 999px;
+            color: #334155;
+            font-size: 0.8rem;
+            border: 1px solid rgba(99, 102, 241, 0.16);
+        }
+        .slot-pill i {
+            color: #4f46e5;
+            font-size: 0.8rem;
+        }
+        .slot-empty {
+            color: #94a3b8;
+            font-size: 0.82rem;
+        }
 
         /* Per-trainer color themes */
         .theme-0 { --accent-a: #6366f1; --accent-b: #8b5cf6; --accent-glow: rgba(99,102,241,0.4); --badge-bg: #eef2ff; --badge-text: #4338ca; }
@@ -503,15 +528,23 @@
                             <p class="expertise-line" th:text="${mentor.expertise}">Expertise</p>
                             <p class="mentor-bio" th:text="${mentor.bio}">Bio</p>
                             <div class="mentor-card-meta">
-                                <span class="status-pill" th:classappend="${availableCounts[mentor.id]} > 0 ? ' available' : ' booked'"
-                                      th:text="${availableCounts[mentor.id]} > 0 ? availableCounts[mentor.id] + ' open slots' : 'No available slots'">Open slots</span>
                                 <div class="calendar-ready">
                                     <i class="fas fa-calendar-plus"></i>
-                                    <span>Google Calendar ready in trainer booking</span>
+                                    <span>Next session times</span>
+                                </div>
+                                <div class="slot-list" th:if="${upcomingSlots[mentor.id] != null and !#lists.isEmpty(upcomingSlots[mentor.id])}">
+                                        <a class="slot-pill" th:each="slot : ${upcomingSlots[mentor.id]}"
+                                           th:href="@{/mentoring/mentor(mentorId=${mentor.id}, slotId=${slot.id})}">
+                                            <i class="fas fa-clock"></i>
+                                            <span th:text="${#temporals.format(slot.startTime, 'EEE, MMM d HH:mm')}">Fri, Jun 5 09:00</span>
+                                        </a>
+                                </div>
+                                <div class="slot-empty" th:if="${upcomingSlots[mentor.id] == null or #lists.isEmpty(upcomingSlots[mentor.id])}">
+                                    No upcoming slots yet.
                                 </div>
                             </div>
                             <a th:href="@{/mentoring/mentor(mentorId=${mentor.id})}" class="btn btn-book w-100">
-                                <i class="fas fa-calendar-check me-2"></i>Book &amp; Save
+                                <i class="fas fa-calendar-check me-2"></i>Book &amp; Chat
                             </a>
                         </div>
                     </div>

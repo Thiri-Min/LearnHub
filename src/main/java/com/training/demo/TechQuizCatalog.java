@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Quiz questions aligned with tech.html skill sets (Java, SQL, Python, Git × 3 levels).
+ * Quiz questions aligned with tech.html skill sets (Java, SQL, Python, Git, DSA × 3 levels).
  */
 public final class TechQuizCatalog {
 
@@ -18,12 +18,16 @@ public final class TechQuizCatalog {
         registerSql();
         registerPython();
         registerGit();
+        registerDsa();
     }
 
     private TechQuizCatalog() {
     }
 
     public static final int QUIZ_QUESTION_COUNT = 10;
+    /** Question bank size per level for subjects that randomize across attempts (e.g. DSA, Git). */
+    public static final int QUIZ_BANK_SIZE = 15;
+    public static final int DSA_MAX_ATTEMPTS = 3;
 
     public static List<Map<String, Object>> getQuestions(String subject, String level) {
         Map<String, List<Map<String, Object>>> byLevel = QUESTIONS.get(subject);
@@ -115,6 +119,14 @@ public final class TechQuizCatalog {
         levels.put("Intermediate", gitIntermediate());
         levels.put("Advanced", gitAdvanced());
         QUESTIONS.put("Git", levels);
+    }
+
+    private static void registerDsa() {
+        Map<String, List<Map<String, Object>>> levels = new LinkedHashMap<>();
+        levels.put("Pre-Intermediate", dsaPreIntermediate());
+        levels.put("Intermediate", dsaIntermediate());
+        levels.put("Advanced", dsaAdvanced());
+        QUESTIONS.put("DSA", levels);
     }
 
     private static Map<String, Object> q(String question, List<String> options, int answer) {
@@ -529,6 +541,132 @@ public final class TechQuizCatalog {
                 List.of("Mark a specific commit (e.g. a release version)",
                         "Stage all modified files", "Resolve merge conflicts automatically",
                         "Rename a branch"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> dsaPreIntermediate() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("What is the time complexity of accessing an element by index in an array?",
+                List.of("O(1)", "O(n)", "O(log n)", "O(n²)"), 0));
+        list.add(q("Which structure stores elements in contiguous memory?",
+                List.of("Array", "Linked list", "Tree", "Graph"), 0));
+        list.add(q("A stack follows which principle?",
+                List.of("LIFO (Last In, First Out)", "FIFO (First In, First Out)", "LILO", "Random access"), 0));
+        list.add(q("A queue follows which principle?",
+                List.of("FIFO (First In, First Out)", "LIFO", "Sorted order", "Heap order"), 0));
+        list.add(q("What does Big-O notation describe?",
+                List.of("Upper bound of algorithm growth rate", "Exact runtime in seconds",
+                        "Memory address layout", "Number of lines of code"), 0));
+        list.add(q("Linear search on an unsorted array of size n has time complexity:",
+                List.of("O(n)", "O(1)", "O(log n)", "O(n log n)"), 0));
+        list.add(q("Binary search requires the input to be:",
+                List.of("Sorted", "Unsorted", "A linked list only", "At least size 100"), 0));
+        list.add(q("Which Java collection allows duplicate elements and maintains insertion order?",
+                List.of("ArrayList", "HashSet", "HashMap keys only", "TreeSet"), 0));
+        list.add(q("In a singly linked list, each node contains:",
+                List.of("Data and a reference to the next node", "Only data", "Data and two pointers only",
+                        "Index and value in an array"), 0));
+        list.add(q("What is the main disadvantage of an array compared to a linked list?",
+                List.of("Fixed or costly resize; slow insert in middle", "Cannot store integers",
+                        "No indexing", "Uses more memory always"), 0));
+        list.add(q("Recursion always needs:",
+                List.of("A base case to stop", "A loop variable only", "Two arrays", "Global variables"), 0));
+        list.add(q("HashMap provides average-case lookup time of:",
+                List.of("O(1)", "O(n²)", "O(log n) only for strings", "O(n) always"), 0));
+        list.add(q("Which traversal visits root, then left subtree, then right subtree?",
+                List.of("Preorder", "Inorder", "Postorder", "Level order"), 0));
+        list.add(q("An ArrayList in Java is best described as:",
+                List.of("A resizable dynamic array", "A fixed-size array", "A hash table",
+                        "A binary search tree"), 0));
+        list.add(q("Which operation is typically O(1) for a hash table (average case)?",
+                List.of("Get by key", "Sort all keys", "Find minimum key", "Print in sorted order"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> dsaIntermediate() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("In a binary tree, each node has at most how many children?",
+                List.of("2", "1", "3", "Unlimited"), 0));
+        list.add(q("Inorder traversal of a Binary Search Tree (BST) prints keys in:",
+                List.of("Ascending sorted order", "Descending order only", "Random order",
+                        "Level-by-level order"), 0));
+        list.add(q("Binary search on a sorted array of n elements runs in:",
+                List.of("O(log n)", "O(n)", "O(1)", "O(n²)"), 0));
+        list.add(q("Bubble sort has worst-case time complexity:",
+                List.of("O(n²)", "O(n)", "O(log n)", "O(1)"), 0));
+        list.add(q("Which structure is ideal for BFS (breadth-first search) on a graph?",
+                List.of("Queue", "Stack", "Priority queue only", "Array list tail only"), 0));
+        list.add(q("Which structure is commonly used for DFS using an explicit structure?",
+                List.of("Stack", "Queue", "HashMap", "Array of booleans only"), 0));
+        list.add(q("A HashSet in Java guarantees:",
+                List.of("No duplicate elements", "Sorted iteration order", "Key-value pairs",
+                        "FIFO ordering"), 0));
+        list.add(q("Merging two sorted linked lists of lengths n and m can be done in:",
+                List.of("O(n + m)", "O(n × m)", "O(1)", "O(n²)"), 0));
+        list.add(q("Level-order traversal of a tree is also called:",
+                List.of("BFS traversal", "Preorder", "Postorder", "Inorder"), 0));
+        list.add(q("Selection sort repeatedly selects:",
+                List.of("The minimum element and places it at the front", "Random swaps",
+                        "The middle element", "Two sorted halves"), 0));
+        list.add(q("A graph can be represented using:",
+                List.of("Adjacency list or adjacency matrix", "Only a single array",
+                        "Only linked lists", "Stack alone"), 0));
+        list.add(q("Inserting at the head of a singly linked list (when head pointer exists) is:",
+                List.of("O(1)", "O(n)", "O(log n)", "O(n²)"), 0));
+        list.add(q("Which is true about a stack?",
+                List.of("Push and pop happen at the same end", "Enqueue at both ends",
+                        "Elements are always sorted", "Used only for sorting"), 0));
+        list.add(q("Two-dimensional arrays in Java are best thought of as:",
+                List.of("Array of arrays (rows)", "Always 10×10", "Linked list of rows",
+                        "Hash map of columns"), 0));
+        list.add(q("Finding an element in an unsorted linked list of n nodes requires:",
+                List.of("O(n) time in the worst case", "O(1) time", "O(log n) time",
+                        "O(n log n) time"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> dsaAdvanced() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("Dynamic programming is applicable when a problem has:",
+                List.of("Optimal substructure and overlapping subproblems",
+                        "Only greedy choice property", "No recursion", "Constant input size only"), 0));
+        list.add(q("Memoization in DP is an example of:",
+                List.of("Top-down approach", "Bottom-up tabulation only", "Divide and conquer without overlap",
+                        "Brute force"), 0));
+        list.add(q("The 0/1 knapsack problem means:",
+                List.of("Each item can be taken at most once", "Unlimited copies of each item",
+                        "Items must be sorted", "Only one item total"), 0));
+        list.add(q("Dijkstra's algorithm finds:",
+                List.of("Shortest paths from a source in graphs with non-negative weights",
+                        "Minimum spanning tree only", "Topological order only", "Maximum flow"), 0));
+        list.add(q("Compared to divide and conquer, DP typically:",
+                List.of("Stores results of overlapping subproblems", "Never uses tables",
+                        "Always splits into independent non-overlapping parts only", "Uses only recursion"), 0));
+        list.add(q("Fibonacci with naive recursion (no memo) has time complexity about:",
+                List.of("O(2^n)", "O(n)", "O(log n)", "O(1)"), 0));
+        list.add(q("Coin change (minimum coins) with DP often uses state:",
+                List.of("dp[amount] = min coins to make amount", "dp[tree height] only",
+                        "dp[string length] for sorting", "No state array"), 0));
+        list.add(q("A binary heap is commonly used to implement:",
+                List.of("Priority queue", "Hash table", "Stack only", "Graph adjacency list"), 0));
+        list.add(q("Quick sort average-case time complexity is:",
+                List.of("O(n log n)", "O(n²) always", "O(n)", "O(log n)"), 0));
+        list.add(q("Topological sort is defined on:",
+                List.of("Directed acyclic graph (DAG)", "Any undirected graph", "Binary tree only",
+                        "Circular linked list"), 0));
+        list.add(q("In a BST, for every node:",
+                List.of("Left subtree keys < node < right subtree keys (typical convention)",
+                        "All keys equal", "No left child allowed", "Height is always log n"), 0));
+        list.add(q("Space complexity of recursive DFS on a tree with height h is often:",
+                List.of("O(h) due to call stack", "O(1)", "O(n²)", "O(log log n)"), 0));
+        list.add(q("Tabulation (bottom-up) DP usually fills a table:",
+                List.of("From smaller subproblems to larger ones", "Random order only",
+                        "Only after greedy pass", "Without base cases"), 0));
+        list.add(q("Which problem is a classic DP example?",
+                List.of("Longest common subsequence", "Binary search on sorted array",
+                        "Stack push/pop", "Array index access"), 0));
+        list.add(q("Graph BFS time complexity with adjacency list is often:",
+                List.of("O(V + E)", "O(V²) only", "O(E²)", "O(1)"), 0));
         return list;
     }
 }
