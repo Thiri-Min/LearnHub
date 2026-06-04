@@ -32,6 +32,9 @@ public class MentoringService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ChatReadStatusService chatReadStatusService;
+
     public List<Mentor> getAllMentors() {
         return mentorRepository.findAll().stream()
                 .sorted(Comparator.comparingInt(this::mentorDisplayOrder))
@@ -99,6 +102,32 @@ public class MentoringService {
     public Optional<Long> getLatestChatUserId(Long mentorId) {
         return mentorChatMessageRepository.findFirstByMentorIdOrderBySentAtDesc(mentorId)
                 .map(MentorChatMessage::getUserId);
+    }
+
+    public ChatNotificationState getChatNotificationState(User user) {
+        if (user == null) {
+            return new ChatNotificationState(0, "/mentoring");
+        }
+        List<MentorChatMessage> messages = user.isAdmin()
+                ? mentorChatMessageRepository.findAll().stream()
+                        .sorted(Comparator.comparing(MentorChatMessage::getSentAt).reversed())
+                        .toList()
+                : mentorChatMessageRepository.findByUserIdOrderBySentAtDesc(user.getId());
+        long unreadCount = chatReadStatusService.countUnread(user, messages);
+        MentorChatMessage targetMessage = chatReadStatusService.latestUnread(user, messages)
+                .orElse(messages.isEmpty() ? null : messages.get(0));
+        return new ChatNotificationState(unreadCount, buildChatHref(user, targetMessage));
+    }
+
+    private String buildChatHref(User user, MentorChatMessage message) {
+        if (message == null) {
+            return "/mentoring";
+        }
+        String href = "/mentoring/mentor?mentorId=" + message.getMentorId();
+        if (user != null && user.isAdmin()) {
+            href += "&menteeId=" + message.getUserId();
+        }
+        return href + "#chat";
     }
 
     public List<ChatConversation> getChatConversations(Long mentorId) {
@@ -255,6 +284,24 @@ public class MentoringService {
 
         public int getNotificationCount() {
             return notificationCount;
+        }
+    }
+
+    public static class ChatNotificationState {
+        private final long unreadCount;
+        private final String href;
+
+        public ChatNotificationState(long unreadCount, String href) {
+            this.unreadCount = unreadCount;
+            this.href = href;
+        }
+
+        public long getUnreadCount() {
+            return unreadCount;
+        }
+
+        public String getHref() {
+            return href;
         }
     }
 }

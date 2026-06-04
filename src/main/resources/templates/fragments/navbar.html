@@ -54,6 +54,17 @@
         background: rgba(251, 191, 36, 0.2);
         border-radius: 8px;
     }
+    .lms-navbar .nav-icon-link {
+        min-width: 2.35rem;
+        text-align: center;
+    }
+    .lms-navbar .nav-icon-badge {
+        min-width: 1.15rem;
+        height: 1.15rem;
+        padding: 0 0.35rem;
+        font-size: 0.68rem;
+        line-height: 1.15rem;
+    }
 </style>
 
 <nav th:fragment="navbarShell(homeActive, coursesActive, activeTech, homeHref, useAuthModal, activeNav)"
@@ -129,7 +140,22 @@
         <a class="nav-link" href="/?authMode=login">Tech</a>
     </li>
     <li class="nav-item" th:if="${user}">
-        <a class="nav-link position-relative" href="/cart">
+        <a class="nav-link nav-icon-link position-relative"
+           id="navbarChatLink"
+           th:href="${chatNotificationHref != null ? chatNotificationHref : '/mentoring'}"
+           th:title="${isAdminUser} ? 'Mentor chat' : 'Mentee chat'"
+           th:aria-label="${isAdminUser} ? 'Mentor chat notifications' : 'Mentee chat notifications'"
+           th:classappend="${activeTech == 'mentoring'} ? 'active' : ''"
+           th:attr="data-chat-href=${chatNotificationHref != null ? chatNotificationHref : '/mentoring'}">
+            <i class="fas fa-comments"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger nav-icon-badge"
+                  id="navbarChatBadge"
+                  th:if="${chatNotificationCount != null and chatNotificationCount > 0}"
+                  th:text="${chatNotificationCount > 99 ? '99+' : chatNotificationCount}">1</span>
+        </a>
+    </li>
+    <li class="nav-item" th:if="${user}">
+        <a class="nav-link nav-icon-link position-relative" href="/cart">
             <i class="fas fa-shopping-cart"></i>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                   th:if="${cartCount != null and cartCount > 0}" th:text="${cartCount}"></span>
@@ -157,6 +183,54 @@
     </li>
     <li class="nav-item" th:if="${user == null and useAuthModal}">
         <a class="nav-link" href="#authBox" onclick="showAuthBox('login'); return false;">Login</a>
+    </li>
+    <li class="d-none" th:if="${user}">
+        <script th:inline="javascript">
+            (function () {
+                const link = document.getElementById('navbarChatLink');
+                if (!link) {
+                    return;
+                }
+
+                function setBadge(count) {
+                    let badge = document.getElementById('navbarChatBadge');
+                    if (count <= 0) {
+                        if (badge) {
+                            badge.remove();
+                        }
+                        return;
+                    }
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.id = 'navbarChatBadge';
+                        badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger nav-icon-badge';
+                        link.appendChild(badge);
+                    }
+                    badge.textContent = count > 99 ? '99+' : String(count);
+                }
+
+                async function refreshChatNotifications() {
+                    try {
+                        const response = await fetch('/mentoring/chat/notifications', { cache: 'no-store' });
+                        if (!response.ok) {
+                            return;
+                        }
+                        const data = await response.json();
+                        const count = Number(data.unreadCount || 0);
+                        if (data.href) {
+                            link.href = data.href;
+                            link.dataset.chatHref = data.href;
+                        }
+                        setBadge(count);
+                    } catch (error) {
+                        // Keep the current badge when a transient request fails.
+                    }
+                }
+
+                refreshChatNotifications();
+                window.setInterval(refreshChatNotifications, 15000);
+            })();
+        </script>
     </li>
 </ul>
 </body>

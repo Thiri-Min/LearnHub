@@ -16,6 +16,9 @@ public class GlobalModelAttributes {
     @Autowired
     private ChatBotService chatBotService;
 
+    @Autowired
+    private MentoringService mentoringService;
+
     @ModelAttribute
     public void addSessionUser(HttpSession session, Model model) {
         Object attr = session.getAttribute("loggedInUser");
@@ -24,8 +27,13 @@ public class GlobalModelAttributes {
                 model.addAttribute("user", user);
             }
             model.addAttribute("isAdminUser", user.isAdmin());
+            MentoringService.ChatNotificationState chatState = mentoringService.getChatNotificationState(user);
+            model.addAttribute("chatNotificationCount", chatState.getUnreadCount());
+            model.addAttribute("chatNotificationHref", chatState.getHref());
         } else {
             model.addAttribute("isAdminUser", false);
+            model.addAttribute("chatNotificationCount", 0);
+            model.addAttribute("chatNotificationHref", "/mentoring");
         }
         model.addAttribute("ga4MeasurementId", ga4MeasurementId);
         model.addAttribute("aiChatEnabled", chatBotService.isEnabled());

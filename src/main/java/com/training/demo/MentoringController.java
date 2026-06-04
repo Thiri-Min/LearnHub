@@ -119,6 +119,9 @@ public class MentoringController {
                 : chatPresenceService.isOtherSideOnline(user));
         model.addAttribute("chatTargetUserId", selectedMenteeId);
         chatReadStatusService.markRead(user, mentorId, selectedMenteeId);
+        MentoringService.ChatNotificationState chatState = mentoringService.getChatNotificationState(user);
+        model.addAttribute("chatNotificationCount", chatState.getUnreadCount());
+        model.addAttribute("chatNotificationHref", chatState.getHref());
         model.addAttribute("chatMessages", trainerView
                 ? (selectedMenteeId != null ? mentoringService.getChatMessages(selectedMenteeId, mentorId) : List.of())
                 : mentoringService.getChatMessages(user.getId(), mentorId));
@@ -394,6 +397,17 @@ public class MentoringController {
                 ))
                 .toList();
         return Map.of("conversations", conversations);
+    }
+
+    @GetMapping(value = "/mentoring/chat/notifications", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> chatNotifications(HttpSession session) {
+        User user = requireUser(session);
+        if (user == null) {
+            return Map.of("unreadCount", 0, "href", "/mentoring");
+        }
+        MentoringService.ChatNotificationState state = mentoringService.getChatNotificationState(user);
+        return Map.of("unreadCount", state.getUnreadCount(), "href", state.getHref());
     }
 
     private User requireUser(HttpSession session) {

@@ -12,6 +12,8 @@ public interface MentorChatMessageRepository extends JpaRepository<MentorChatMes
 
     List<MentorChatMessage> findByMentorIdOrderBySentAtDesc(Long mentorId);
 
+    List<MentorChatMessage> findByUserIdOrderBySentAtDesc(Long userId);
+
     List<MentorChatMessage> findByMentorIdAndSenderOrderBySentAtDesc(Long mentorId, String sender);
 
     Optional<MentorChatMessage> findFirstByMentorIdOrderBySentAtDesc(Long mentorId);
