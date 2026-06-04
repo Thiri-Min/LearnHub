@@ -102,10 +102,20 @@ public class MentoringService {
     }
 
     public List<ChatConversation> getChatConversations(Long mentorId) {
-        List<MentorChatMessage> messages = mentorChatMessageRepository.findByMentorIdAndSenderOrderBySentAtDesc(mentorId, "USER");
+        List<MentorChatMessage> messages = mentorChatMessageRepository.findByMentorIdOrderBySentAtDesc(mentorId);
         Map<Long, MentorChatMessage> latestByUser = new LinkedHashMap<>();
+        Map<Long, Integer> pendingCounts = new LinkedHashMap<>();
+        Map<Long, Boolean> mentorReplySeen = new LinkedHashMap<>();
         for (MentorChatMessage message : messages) {
-            latestByUser.putIfAbsent(message.getUserId(), message);
+            Long userId = message.getUserId();
+            if ("USER".equals(message.getSender())) {
+                latestByUser.putIfAbsent(userId, message);
+                if (!mentorReplySeen.getOrDefault(userId, false)) {
+                    pendingCounts.merge(userId, 1, Integer::sum);
+                }
+            } else if ("MENTOR".equals(message.getSender())) {
+                mentorReplySeen.putIfAbsent(userId, true);
+            }
         }
         Map<Long, User> users = userRepository.findAllById(latestByUser.keySet()).stream()
                 .collect(Collectors.toMap(User::getId, Function.identity()));
@@ -119,7 +129,8 @@ public class MentoringService {
                     user != null ? buildDisplayName(user) : "Mentee #" + entry.getKey(),
                     user != null && user.getEmail() != null ? user.getEmail() : "",
                     latest.getContent(),
-                    latest.getSentAt()
+                    latest.getSentAt(),
+                    pendingCounts.getOrDefault(entry.getKey(), 0)
             ));
         }
         return conversations;
@@ -211,13 +222,15 @@ public class MentoringService {
         private final String email;
         private final String lastMessage;
         private final LocalDateTime lastSentAt;
+        private final int notificationCount;
 
-        public ChatConversation(Long userId, String displayName, String email, String lastMessage, LocalDateTime lastSentAt) {
+        public ChatConversation(Long userId, String displayName, String email, String lastMessage, LocalDateTime lastSentAt, int notificationCount) {
             this.userId = userId;
             this.displayName = displayName;
             this.email = email;
             this.lastMessage = lastMessage;
             this.lastSentAt = lastSentAt;
+            this.notificationCount = notificationCount;
         }
 
         public Long getUserId() {
@@ -238,6 +251,10 @@ public class MentoringService {
 
         public LocalDateTime getLastSentAt() {
             return lastSentAt;
+        }
+
+        public int getNotificationCount() {
+            return notificationCount;
         }
     }
 }

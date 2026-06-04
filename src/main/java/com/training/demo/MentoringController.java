@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,8 @@ import java.util.Map;
 
 @Controller
 public class MentoringController {
+
+    private static final DateTimeFormatter CHAT_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM HH:mm");
 
     @Autowired
     private MentoringService mentoringService;
@@ -330,6 +333,61 @@ public class MentoringController {
                 ? chatPresenceService.isUserOnline(menteeId)
                 : chatPresenceService.isOtherSideOnline(user);
         return Map.of("online", online);
+    }
+
+    @GetMapping(value = "/mentoring/chat/messages", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> chatMessages(@RequestParam Long mentorId,
+                                            @RequestParam(required = false) Long menteeId,
+                                            HttpSession session) {
+        User user = requireUser(session);
+        if (user == null) {
+            return Map.of("messages", List.of());
+        }
+        chatPresenceService.markActive(user);
+        Long targetUserId = user.isAdmin() ? menteeId : user.getId();
+        if (targetUserId == null) {
+            return Map.of("messages", List.of());
+        }
+        String mentorName = mentoringService.getMentor(mentorId).map(Mentor::getName).orElse("Mentor");
+        List<Map<String, Object>> messages = mentoringService.getChatMessages(targetUserId, mentorId).stream()
+                .map(message -> {
+                    boolean mine = (user.isAdmin() && "MENTOR".equals(message.getSender()))
+                            || (!user.isAdmin() && "USER".equals(message.getSender()));
+                    String senderLabel = "USER".equals(message.getSender())
+                            ? (user.isAdmin() ? "Mentee" : "You")
+                            : (user.isAdmin() ? "You" : mentorName);
+                    return Map.<String, Object>of(
+                            "id", message.getId(),
+                            "content", message.getContent(),
+                            "mine", mine,
+                            "senderLabel", senderLabel,
+                            "sentAt", CHAT_TIME_FORMAT.format(message.getSentAt())
+                    );
+                })
+                .toList();
+        return Map.of("messages", messages);
+    }
+
+    @GetMapping(value = "/mentoring/chat/conversations", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> chatConversations(@RequestParam Long mentorId,
+                                                 HttpSession session) {
+        User user = requireUser(session);
+        if (user == null || !user.isAdmin()) {
+            return Map.of("conversations", List.of());
+        }
+        chatPresenceService.markActive(user);
+        List<Map<String, Object>> conversations = mentoringService.getChatConversations(mentorId).stream()
+                .map(conversation -> Map.<String, Object>of(
+                        "userId", conversation.getUserId(),
+                        "displayName", conversation.getDisplayName(),
+                        "lastMessage", conversation.getLastMessage(),
+                        "lastSentAt", CHAT_TIME_FORMAT.format(conversation.getLastSentAt()),
+                        "notificationCount", conversation.getNotificationCount()
+                ))
+                .toList();
+        return Map.of("conversations", conversations);
     }
 
     private User requireUser(HttpSession session) {

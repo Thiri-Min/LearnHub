@@ -528,6 +528,34 @@
             gap: 0.75rem;
             font-weight: 800;
         }
+        .conversation-name-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            min-width: 0;
+        }
+        .conversation-name-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .conversation-noti {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.7rem;
+            height: 1.35rem;
+            padding: 0 0.45rem;
+            border-radius: 999px;
+            background: #dc2626;
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .conversation-noti.empty {
+            display: none;
+        }
         .conversation-email,
         .conversation-preview {
             overflow: hidden;
@@ -670,12 +698,18 @@
                         <a th:each="conversation : ${chatConversations}"
                            class="conversation-item"
                            th:classappend="${conversation.userId == selectedMenteeId} ? ' active' : ''"
+                           th:attr="data-conversation-id=${conversation.userId}"
                            th:href="@{/mentoring/mentor(mentorId=${mentor.id}, menteeId=${conversation.userId})} + '#chat'">
                             <span class="conversation-avatar"
                                   th:text="${#strings.substring(conversation.displayName, 0, 1)}">M</span>
                             <span class="conversation-main">
                                 <span class="conversation-name">
-                                    <span th:text="${conversation.displayName}">Mentee</span>
+                                    <span class="conversation-name-left">
+                                        <span class="conversation-name-text" th:text="${conversation.displayName}">Mentee</span>
+                                        <span class="conversation-noti"
+                                              th:classappend="${conversation.notificationCount == 0} ? ' empty' : ''"
+                                              th:text="${'noti-' + conversation.notificationCount}">noti-1</span>
+                                    </span>
                                     <span class="conversation-time"
                                           th:text="${#temporals.format(conversation.lastSentAt, 'dd MMM HH:mm')}">Today</span>
                                 </span>
@@ -872,6 +906,8 @@
 
             initBookingForm();
             initChatPresence();
+            initLiveChat();
+            initConversationNotifications();
         });
 
         function initChatPresence() {
@@ -905,6 +941,116 @@
 
             refresh();
             setInterval(refresh, 15000);
+        }
+
+        function initLiveChat() {
+            const chatBox = document.getElementById('chatBox');
+            if (!chatBox) {
+                return;
+            }
+            const mentorId = /*[[${mentor.id}]]*/ null;
+            const selectedMenteeId = /*[[${selectedMenteeId}]]*/ null;
+            if (!mentorId || !selectedMenteeId) {
+                return;
+            }
+
+            let lastSignature = '';
+
+            function escapeHtml(value) {
+                return String(value || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            function renderMessages(messages) {
+                const signature = messages.map(msg => msg.id).join(',');
+                if (signature === lastSignature) {
+                    return;
+                }
+                lastSignature = signature;
+                if (!messages.length) {
+                    chatBox.innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-comment-dots fa-2x mb-2"></i><p class="mb-0">No messages yet.</p></div>';
+                    return;
+                }
+                chatBox.innerHTML = messages.map(msg => {
+                    const align = msg.mine ? ' text-end' : '';
+                    const bubbleClass = msg.mine ? 'chat-bubble user' : 'chat-bubble mentor';
+                    return '<div class="' + bubbleClass + '">'
+                        + '<div>' + escapeHtml(msg.content) + '</div>'
+                        + '<div class="chat-meta' + align + '">' + escapeHtml(msg.senderLabel) + '</div>'
+                        + '<div class="chat-meta' + align + '">' + escapeHtml(msg.sentAt) + '</div>'
+                        + '</div>';
+                }).join('');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            async function refreshMessages() {
+                try {
+                    const url = '/mentoring/chat/messages?mentorId=' + encodeURIComponent(mentorId)
+                        + '&menteeId=' + encodeURIComponent(selectedMenteeId);
+                    const res = await fetch(url, { cache: 'no-store' });
+                    if (!res.ok) {
+                        return;
+                    }
+                    const data = await res.json();
+                    renderMessages(Array.isArray(data.messages) ? data.messages : []);
+                } catch (e) {
+                    return;
+                }
+            }
+
+            refreshMessages();
+            setInterval(refreshMessages, 5000);
+        }
+
+        function initConversationNotifications() {
+            const trainerView = /*[[${trainerView}]]*/ false;
+            const mentorId = /*[[${mentor.id}]]*/ null;
+            if (!trainerView || !mentorId) {
+                return;
+            }
+
+            function applyConversationUpdate(conversation) {
+                const item = document.querySelector('[data-conversation-id="' + conversation.userId + '"]');
+                if (!item) {
+                    window.location.reload();
+                    return;
+                }
+                const badge = item.querySelector('.conversation-noti');
+                const preview = item.querySelector('.conversation-preview');
+                const time = item.querySelector('.conversation-time');
+                if (badge) {
+                    const count = Number(conversation.notificationCount || 0);
+                    badge.textContent = 'noti-' + count;
+                    badge.classList.toggle('empty', count === 0);
+                }
+                if (preview) {
+                    preview.textContent = conversation.lastMessage || '';
+                }
+                if (time) {
+                    time.textContent = conversation.lastSentAt || '';
+                }
+            }
+
+            async function refreshConversations() {
+                try {
+                    const res = await fetch('/mentoring/chat/conversations?mentorId=' + encodeURIComponent(mentorId), { cache: 'no-store' });
+                    if (!res.ok) {
+                        return;
+                    }
+                    const data = await res.json();
+                    const conversations = Array.isArray(data.conversations) ? data.conversations : [];
+                    conversations.forEach(applyConversationUpdate);
+                } catch (e) {
+                    return;
+                }
+            }
+
+            refreshConversations();
+            setInterval(refreshConversations, 5000);
         }
 
         function initBookingForm() {
