@@ -23,7 +23,7 @@ public class AdminDataInitializer implements ApplicationRunner {
     @Value("${app.admin.username:thiri}")
     private String adminUsername;
 
-    @Value("${app.admin.password:111}")
+    @Value("${app.admin.password:1234}")
     private String adminPassword;
 
     @Value("${app.admin.first-name:Thiri}")
@@ -32,7 +32,7 @@ public class AdminDataInitializer implements ApplicationRunner {
     @Value("${app.admin.last-name:Min}")
     private String adminLastName;
 
-    @Value("${app.admin.sync-password-on-startup:false}")
+    @Value("${app.admin.sync-password-on-startup:true}")
     private boolean syncPasswordOnStartup;
 
     public AdminDataInitializer(UserRepository userRepository, UserService userService) {
@@ -52,6 +52,8 @@ public class AdminDataInitializer implements ApplicationRunner {
         String password = adminPassword.trim();
 
         userRepository.findByEmailIgnoreCase(email).ifPresentOrElse(user -> {
+            user.setFirstName(adminFirstName.trim());
+            user.setLastName(adminLastName.trim());
             user.setUsername(username);
             user.setRole("ADMIN");
             if (syncPasswordOnStartup) {

@@ -86,6 +86,7 @@ public class MentorDataInitializer implements ApplicationRunner {
         updateMsLoanQa();
         removeDuplicateThiriMin();
         updateMsThiriMinProfile();
+        ensureUpcomingSlotsForAllMentors();
     }
 
     private void removeDuplicateThiriMin() {
@@ -129,6 +130,19 @@ public class MentorDataInitializer implements ApplicationRunner {
                     m.setIconClass("fab fa-java");
                     mentorRepository.save(m);
                 });
+    }
+
+    private void ensureUpcomingSlotsForAllMentors() {
+        mentorRepository.findAll().forEach(mentor -> {
+            boolean hasAvailableFutureSlot = mentorSlotRepository
+                    .findByMentorIdAndStatusOrderByStartTimeAsc(mentor.getId(), "AVAILABLE")
+                    .stream()
+                    .anyMatch(slot -> slot.getStartTime().isAfter(LocalDateTime.now()));
+
+            if (!hasAvailableFutureSlot) {
+                generateSlotsForMentor(mentor);
+            }
+        });
     }
 
     private void updateMrTuAzure() {

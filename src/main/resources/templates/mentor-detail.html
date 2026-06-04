@@ -332,7 +332,7 @@
             cursor: not-allowed;
         }
 
-        /* Hai-specific original look */
+        /* Shared booking look */
         .booking-panel.hai-theme {
             border: 1px solid #e2e8f0;
             border-radius: 16px;
@@ -541,8 +541,7 @@
 
         <div class="row">
             <div class="col-lg-7">
-                 <div class="panel-card p-0 booking-panel"
-                     th:classappend="${mentor.id != null and (mentor.id == 7 or mentor.id == 1 or mentor.id == 2 or mentor.id == 4 or mentor.id == 5 or mentor.id == 6)} ? ' hai-theme' : (${mentor.name != null and (#strings.contains(mentor.name,'Thiri') or #strings.contains(mentor.name,'Tu') or #strings.contains(mentor.name,'Mai') or #strings.contains(mentor.name,'Hieu') or #strings.contains(mentor.name,'Loan'))} ? ' new-theme' : '')">
+                 <div class="panel-card p-0 booking-panel hai-theme">
                     <div class="booking-panel-header">
                         <h4><i class="fas fa-calendar-check me-2"></i>Book a Session</h4>
                         <p class="mb-0 mt-1 small opacity-90">
