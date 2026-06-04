@@ -478,6 +478,85 @@
             background: #22c55e;
             box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
         }
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.85rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            color: #334155;
+            text-decoration: none;
+            transition: border-color 0.15s, background 0.15s, transform 0.15s;
+        }
+        .conversation-item:hover {
+            border-color: #22c55e;
+            background: #f0fdf4;
+            color: #166534;
+            transform: translateY(-1px);
+        }
+        .conversation-item.active {
+            border-color: #16a34a;
+            background: #dcfce7;
+        }
+        .conversation-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: #15803d;
+            color: #fff;
+            font-weight: 800;
+        }
+        .conversation-main {
+            min-width: 0;
+            flex: 1;
+        }
+        .conversation-name {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            font-weight: 800;
+        }
+        .conversation-email,
+        .conversation-preview {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .conversation-email {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .conversation-preview {
+            margin-top: 0.2rem;
+            font-size: 0.88rem;
+            color: #475569;
+        }
+        .conversation-time {
+            flex-shrink: 0;
+            font-size: 0.76rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+        .conversation-empty {
+            text-align: center;
+            color: #64748b;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 2rem 1rem;
+        }
         .skill-icons {
             display: flex;
             flex-wrap: wrap;
@@ -578,7 +657,36 @@
 
         <div class="row">
             <div class="col-lg-7">
-                 <div class="panel-card p-0 booking-panel hai-theme">
+                <div class="panel-card" th:if="${trainerView}">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h4 class="mb-0"><i class="fas fa-inbox me-2 text-success"></i>Mentee Messages</h4>
+                        <span class="badge bg-success" th:text="${#lists.size(chatConversations)}">0</span>
+                    </div>
+                    <div th:if="${#lists.isEmpty(chatConversations)}" class="conversation-empty">
+                        <i class="fas fa-comment-dots fa-2x mb-2 d-block"></i>
+                        No mentee messages yet.
+                    </div>
+                    <div th:unless="${#lists.isEmpty(chatConversations)}" class="conversation-list">
+                        <a th:each="conversation : ${chatConversations}"
+                           class="conversation-item"
+                           th:classappend="${conversation.userId == selectedMenteeId} ? ' active' : ''"
+                           th:href="@{/mentoring/mentor(mentorId=${mentor.id}, menteeId=${conversation.userId})} + '#chat'">
+                            <span class="conversation-avatar"
+                                  th:text="${#strings.substring(conversation.displayName, 0, 1)}">M</span>
+                            <span class="conversation-main">
+                                <span class="conversation-name">
+                                    <span th:text="${conversation.displayName}">Mentee</span>
+                                    <span class="conversation-time"
+                                          th:text="${#temporals.format(conversation.lastSentAt, 'dd MMM HH:mm')}">Today</span>
+                                </span>
+                                <span class="conversation-email" th:text="${conversation.email}">mentee@example.com</span>
+                                <span class="conversation-preview" th:text="${conversation.lastMessage}">Last message</span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+                 <div class="panel-card p-0 booking-panel hai-theme" th:unless="${trainerView}">
                     <div class="booking-panel-header">
                         <h4><i class="fas fa-calendar-check me-2"></i>Book a Session</h4>
                         <p class="mb-0 mt-1 small opacity-90">
@@ -645,7 +753,7 @@
                     </div>
                 </div>
 
-                <div class="panel-card" th:unless="${#lists.isEmpty(bookings)}">
+                <div class="panel-card" th:unless="${trainerView or #lists.isEmpty(bookings)}">
                     <h5 class="mb-3"><i class="fas fa-list me-2"></i>Your Registrations</h5>
                     <div class="table-responsive">
                         <table class="table table-sm align-middle">
@@ -700,9 +808,11 @@
                         <input type="hidden" name="chatTargetUserId" th:value="${chatTargetUserId}" />
                         <div class="mb-2">
                             <textarea name="content" class="form-control" rows="3" required
-                                      placeholder="Type your question or discussion topic..."></textarea>
+                                      th:disabled="${trainerView and selectedMenteeId == null}"
+                                      th:placeholder="${trainerView and selectedMenteeId == null} ? 'Select a mentee conversation first...' : 'Type your question or discussion topic...'"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-success w-100">
+                        <button type="submit" class="btn btn-success w-100"
+                                th:disabled="${trainerView and selectedMenteeId == null}">
                             <i class="fas fa-paper-plane me-1"></i>Send Message
                         </button>
                     </form>
@@ -769,6 +879,7 @@
             if (!status) {
                 return;
             }
+            const selectedMenteeId = /*[[${selectedMenteeId}]]*/ null;
 
             function render(online) {
                 status.classList.toggle('online', online);
@@ -777,7 +888,10 @@
 
             async function refresh() {
                 try {
-                    const res = await fetch('/mentoring/chat/presence', { cache: 'no-store' });
+                    const presenceUrl = selectedMenteeId
+                        ? '/mentoring/chat/presence?menteeId=' + encodeURIComponent(selectedMenteeId)
+                        : '/mentoring/chat/presence';
+                    const res = await fetch(presenceUrl, { cache: 'no-store' });
                     if (!res.ok) {
                         render(false);
                         return;

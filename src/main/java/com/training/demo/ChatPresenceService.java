@@ -40,6 +40,14 @@ public class ChatPresenceService {
                 .anyMatch(entry -> entry.admin() == needAdmin);
     }
 
+    public boolean isUserOnline(Long userId) {
+        if (userId == null) {
+            return false;
+        }
+        purgeStaleEntries();
+        return activeUsers.containsKey(userId);
+    }
+
     private void purgeStaleEntries() {
         Instant cutoff = Instant.now().minus(ONLINE_WINDOW);
         activeUsers.entrySet().removeIf(entry -> entry.getValue().lastSeen().isBefore(cutoff));

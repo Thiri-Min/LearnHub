@@ -67,6 +67,7 @@ public class MentoringController {
     @GetMapping("/mentoring/mentor")
     public String mentorDetail(@RequestParam Long mentorId,
                                @RequestParam(required = false) Long slotId,
+                               @RequestParam(required = false) Long menteeId,
                                HttpSession session, Model model) {
         User user = requireUser(session);
         if (user == null) {
@@ -85,12 +86,34 @@ public class MentoringController {
         model.addAttribute("preselectedSlotId", slotId);
         model.addAttribute("bookings", mentoringService.getUserBookingsForMentor(user.getId(), mentorId));
         boolean trainerView = user.isAdmin();
+        List<MentoringService.ChatConversation> chatConversations = trainerView
+                ? mentoringService.getChatConversations(mentorId)
+                : List.of();
+        Long selectedMenteeId = trainerView
+                ? (menteeId != null ? menteeId : chatConversations.stream()
+                        .findFirst()
+                        .map(MentoringService.ChatConversation::getUserId)
+                        .orElse(null))
+                : user.getId();
+        String selectedMenteeName = trainerView
+                ? chatConversations.stream()
+                        .filter(conversation -> conversation.getUserId().equals(selectedMenteeId))
+                        .findFirst()
+                        .map(MentoringService.ChatConversation::getDisplayName)
+                        .orElse(null)
+                : null;
         model.addAttribute("trainerView", trainerView);
-        model.addAttribute("chatTitle", trainerView ? "Chat with Mentee" : "Chat with Mentor");
-        model.addAttribute("chatPartnerOnline", chatPresenceService.isOtherSideOnline(user));
-        model.addAttribute("chatTargetUserId", trainerView ? mentoringService.getLatestChatUserId(mentorId).orElse(null) : user.getId());
+        model.addAttribute("chatConversations", chatConversations);
+        model.addAttribute("selectedMenteeId", selectedMenteeId);
+        model.addAttribute("chatTitle", trainerView
+                ? (selectedMenteeName != null ? "Chat with " + selectedMenteeName : "Chat with Mentee")
+                : "Chat with Mentor");
+        model.addAttribute("chatPartnerOnline", trainerView
+                ? chatPresenceService.isUserOnline(selectedMenteeId)
+                : chatPresenceService.isOtherSideOnline(user));
+        model.addAttribute("chatTargetUserId", selectedMenteeId);
         model.addAttribute("chatMessages", trainerView
-                ? mentoringService.getMentorChatMessages(mentorId)
+                ? (selectedMenteeId != null ? mentoringService.getChatMessages(selectedMenteeId, mentorId) : List.of())
                 : mentoringService.getChatMessages(user.getId(), mentorId));
         model.addAttribute("defaultStudentName", buildDisplayName(user));
         model.addAttribute("defaultStudentEmail", user.getEmail() != null ? user.getEmail() : "");
@@ -287,18 +310,26 @@ public class MentoringController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/mentoring/mentor?mentorId=" + mentorId + "#chat";
+        String redirectUrl = "/mentoring/mentor?mentorId=" + mentorId;
+        if (user.isAdmin() && chatTargetUserId != null) {
+            redirectUrl += "&menteeId=" + chatTargetUserId;
+        }
+        return "redirect:" + redirectUrl + "#chat";
     }
 
     @GetMapping(value = "/mentoring/chat/presence", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Map<String, Object> chatPresence(HttpSession session) {
+    public Map<String, Object> chatPresence(@RequestParam(required = false) Long menteeId,
+                                            HttpSession session) {
         User user = requireUser(session);
         if (user == null) {
             return Map.of("online", false);
         }
         chatPresenceService.markActive(user);
-        return Map.of("online", chatPresenceService.isOtherSideOnline(user));
+        boolean online = user.isAdmin() && menteeId != null
+                ? chatPresenceService.isUserOnline(menteeId)
+                : chatPresenceService.isOtherSideOnline(user);
+        return Map.of("online", online);
     }
 
     private User requireUser(HttpSession session) {

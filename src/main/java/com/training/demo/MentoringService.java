@@ -5,9 +5,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class MentoringService {
@@ -23,6 +28,9 @@ public class MentoringService {
 
     @Autowired
     private MentorChatMessageRepository mentorChatMessageRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public List<Mentor> getAllMentors() {
         return mentorRepository.findAll().stream()
@@ -93,6 +101,30 @@ public class MentoringService {
                 .map(MentorChatMessage::getUserId);
     }
 
+    public List<ChatConversation> getChatConversations(Long mentorId) {
+        List<MentorChatMessage> messages = mentorChatMessageRepository.findByMentorIdAndSenderOrderBySentAtDesc(mentorId, "USER");
+        Map<Long, MentorChatMessage> latestByUser = new LinkedHashMap<>();
+        for (MentorChatMessage message : messages) {
+            latestByUser.putIfAbsent(message.getUserId(), message);
+        }
+        Map<Long, User> users = userRepository.findAllById(latestByUser.keySet()).stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+
+        List<ChatConversation> conversations = new ArrayList<>();
+        for (Map.Entry<Long, MentorChatMessage> entry : latestByUser.entrySet()) {
+            User user = users.get(entry.getKey());
+            MentorChatMessage latest = entry.getValue();
+            conversations.add(new ChatConversation(
+                    entry.getKey(),
+                    user != null ? buildDisplayName(user) : "Mentee #" + entry.getKey(),
+                    user != null && user.getEmail() != null ? user.getEmail() : "",
+                    latest.getContent(),
+                    latest.getSentAt()
+            ));
+        }
+        return conversations;
+    }
+
     @Transactional
     public MentorBooking requestBooking(Long userId, Long slotId, String studentName,
                                         String studentEmail, String studentNote) throws Exception {
@@ -161,5 +193,51 @@ public class MentoringService {
         message.setContent(content.trim());
         message.setSentAt(LocalDateTime.now());
         mentorChatMessageRepository.save(message);
+    }
+
+    private String buildDisplayName(User user) {
+        String first = user.getFirstName() != null ? user.getFirstName().trim() : "";
+        String last = user.getLastName() != null ? user.getLastName().trim() : "";
+        String full = (first + " " + last).trim();
+        if (!full.isEmpty()) {
+            return full;
+        }
+        return user.getUsername() != null ? user.getUsername() : "Mentee";
+    }
+
+    public static class ChatConversation {
+        private final Long userId;
+        private final String displayName;
+        private final String email;
+        private final String lastMessage;
+        private final LocalDateTime lastSentAt;
+
+        public ChatConversation(Long userId, String displayName, String email, String lastMessage, LocalDateTime lastSentAt) {
+            this.userId = userId;
+            this.displayName = displayName;
+            this.email = email;
+            this.lastMessage = lastMessage;
+            this.lastSentAt = lastSentAt;
+        }
+
+        public Long getUserId() {
+            return userId;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public String getLastMessage() {
+            return lastMessage;
+        }
+
+        public LocalDateTime getLastSentAt() {
+            return lastSentAt;
+        }
     }
 }
