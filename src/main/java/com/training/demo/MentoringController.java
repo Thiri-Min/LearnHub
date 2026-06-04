@@ -32,6 +32,9 @@ public class MentoringController {
     @Autowired
     private ChatPresenceService chatPresenceService;
 
+    @Autowired
+    private ChatReadStatusService chatReadStatusService;
+
     @GetMapping("/mentoring")
     public String mentoringHub(HttpSession session, Model model) {
         User user = requireUser(session);
@@ -115,6 +118,7 @@ public class MentoringController {
                 ? chatPresenceService.isUserOnline(selectedMenteeId)
                 : chatPresenceService.isOtherSideOnline(user));
         model.addAttribute("chatTargetUserId", selectedMenteeId);
+        chatReadStatusService.markRead(user, mentorId, selectedMenteeId);
         model.addAttribute("chatMessages", trainerView
                 ? (selectedMenteeId != null ? mentoringService.getChatMessages(selectedMenteeId, mentorId) : List.of())
                 : mentoringService.getChatMessages(user.getId(), mentorId));
@@ -349,6 +353,7 @@ public class MentoringController {
         if (targetUserId == null) {
             return Map.of("messages", List.of());
         }
+        chatReadStatusService.markRead(user, mentorId, targetUserId);
         String mentorName = mentoringService.getMentor(mentorId).map(Mentor::getName).orElse("Mentor");
         List<Map<String, Object>> messages = mentoringService.getChatMessages(targetUserId, mentorId).stream()
                 .map(message -> {
@@ -362,7 +367,8 @@ public class MentoringController {
                             "content", message.getContent(),
                             "mine", mine,
                             "senderLabel", senderLabel,
-                            "sentAt", CHAT_TIME_FORMAT.format(message.getSentAt())
+                            "sentAt", CHAT_TIME_FORMAT.format(message.getSentAt()),
+                            "deliveryStatus", chatReadStatusService.getDeliveryStatus(message)
                     );
                 })
                 .toList();

@@ -441,6 +441,12 @@
             border: 1px solid #dee2e6;
         }
         .chat-meta { font-size: 0.75rem; opacity: 0.75; margin-top: 0.25rem; }
+        .chat-delivery {
+            font-size: 0.72rem;
+            opacity: 0.78;
+            margin-top: 0.2rem;
+            font-weight: 600;
+        }
         .chat-heading {
             display: flex;
             align-items: center;
@@ -543,7 +549,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 2.7rem;
+            min-width: 1.35rem;
             height: 1.35rem;
             padding: 0 0.45rem;
             border-radius: 999px;
@@ -708,7 +714,7 @@
                                         <span class="conversation-name-text" th:text="${conversation.displayName}">Mentee</span>
                                         <span class="conversation-noti"
                                               th:classappend="${conversation.notificationCount == 0} ? ' empty' : ''"
-                                              th:text="${'noti-' + conversation.notificationCount}">noti-1</span>
+                                              th:text="${conversation.notificationCount}">1</span>
                                     </span>
                                     <span class="conversation-time"
                                           th:text="${#temporals.format(conversation.lastSentAt, 'dd MMM HH:mm')}">Today</span>
@@ -966,7 +972,7 @@
             }
 
             function renderMessages(messages) {
-                const signature = messages.map(msg => msg.id).join(',');
+                const signature = messages.map(msg => msg.id + ':' + msg.deliveryStatus).join(',');
                 if (signature === lastSignature) {
                     return;
                 }
@@ -982,6 +988,7 @@
                         + '<div>' + escapeHtml(msg.content) + '</div>'
                         + '<div class="chat-meta' + align + '">' + escapeHtml(msg.senderLabel) + '</div>'
                         + '<div class="chat-meta' + align + '">' + escapeHtml(msg.sentAt) + '</div>'
+                        + '<div class="chat-delivery' + align + '">' + escapeHtml(msg.deliveryStatus) + '</div>'
                         + '</div>';
                 }).join('');
                 chatBox.scrollTop = chatBox.scrollHeight;
@@ -1024,7 +1031,7 @@
                 const time = item.querySelector('.conversation-time');
                 if (badge) {
                     const count = Number(conversation.notificationCount || 0);
-                    badge.textContent = 'noti-' + count;
+                    badge.textContent = String(count);
                     badge.classList.toggle('empty', count === 0);
                 }
                 if (preview) {
