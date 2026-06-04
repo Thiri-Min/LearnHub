@@ -131,12 +131,18 @@ public class MentoringService {
     }
 
     public List<ChatConversation> getChatConversations(Long mentorId) {
+        return getChatConversations(mentorId, null);
+    }
+
+    public List<ChatConversation> getChatConversations(Long mentorId, User viewer) {
         List<MentorChatMessage> messages = mentorChatMessageRepository.findByMentorIdOrderBySentAtDesc(mentorId);
         Map<Long, MentorChatMessage> latestByUser = new LinkedHashMap<>();
         Map<Long, Integer> pendingCounts = new LinkedHashMap<>();
         Map<Long, Boolean> mentorReplySeen = new LinkedHashMap<>();
+        Map<Long, List<MentorChatMessage>> messagesByUser = new LinkedHashMap<>();
         for (MentorChatMessage message : messages) {
             Long userId = message.getUserId();
+            messagesByUser.computeIfAbsent(userId, key -> new ArrayList<>()).add(message);
             if ("USER".equals(message.getSender())) {
                 latestByUser.putIfAbsent(userId, message);
                 if (!mentorReplySeen.getOrDefault(userId, false)) {
@@ -159,7 +165,9 @@ public class MentoringService {
                     user != null && user.getEmail() != null ? user.getEmail() : "",
                     latest.getContent(),
                     latest.getSentAt(),
-                    pendingCounts.getOrDefault(entry.getKey(), 0)
+                    viewer != null
+                            ? (int) chatReadStatusService.countUnread(viewer, messagesByUser.get(entry.getKey()))
+                            : pendingCounts.getOrDefault(entry.getKey(), 0)
             ));
         }
         return conversations;

@@ -1004,6 +1004,9 @@
                     }
                     const data = await res.json();
                     renderMessages(Array.isArray(data.messages) ? data.messages : []);
+                    if (typeof window.refreshNavbarChatNotifications === 'function') {
+                        window.refreshNavbarChatNotifications();
+                    }
                 } catch (e) {
                     return;
                 }

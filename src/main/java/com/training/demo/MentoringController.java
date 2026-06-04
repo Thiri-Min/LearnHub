@@ -93,7 +93,7 @@ public class MentoringController {
         model.addAttribute("bookings", mentoringService.getUserBookingsForMentor(user.getId(), mentorId));
         boolean trainerView = user.isAdmin();
         List<MentoringService.ChatConversation> chatConversations = trainerView
-                ? mentoringService.getChatConversations(mentorId)
+                ? mentoringService.getChatConversations(mentorId, user)
                 : List.of();
         Long selectedMenteeId = trainerView
                 ? (menteeId != null ? menteeId : chatConversations.stream()
@@ -119,6 +119,10 @@ public class MentoringController {
                 : chatPresenceService.isOtherSideOnline(user));
         model.addAttribute("chatTargetUserId", selectedMenteeId);
         chatReadStatusService.markRead(user, mentorId, selectedMenteeId);
+        if (trainerView) {
+            chatConversations = mentoringService.getChatConversations(mentorId, user);
+            model.addAttribute("chatConversations", chatConversations);
+        }
         MentoringService.ChatNotificationState chatState = mentoringService.getChatNotificationState(user);
         model.addAttribute("chatNotificationCount", chatState.getUnreadCount());
         model.addAttribute("chatNotificationHref", chatState.getHref());
@@ -387,7 +391,7 @@ public class MentoringController {
             return Map.of("conversations", List.of());
         }
         chatPresenceService.markActive(user);
-        List<Map<String, Object>> conversations = mentoringService.getChatConversations(mentorId).stream()
+        List<Map<String, Object>> conversations = mentoringService.getChatConversations(mentorId, user).stream()
                 .map(conversation -> Map.<String, Object>of(
                         "userId", conversation.getUserId(),
                         "displayName", conversation.getDisplayName(),
