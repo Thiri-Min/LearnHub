@@ -26,6 +26,9 @@ public class MentoringController {
     @Autowired
     private MentoringService mentoringService;
 
+    @Autowired
+    private ChatPresenceService chatPresenceService;
+
     @GetMapping("/mentoring")
     public String mentoringHub(HttpSession session, Model model) {
         User user = requireUser(session);
@@ -69,6 +72,7 @@ public class MentoringController {
         if (user == null) {
             return "redirect:/?authMode=login";
         }
+        chatPresenceService.markActive(user);
         var mentorOpt = mentoringService.getMentor(mentorId);
         if (mentorOpt.isEmpty()) {
             return "redirect:/mentoring";
@@ -80,7 +84,14 @@ public class MentoringController {
         model.addAttribute("slots", mentoringService.getUpcomingSlots(mentorId));
         model.addAttribute("preselectedSlotId", slotId);
         model.addAttribute("bookings", mentoringService.getUserBookingsForMentor(user.getId(), mentorId));
-        model.addAttribute("chatMessages", mentoringService.getChatMessages(user.getId(), mentorId));
+        boolean trainerView = user.isAdmin();
+        model.addAttribute("trainerView", trainerView);
+        model.addAttribute("chatTitle", trainerView ? "Chat with Mentee" : "Chat with Mentor");
+        model.addAttribute("chatPartnerOnline", chatPresenceService.isOtherSideOnline(user));
+        model.addAttribute("chatTargetUserId", trainerView ? mentoringService.getLatestChatUserId(mentorId).orElse(null) : user.getId());
+        model.addAttribute("chatMessages", trainerView
+                ? mentoringService.getMentorChatMessages(mentorId)
+                : mentoringService.getChatMessages(user.getId(), mentorId));
         model.addAttribute("defaultStudentName", buildDisplayName(user));
         model.addAttribute("defaultStudentEmail", user.getEmail() != null ? user.getEmail() : "");
         return "mentor-detail";
@@ -253,6 +264,7 @@ public class MentoringController {
 
     @PostMapping("/mentoring/chat")
     public String sendChat(@RequestParam Long mentorId,
+                           @RequestParam(required = false) Long chatTargetUserId,
                            @RequestParam String content,
                            HttpSession session,
                            RedirectAttributes redirectAttributes) {
@@ -260,13 +272,33 @@ public class MentoringController {
         if (user == null) {
             return "redirect:/?authMode=login";
         }
+        chatPresenceService.markActive(user);
         try {
-            mentoringService.sendUserMessage(user.getId(), mentorId, content);
-            redirectAttributes.addFlashAttribute("message", "Message sent to your mentor.");
+            if (user.isAdmin()) {
+                if (chatTargetUserId == null) {
+                    throw new Exception("No mentee conversation found yet.");
+                }
+                mentoringService.sendMentorMessage(chatTargetUserId, mentorId, content);
+                redirectAttributes.addFlashAttribute("message", "Message sent to your mentee.");
+            } else {
+                mentoringService.sendUserMessage(user.getId(), mentorId, content);
+                redirectAttributes.addFlashAttribute("message", "Message sent to your mentor.");
+            }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/mentoring/mentor?mentorId=" + mentorId + "#chat";
+    }
+
+    @GetMapping(value = "/mentoring/chat/presence", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> chatPresence(HttpSession session) {
+        User user = requireUser(session);
+        if (user == null) {
+            return Map.of("online", false);
+        }
+        chatPresenceService.markActive(user);
+        return Map.of("online", chatPresenceService.isOtherSideOnline(user));
     }
 
     private User requireUser(HttpSession session) {

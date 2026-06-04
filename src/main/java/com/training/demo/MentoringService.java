@@ -84,6 +84,15 @@ public class MentoringService {
         return mentorChatMessageRepository.findByUserIdAndMentorIdOrderBySentAtAsc(userId, mentorId);
     }
 
+    public List<MentorChatMessage> getMentorChatMessages(Long mentorId) {
+        return mentorChatMessageRepository.findByMentorIdOrderBySentAtAsc(mentorId);
+    }
+
+    public Optional<Long> getLatestChatUserId(Long mentorId) {
+        return mentorChatMessageRepository.findFirstByMentorIdOrderBySentAtDesc(mentorId)
+                .map(MentorChatMessage::getUserId);
+    }
+
     @Transactional
     public MentorBooking requestBooking(Long userId, Long slotId, String studentName,
                                         String studentEmail, String studentNote) throws Exception {
@@ -130,28 +139,27 @@ public class MentoringService {
 
     @Transactional
     public void sendUserMessage(Long userId, Long mentorId, String content) throws Exception {
+        sendChatMessage(userId, mentorId, content, "USER");
+    }
+
+    @Transactional
+    public void sendMentorMessage(Long targetUserId, Long mentorId, String content) throws Exception {
+        sendChatMessage(targetUserId, mentorId, content, "MENTOR");
+    }
+
+    private void sendChatMessage(Long userId, Long mentorId, String content, String sender) throws Exception {
         if (content == null || content.isBlank()) {
             throw new Exception("Message cannot be empty.");
         }
-        Mentor mentor = mentorRepository.findById(mentorId)
+        mentorRepository.findById(mentorId)
                 .orElseThrow(() -> new Exception("Mentor not found."));
 
-        MentorChatMessage userMsg = new MentorChatMessage();
-        userMsg.setUserId(userId);
-        userMsg.setMentorId(mentorId);
-        userMsg.setSender("USER");
-        userMsg.setContent(content.trim());
-        userMsg.setSentAt(LocalDateTime.now());
-        mentorChatMessageRepository.save(userMsg);
-
-        MentorChatMessage mentorReply = new MentorChatMessage();
-        mentorReply.setUserId(userId);
-        mentorReply.setMentorId(mentorId);
-        mentorReply.setSender("MENTOR");
-        mentorReply.setContent("Hello! This is " + mentor.getName()
-                + ". Thank you for your message. I will review it and respond during our session. "
-                + "Feel free to share your questions about " + mentor.getExpertise() + ".");
-        mentorReply.setSentAt(LocalDateTime.now().plusSeconds(1));
-        mentorChatMessageRepository.save(mentorReply);
+        MentorChatMessage message = new MentorChatMessage();
+        message.setUserId(userId);
+        message.setMentorId(mentorId);
+        message.setSender(sender);
+        message.setContent(content.trim());
+        message.setSentAt(LocalDateTime.now());
+        mentorChatMessageRepository.save(message);
     }
 }

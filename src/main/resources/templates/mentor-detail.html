@@ -441,6 +441,43 @@
             border: 1px solid #dee2e6;
         }
         .chat-meta { font-size: 0.75rem; opacity: 0.75; margin-top: 0.25rem; }
+        .chat-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .chat-heading h4 {
+            margin: 0;
+        }
+        .chat-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            border-radius: 999px;
+            padding: 0.25rem 0.65rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: #f1f5f9;
+            color: #64748b;
+            white-space: nowrap;
+        }
+        .chat-status::before {
+            content: "";
+            width: 0.55rem;
+            height: 0.55rem;
+            border-radius: 999px;
+            background: #94a3b8;
+        }
+        .chat-status.online {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        .chat-status.online::before {
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+        }
         .skill-icons {
             display: flex;
             flex-wrap: wrap;
@@ -635,25 +672,32 @@
 
             <div class="col-lg-5">
                 <div class="panel-card" id="chat">
-                    <h4 class="mb-3"><i class="fas fa-comments me-2 text-success"></i>Chat with Mentor</h4>
+                    <div class="chat-heading">
+                        <h4><i class="fas fa-comments me-2 text-success"></i><span th:text="${chatTitle}">Chat with Mentor</span></h4>
+                        <span class="chat-status"
+                              id="chatStatus"
+                              th:classappend="${chatPartnerOnline} ? ' online' : ''"
+                              th:text="${chatPartnerOnline} ? 'Online' : 'Offline'">Offline</span>
+                    </div>
                     <div class="chat-box" id="chatBox">
                         <div th:if="${#lists.isEmpty(chatMessages)}" class="text-center text-muted py-5">
                             <i class="fas fa-comment-dots fa-2x mb-2"></i>
-                            <p class="mb-0">No messages yet. Say hello to your mentor!</p>
+                            <p class="mb-0" th:text="${trainerView} ? 'No messages yet. Wait for a mentee to say hello!' : 'No messages yet. Say hello to your mentor!'">No messages yet.</p>
                         </div>
                         <div th:each="msg : ${chatMessages}"
-                             th:class="${msg.sender == 'USER'} ? 'chat-bubble user' : 'chat-bubble mentor'">
+                             th:class="${(msg.sender == 'USER' and !trainerView) or (msg.sender == 'MENTOR' and trainerView)} ? 'chat-bubble user' : 'chat-bubble mentor'">
                             <div th:text="${msg.content}">Message</div>
                             <div class="chat-meta"
-                                 th:text="${msg.sender == 'USER'} ? 'You' : ${mentor.name}"
-                                 th:classappend="${msg.sender == 'USER'} ? ' text-end' : ''"></div>
+                                 th:text="${msg.sender == 'USER'} ? (${trainerView} ? 'Mentee' : 'You') : (${trainerView} ? 'You' : ${mentor.name})"
+                                 th:classappend="${(msg.sender == 'USER' and !trainerView) or (msg.sender == 'MENTOR' and trainerView)} ? ' text-end' : ''"></div>
                             <div class="chat-meta"
                                  th:text="${#temporals.format(msg.sentAt, 'dd MMM HH:mm')}"
-                                 th:classappend="${msg.sender == 'USER'} ? ' text-end' : ''"></div>
+                                 th:classappend="${(msg.sender == 'USER' and !trainerView) or (msg.sender == 'MENTOR' and trainerView)} ? ' text-end' : ''"></div>
                         </div>
                     </div>
                     <form method="POST" action="/mentoring/chat">
                         <input type="hidden" name="mentorId" th:value="${mentor.id}" />
+                        <input type="hidden" name="chatTargetUserId" th:value="${chatTargetUserId}" />
                         <div class="mb-2">
                             <textarea name="content" class="form-control" rows="3" required
                                       placeholder="Type your question or discussion topic..."></textarea>
@@ -717,7 +761,37 @@
             }
 
             initBookingForm();
+            initChatPresence();
         });
+
+        function initChatPresence() {
+            const status = document.getElementById('chatStatus');
+            if (!status) {
+                return;
+            }
+
+            function render(online) {
+                status.classList.toggle('online', online);
+                status.textContent = online ? 'Online' : 'Offline';
+            }
+
+            async function refresh() {
+                try {
+                    const res = await fetch('/mentoring/chat/presence', { cache: 'no-store' });
+                    if (!res.ok) {
+                        render(false);
+                        return;
+                    }
+                    const data = await res.json();
+                    render(Boolean(data.online));
+                } catch (e) {
+                    render(false);
+                }
+            }
+
+            refresh();
+            setInterval(refresh, 15000);
+        }
 
         function initBookingForm() {
             const preselectedSlotId = /*[[${preselectedSlotId}]]*/ null;

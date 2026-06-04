@@ -37,6 +37,9 @@ public class AuthController {
     private UserActivityService userActivityService;
 
     @Autowired
+    private ChatPresenceService chatPresenceService;
+
+    @Autowired
     private AdminService adminService;
 
     @Autowired
@@ -95,6 +98,7 @@ public class AuthController {
         User loggedIn = userActivityService.recordLogin(userOpt.get(), request);
         loggedIn = userService.findById(loggedIn.getId()).orElse(loggedIn);
         session.setAttribute("loggedInUser", loggedIn);
+        chatPresenceService.markActive(loggedIn);
         redirectAttributes.addFlashAttribute("trackLocation", true);
         redirectAttributes.addFlashAttribute("gaTrackLoginSuccess", true);
         return "redirect:/home";
@@ -627,6 +631,10 @@ public class AuthController {
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
+        Object user = session.getAttribute("loggedInUser");
+        if (user instanceof User currentUser) {
+            chatPresenceService.markOffline(currentUser);
+        }
         session.invalidate();
         return "redirect:/?authMode=login";
     }
