@@ -60,6 +60,25 @@
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        .channel-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.1rem;
+            background: linear-gradient(45deg, #ef4444, #f97316);
+            color: #fff;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 0.6rem 1.6rem;
+            text-decoration: none;
+            box-shadow: 0 10px 28px rgba(239, 68, 68, 0.4);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .channel-btn:hover {
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 14px 34px rgba(239, 68, 68, 0.55);
+        }
 
         /* Filter chips */
         .filter-bar {
@@ -149,17 +168,6 @@
             transform: translate(-50%, -50%) scale(1.12);
             background: #fff;
         }
-        .duration-tag {
-            position: absolute;
-            bottom: 0.6rem;
-            right: 0.6rem;
-            background: rgba(15, 23, 42, 0.85);
-            color: #fff;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 6px;
-            padding: 0.2rem 0.5rem;
-        }
 
         .video-body {
             padding: 1.15rem 1.25rem 1.3rem;
@@ -202,14 +210,13 @@
 
         /* Per-topic creative gradients */
         .grad-java { background: linear-gradient(45deg, #f97316, #ef4444); }
+        .grad-python { background: linear-gradient(45deg, #3b82f6, #facc15); }
         .grad-sql { background: linear-gradient(45deg, #06b6d4, #3b82f6); }
-        .grad-spring { background: linear-gradient(45deg, #22c55e, #15803d); }
-        .grad-dotnet { background: linear-gradient(45deg, #8b5cf6, #6d28d9); }
         .grad-ai { background: linear-gradient(45deg, #ec4899, #d946ef); }
+        .grad-web { background: linear-gradient(45deg, #f43f5e, #8b5cf6, #14b8a6); }
         .grad-cloud { background: linear-gradient(45deg, #38bdf8, #6366f1); }
         .grad-automation { background: linear-gradient(45deg, #fbbf24, #f59e0b); }
-        .grad-python { background: linear-gradient(45deg, #3b82f6, #facc15); }
-        .grad-fullstack { background: linear-gradient(45deg, #f43f5e, #8b5cf6, #14b8a6); }
+        .grad-career { background: linear-gradient(45deg, #22c55e, #15803d); }
 
         .video-item.hidden-by-filter { display: none; }
 
@@ -234,7 +241,10 @@
             <div class="container">
                 <span class="badge-pill"><i class="fas fa-circle-play me-2"></i>Free video library</span>
                 <h1>Tutorial <span class="accent">Videos</span></h1>
-                <p class="lead mb-0">Hand-picked YouTube courses to level up your tech skills — pick a topic and press play.</p>
+                <p class="lead mb-0">Hand-picked tutorials from our official channel — pick a topic and press play.</p>
+                <a class="channel-btn" href="https://www.youtube.com/@roadtocoding9862" target="_blank" rel="noopener">
+                    <i class="fab fa-youtube"></i>Road To Coding on YouTube
+                </a>
             </div>
         </section>
 
@@ -242,144 +252,28 @@
             <div class="filter-bar" id="filterBar">
                 <button class="filter-chip active" data-filter="all">All</button>
                 <button class="filter-chip" data-filter="java">Java</button>
-                <button class="filter-chip" data-filter="sql">SQL</button>
-                <button class="filter-chip" data-filter="spring">Spring</button>
-                <button class="filter-chip" data-filter="dotnet">.NET</button>
-                <button class="filter-chip" data-filter="ai">AI</button>
-                <button class="filter-chip" data-filter="cloud">Cloud</button>
-                <button class="filter-chip" data-filter="automation">Automation</button>
                 <button class="filter-chip" data-filter="python">Python</button>
-                <button class="filter-chip" data-filter="fullstack">Full Stack</button>
+                <button class="filter-chip" data-filter="sql">SQL</button>
+                <button class="filter-chip" data-filter="ai">AI</button>
+                <button class="filter-chip" data-filter="web">Web Dev</button>
+                <button class="filter-chip" data-filter="cloud">Cloud &amp; Hosting</button>
+                <button class="filter-chip" data-filter="automation">Automation</button>
+                <button class="filter-chip" data-filter="career">Career Tips</button>
             </div>
 
             <div class="row g-4" id="videoGrid">
                 <div class="col-md-6 col-xl-4 video-item" data-topic="java">
                     <div class="video-card">
                         <div class="topic-bar grad-java"></div>
-                        <div class="video-frame" data-video-id="eIrMbAQSU34" data-video-title="Java Full Course for Beginners">
-                            <img src="https://img.youtube.com/vi/eIrMbAQSU34/hqdefault.jpg" alt="Java Full Course for Beginners" loading="lazy">
+                        <div class="video-frame" data-video-id="AIiC8u50XEY" data-video-title="Top 10 Online Java Compilers">
+                            <img src="https://img.youtube.com/vi/AIiC8u50XEY/hqdefault.jpg" alt="Top 10 Online Java Compilers" loading="lazy">
                             <span class="play-btn"><i class="fas fa-play"></i></span>
-                            <span class="duration-tag">2h 30m</span>
                         </div>
                         <div class="video-body">
                             <span class="topic-badge grad-java"><i class="fab fa-java"></i>Java</span>
-                            <h5>Java Full Course for Beginners</h5>
-                            <p class="channel"><i class="fas fa-tv me-1"></i>Programming with Mosh</p>
-                            <a class="watch-link" href="https://www.youtube.com/watch?v=eIrMbAQSU34" target="_blank" rel="noopener">
-                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4 video-item" data-topic="sql">
-                    <div class="video-card">
-                        <div class="topic-bar grad-sql"></div>
-                        <div class="video-frame" data-video-id="HXV3zeQKqGY" data-video-title="SQL Tutorial - Full Database Course for Beginners">
-                            <img src="https://img.youtube.com/vi/HXV3zeQKqGY/hqdefault.jpg" alt="SQL Tutorial - Full Database Course" loading="lazy">
-                            <span class="play-btn"><i class="fas fa-play"></i></span>
-                            <span class="duration-tag">4h 20m</span>
-                        </div>
-                        <div class="video-body">
-                            <span class="topic-badge grad-sql"><i class="fas fa-database"></i>SQL</span>
-                            <h5>SQL Tutorial – Full Database Course for Beginners</h5>
-                            <p class="channel"><i class="fas fa-tv me-1"></i>freeCodeCamp.org</p>
-                            <a class="watch-link" href="https://www.youtube.com/watch?v=HXV3zeQKqGY" target="_blank" rel="noopener">
-                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4 video-item" data-topic="spring">
-                    <div class="video-card">
-                        <div class="topic-bar grad-spring"></div>
-                        <div class="video-frame" data-video-id="9SGDpanrc8U" data-video-title="Spring Boot Tutorial - Full Course">
-                            <img src="https://img.youtube.com/vi/9SGDpanrc8U/hqdefault.jpg" alt="Spring Boot Tutorial Full Course" loading="lazy">
-                            <span class="play-btn"><i class="fas fa-play"></i></span>
-                            <span class="duration-tag">1h 37m</span>
-                        </div>
-                        <div class="video-body">
-                            <span class="topic-badge grad-spring"><i class="fas fa-leaf"></i>Spring</span>
-                            <h5>Spring Boot Tutorial – Full Course</h5>
-                            <p class="channel"><i class="fas fa-tv me-1"></i>Amigoscode</p>
-                            <a class="watch-link" href="https://www.youtube.com/watch?v=9SGDpanrc8U" target="_blank" rel="noopener">
-                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4 video-item" data-topic="dotnet">
-                    <div class="video-card">
-                        <div class="topic-bar grad-dotnet"></div>
-                        <div class="video-frame" data-video-id="gfkTfcpWqAY" data-video-title="C# Tutorial For Beginners - Learn C# Basics in 1 Hour">
-                            <img src="https://img.youtube.com/vi/gfkTfcpWqAY/hqdefault.jpg" alt="C# Tutorial For Beginners" loading="lazy">
-                            <span class="play-btn"><i class="fas fa-play"></i></span>
-                            <span class="duration-tag">1h 10m</span>
-                        </div>
-                        <div class="video-body">
-                            <span class="topic-badge grad-dotnet"><i class="fas fa-code"></i>.NET</span>
-                            <h5>C# Tutorial for Beginners – Learn C# Basics in 1 Hour</h5>
-                            <p class="channel"><i class="fas fa-tv me-1"></i>Programming with Mosh</p>
-                            <a class="watch-link" href="https://www.youtube.com/watch?v=gfkTfcpWqAY" target="_blank" rel="noopener">
-                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4 video-item" data-topic="ai">
-                    <div class="video-card">
-                        <div class="topic-bar grad-ai"></div>
-                        <div class="video-frame" data-video-id="i_LwzRVP7bg" data-video-title="Machine Learning for Everybody - Full Course">
-                            <img src="https://img.youtube.com/vi/i_LwzRVP7bg/hqdefault.jpg" alt="Machine Learning for Everybody" loading="lazy">
-                            <span class="play-btn"><i class="fas fa-play"></i></span>
-                            <span class="duration-tag">3h 53m</span>
-                        </div>
-                        <div class="video-body">
-                            <span class="topic-badge grad-ai"><i class="fas fa-robot"></i>AI</span>
-                            <h5>Machine Learning for Everybody – Full Course</h5>
-                            <p class="channel"><i class="fas fa-tv me-1"></i>freeCodeCamp.org</p>
-                            <a class="watch-link" href="https://www.youtube.com/watch?v=i_LwzRVP7bg" target="_blank" rel="noopener">
-                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4 video-item" data-topic="cloud">
-                    <div class="video-card">
-                        <div class="topic-bar grad-cloud"></div>
-                        <div class="video-frame" data-video-id="7HKot-brXFE" data-video-title="AWS Certified Cloud Practitioner Course (CLF-C02)">
-                            <img src="https://img.youtube.com/vi/7HKot-brXFE/hqdefault.jpg" alt="AWS Certified Cloud Practitioner Course" loading="lazy">
-                            <span class="play-btn"><i class="fas fa-play"></i></span>
-                            <span class="duration-tag">13h 46m</span>
-                        </div>
-                        <div class="video-body">
-                            <span class="topic-badge grad-cloud"><i class="fas fa-cloud"></i>Cloud</span>
-                            <h5>AWS Certified Cloud Practitioner Course (CLF-C02)</h5>
-                            <p class="channel"><i class="fas fa-tv me-1"></i>freeCodeCamp.org</p>
-                            <a class="watch-link" href="https://www.youtube.com/watch?v=7HKot-brXFE" target="_blank" rel="noopener">
-                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4 video-item" data-topic="automation">
-                    <div class="video-card">
-                        <div class="topic-bar grad-automation"></div>
-                        <div class="video-frame" data-video-id="PXMJ6FS7llk" data-video-title="Automate with Python - Full Course for Beginners">
-                            <img src="https://img.youtube.com/vi/PXMJ6FS7llk/hqdefault.jpg" alt="Automate with Python Full Course" loading="lazy">
-                            <span class="play-btn"><i class="fas fa-play"></i></span>
-                            <span class="duration-tag">2h 42m</span>
-                        </div>
-                        <div class="video-body">
-                            <span class="topic-badge grad-automation"><i class="fas fa-gears"></i>Automation</span>
-                            <h5>Automate with Python – Full Course for Beginners</h5>
-                            <p class="channel"><i class="fas fa-tv me-1"></i>freeCodeCamp.org</p>
-                            <a class="watch-link" href="https://www.youtube.com/watch?v=PXMJ6FS7llk" target="_blank" rel="noopener">
+                            <h5>Top 10 Online Java Compilers</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=AIiC8u50XEY" target="_blank" rel="noopener">
                                 Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
                             </a>
                         </div>
@@ -389,35 +283,213 @@
                 <div class="col-md-6 col-xl-4 video-item" data-topic="python">
                     <div class="video-card">
                         <div class="topic-bar grad-python"></div>
-                        <div class="video-frame" data-video-id="_uQrJ0TkZlc" data-video-title="Python Full Course for Beginners">
-                            <img src="https://img.youtube.com/vi/_uQrJ0TkZlc/hqdefault.jpg" alt="Python Full Course for Beginners" loading="lazy">
+                        <div class="video-frame" data-video-id="yZZqKXEYgCs" data-video-title="Java vs Python - Which Should You Learn?">
+                            <img src="https://img.youtube.com/vi/yZZqKXEYgCs/hqdefault.jpg" alt="Java vs Python - Which Should You Learn?" loading="lazy">
                             <span class="play-btn"><i class="fas fa-play"></i></span>
-                            <span class="duration-tag">6h 14m</span>
                         </div>
                         <div class="video-body">
                             <span class="topic-badge grad-python"><i class="fab fa-python"></i>Python</span>
-                            <h5>Python Full Course for Beginners</h5>
-                            <p class="channel"><i class="fas fa-tv me-1"></i>Programming with Mosh</p>
-                            <a class="watch-link" href="https://www.youtube.com/watch?v=_uQrJ0TkZlc" target="_blank" rel="noopener">
+                            <h5>Java vs Python – Which Should You Learn?</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=yZZqKXEYgCs" target="_blank" rel="noopener">
                                 Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6 col-xl-4 video-item" data-topic="fullstack">
+                <div class="col-md-6 col-xl-4 video-item" data-topic="sql">
                     <div class="video-card">
-                        <div class="topic-bar grad-fullstack"></div>
-                        <div class="video-frame" data-video-id="LzMnsfqjzkA" data-video-title="Become a Fullstack Developer from Scratch - Full Beginner's Tutorial">
-                            <img src="https://img.youtube.com/vi/LzMnsfqjzkA/hqdefault.jpg" alt="Become a Fullstack Developer from Scratch" loading="lazy">
+                        <div class="topic-bar grad-sql"></div>
+                        <div class="video-frame" data-video-id="D73MXsKVY3c" data-video-title="SQL CRUD using Microsoft SQL Server 2016">
+                            <img src="https://img.youtube.com/vi/D73MXsKVY3c/hqdefault.jpg" alt="SQL CRUD using Microsoft SQL Server 2016" loading="lazy">
                             <span class="play-btn"><i class="fas fa-play"></i></span>
-                            <span class="duration-tag">47h 29m</span>
                         </div>
                         <div class="video-body">
-                            <span class="topic-badge grad-fullstack"><i class="fas fa-layer-group"></i>Full Stack</span>
-                            <h5>Become a Fullstack Developer from Scratch – Full Tutorial</h5>
-                            <p class="channel"><i class="fas fa-tv me-1"></i>freeCodeCamp.org</p>
-                            <a class="watch-link" href="https://www.youtube.com/watch?v=LzMnsfqjzkA" target="_blank" rel="noopener">
+                            <span class="topic-badge grad-sql"><i class="fas fa-database"></i>SQL</span>
+                            <h5>SQL CRUD using Microsoft SQL Server 2016</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=D73MXsKVY3c" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="ai">
+                    <div class="video-card">
+                        <div class="topic-bar grad-ai"></div>
+                        <div class="video-frame" data-video-id="X5XBEk7e8kQ" data-video-title="What is Notebook LM?">
+                            <img src="https://img.youtube.com/vi/X5XBEk7e8kQ/hqdefault.jpg" alt="What is Notebook LM?" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-ai"><i class="fas fa-robot"></i>AI</span>
+                            <h5>What is NotebookLM?</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=X5XBEk7e8kQ" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="ai">
+                    <div class="video-card">
+                        <div class="topic-bar grad-ai"></div>
+                        <div class="video-frame" data-video-id="ycIOEoov-VI" data-video-title="How to Find a Topic using ChatGPT">
+                            <img src="https://img.youtube.com/vi/ycIOEoov-VI/hqdefault.jpg" alt="How to Find a Topic using ChatGPT" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-ai"><i class="fas fa-robot"></i>AI</span>
+                            <h5>How to Find a Topic using ChatGPT</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=ycIOEoov-VI" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="web">
+                    <div class="video-card">
+                        <div class="topic-bar grad-web"></div>
+                        <div class="video-frame" data-video-id="7N5YRKRY3Cs" data-video-title="Create a Portfolio Website using Cursor AI">
+                            <img src="https://img.youtube.com/vi/7N5YRKRY3Cs/hqdefault.jpg" alt="Create a Portfolio Website using Cursor AI" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-web"><i class="fas fa-laptop-code"></i>Web Dev</span>
+                            <h5>Create a Portfolio Website using Cursor AI</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=7N5YRKRY3Cs" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="web">
+                    <div class="video-card">
+                        <div class="topic-bar grad-web"></div>
+                        <div class="video-frame" data-video-id="ro5OXspK5cU" data-video-title="Learning Hub Website using Visual Studio Code with AI agent">
+                            <img src="https://img.youtube.com/vi/ro5OXspK5cU/hqdefault.jpg" alt="Learning Hub Website using Visual Studio Code with AI agent" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-web"><i class="fas fa-laptop-code"></i>Web Dev</span>
+                            <h5>Learning Hub Website using VS Code with AI Agent</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=ro5OXspK5cU" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="web">
+                    <div class="video-card">
+                        <div class="topic-bar grad-web"></div>
+                        <div class="video-frame" data-video-id="VnciYI1s8as" data-video-title="How to create a portfolio website using AI">
+                            <img src="https://img.youtube.com/vi/VnciYI1s8as/hqdefault.jpg" alt="How to create a portfolio website using AI" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-web"><i class="fas fa-laptop-code"></i>Web Dev</span>
+                            <h5>How to Create a Portfolio Website using AI</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=VnciYI1s8as" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="cloud">
+                    <div class="video-card">
+                        <div class="topic-bar grad-cloud"></div>
+                        <div class="video-frame" data-video-id="stPyv5woA_A" data-video-title="How to make portfolio website hosting">
+                            <img src="https://img.youtube.com/vi/stPyv5woA_A/hqdefault.jpg" alt="How to make portfolio website hosting" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-cloud"><i class="fas fa-cloud"></i>Cloud &amp; Hosting</span>
+                            <h5>How to Host Your Portfolio Website</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=stPyv5woA_A" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="automation">
+                    <div class="video-card">
+                        <div class="topic-bar grad-automation"></div>
+                        <div class="video-frame" data-video-id="sjcLsUkibok" data-video-title="How to create a PowerPoint file using VBA code">
+                            <img src="https://img.youtube.com/vi/sjcLsUkibok/hqdefault.jpg" alt="How to create a PowerPoint file using VBA code" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-automation"><i class="fas fa-gears"></i>Automation</span>
+                            <h5>Create a PowerPoint File using VBA Code</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=sjcLsUkibok" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="career">
+                    <div class="video-card">
+                        <div class="topic-bar grad-career"></div>
+                        <div class="video-frame" data-video-id="R5yw4p5IBfg" data-video-title="Top 10 Best Programming Languages To Learn in 2024">
+                            <img src="https://img.youtube.com/vi/R5yw4p5IBfg/hqdefault.jpg" alt="Top 10 Best Programming Languages To Learn in 2024" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-career"><i class="fas fa-rocket"></i>Career Tips</span>
+                            <h5>Top 10 Best Programming Languages to Learn in 2024</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=R5yw4p5IBfg" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="career">
+                    <div class="video-card">
+                        <div class="topic-bar grad-career"></div>
+                        <div class="video-frame" data-video-id="LZ4dDkuol_g" data-video-title="Top 10 Programming Languages for Beginners">
+                            <img src="https://img.youtube.com/vi/LZ4dDkuol_g/hqdefault.jpg" alt="Top 10 Programming Languages for Beginners" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-career"><i class="fas fa-rocket"></i>Career Tips</span>
+                            <h5>Top 10 Programming Languages for Beginners</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=LZ4dDkuol_g" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="career">
+                    <div class="video-card">
+                        <div class="topic-bar grad-career"></div>
+                        <div class="video-frame" data-video-id="Kc-bWGFNib0" data-video-title="Class Central - Free Courses with Free Certificates">
+                            <img src="https://img.youtube.com/vi/Kc-bWGFNib0/hqdefault.jpg" alt="Class Central - Free Courses with Free Certificates" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-career"><i class="fas fa-rocket"></i>Career Tips</span>
+                            <h5>Class Central – Free Courses with Free Certificates</h5>
+                            <p class="channel"><i class="fab fa-youtube me-1"></i>Road To Coding</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=Kc-bWGFNib0" target="_blank" rel="noopener">
                                 Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
                             </a>
                         </div>
