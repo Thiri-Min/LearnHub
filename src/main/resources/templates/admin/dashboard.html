@@ -75,6 +75,14 @@
             box-shadow: 0 8px 20px rgba(6,182,212,.18);
         }
         .badge-admin{ background: rgba(167,139,250,.25); border:1px solid rgba(167,139,250,.35); color:#e9d5ff; }
+        .badge-trainer{ background: rgba(6,182,212,.22); border:1px solid rgba(6,182,212,.35); color:#a5f3fc; }
+        .badge-richcontent{ background: rgba(34,197,94,.22); border:1px solid rgba(34,197,94,.35); color:#bbf7d0; }
+        .role-select{
+            background: rgba(2,6,23,.4);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: .8rem;
+        }
         .table{
             --bs-table-color: var(--text);
             --bs-table-bg: transparent;
@@ -104,6 +112,47 @@
             background: rgba(251,113,133,.18);
             color:#fff;
         }
+        .btn-edit{
+            border: 1px solid rgba(6,182,212,.35);
+            background: rgba(6,182,212,.12);
+            color: #a5f3fc;
+        }
+        .btn-edit:hover{
+            background: rgba(6,182,212,.2);
+            color:#fff;
+        }
+        .btn-feature{
+            border: 1px solid rgba(251,191,36,.35);
+            background: rgba(251,191,36,.1);
+            color: rgba(253,230,138,.7);
+        }
+        .btn-feature:hover{
+            background: rgba(251,191,36,.2);
+            color: #fde68a;
+        }
+        .btn-feature.featured{
+            background: rgba(251,191,36,.28);
+            color: #fbbf24;
+            box-shadow: 0 0 12px rgba(251,191,36,.35);
+        }
+        .modal-content.admin-modal{
+            background: linear-gradient(180deg, var(--card), var(--card-2));
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 16px;
+        }
+        .admin-modal .form-control{
+            background: rgba(2,6,23,.4);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .admin-modal .form-control:focus{
+            background: rgba(2,6,23,.55);
+            border-color: var(--brand-2);
+            box-shadow: 0 0 0 .2rem rgba(6,182,212,.15);
+            color: var(--text);
+        }
+        .admin-modal .form-label{ color: var(--muted); font-weight: 600; }
     </style>
     <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
 </head>
@@ -186,6 +235,7 @@
             <li class="nav-item"><button type="button" class="nav-link" data-tab="tests">Skill Tests</button></li>
             <li class="nav-item"><button type="button" class="nav-link" data-tab="progress">Track Progress</button></li>
             <li class="nav-item"><button type="button" class="nav-link" data-tab="feedback">Feedback</button></li>
+            <li class="nav-item"><button type="button" class="nav-link" data-tab="courses">Courses</button></li>
         </ul>
 
         <div id="panelUsers" class="tab-panel">
@@ -211,11 +261,25 @@
                         <td th:text="${u.email}">email</td>
                         <td>
                             <span class="badge badge-admin" th:if="${u.admin}">ADMIN</span>
-                            <span class="badge bg-secondary" th:unless="${u.admin}">USER</span>
+                            <span class="badge badge-trainer" th:if="${u.role == 'TRAINER'}">TRAINER</span>
+                            <span class="badge badge-richcontent" th:if="${u.role == 'RICH_CONTENT'}">RICH CONTENT</span>
+                            <span class="badge bg-secondary" th:if="${!u.admin and u.role != 'TRAINER' and u.role != 'RICH_CONTENT'}">USER</span>
                         </td>
                         <td th:text="${u.loginCount}">0</td>
                         <td th:text="${u.createdAt != null} ? ${#temporals.format(u.createdAt, 'dd MMM yyyy')} : '—'">—</td>
                         <td class="text-end">
+                            <form th:if="${!u.admin}" th:action="@{'/admin/users/' + ${u.id} + '/role'}" method="post"
+                                  class="d-inline-flex align-items-center gap-1 me-1">
+                                <input type="hidden" name="tab" value="users"/>
+                                <select name="role" class="form-select form-select-sm role-select" style="width:auto;">
+                                    <option value="USER" th:selected="${u.role == 'USER'}">User</option>
+                                    <option value="TRAINER" th:selected="${u.role == 'TRAINER'}">Trainer</option>
+                                    <option value="RICH_CONTENT" th:selected="${u.role == 'RICH_CONTENT'}">Rich Content</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-edit" title="Apply role">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
                             <form th:if="${!u.admin}" th:action="@{'/admin/users/' + ${u.id} + '/delete'}" method="post"
                                   onsubmit="return confirm('Delete this user? This cannot be undone.');"
                                   class="d-inline">
@@ -388,12 +452,139 @@
                 </table>
             </div>
         </div>
+
+        <div id="panelCourses" class="tab-panel d-none">
+            <h5 class="mb-3"><i class="fas fa-book-open me-2 text-info"></i>Course Catalog</h5>
+
+            <div th:if="${courseSuccess}" class="alert alert-success py-2" th:text="${courseSuccess}"></div>
+            <div th:if="${courseError}" class="alert alert-danger py-2" th:text="${courseError}"></div>
+
+            <form th:action="@{/admin/courses}" method="post" class="row g-3 mb-4 align-items-end">
+                <div class="col-md-3">
+                    <label for="courseTitle" class="form-label">Title</label>
+                    <input type="text" class="form-control form-control-sm" id="courseTitle" name="title"
+                           required maxlength="150" placeholder="e.g. Python Basics"
+                           th:value="${formCourseTitle}">
+                </div>
+                <div class="col-md-4">
+                    <label for="courseDescription" class="form-label">Description</label>
+                    <input type="text" class="form-control form-control-sm" id="courseDescription" name="description"
+                           required maxlength="500" placeholder="Short course description"
+                           th:value="${formCourseDescription}">
+                </div>
+                <div class="col-md-2">
+                    <label for="courseIcon" class="form-label">Icon class</label>
+                    <input type="text" class="form-control form-control-sm" id="courseIcon" name="icon"
+                           maxlength="100" placeholder="fas fa-book"
+                           th:value="${formCourseIcon}">
+                </div>
+                <div class="col-md-2">
+                    <label for="coursePrice" class="form-label">Price ($)</label>
+                    <input type="number" class="form-control form-control-sm" id="coursePrice" name="price"
+                           required min="0" step="0.01" placeholder="99.00"
+                           th:value="${formCoursePrice}">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-sm btn-primary w-100">
+                        <i class="fas fa-plus me-1"></i>Add
+                    </button>
+                </div>
+            </form>
+
+            <p th:if="${#lists.isEmpty(courses)}" class="text-muted">No courses in the catalog yet.</p>
+            <div th:unless="${#lists.isEmpty(courses)}" class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Icon</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="course : ${courses}">
+                        <td th:text="${course.id}">1</td>
+                        <td><i class="" th:classappend="${course.icon}"></i></td>
+                        <td th:text="${course.title}">Title</td>
+                        <td style="max-width: 360px;" th:text="${course.description}">Description</td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(course.price, 1, 2)}">$0.00</td>
+                        <td class="text-end">
+                            <form th:action="@{'/admin/courses/' + ${course.id} + '/feature'}" method="post" class="d-inline me-1">
+                                <input type="hidden" name="tab" value="courses"/>
+                                <button type="submit" class="btn btn-sm btn-feature"
+                                        th:classappend="${course.featured} ? 'featured' : ''"
+                                        th:title="${course.featured} ? 'Remove from Featured Courses' : 'Show in Featured Courses on home page'">
+                                    <i th:class="${course.featured} ? 'fas fa-star' : 'far fa-star'"></i>
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-edit me-1 course-edit-btn"
+                                    th:attr="data-course-id=${course.id},data-course-title=${course.title},data-course-description=${course.description},data-course-icon=${course.icon},data-course-price=${course.price}">
+                                <i class="fas fa-pen me-1"></i>Edit
+                            </button>
+                            <form th:action="@{'/admin/courses/' + ${course.id} + '/delete'}" method="post"
+                                  onsubmit="return confirm('Delete this course from the catalog?');"
+                                  class="d-inline">
+                                <input type="hidden" name="tab" value="courses"/>
+                                <button type="submit" class="btn btn-sm btn-delete">
+                                    <i class="fas fa-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editCourseModal" tabindex="-1" aria-labelledby="editCourseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content admin-modal">
+            <form id="editCourseForm" method="post">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="editCourseModalLabel">
+                        <i class="fas fa-pen me-2 text-info"></i>Edit Course
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editCourseTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="editCourseTitle" name="title" required maxlength="150">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCourseDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editCourseDescription" name="description" rows="3" required maxlength="500"></textarea>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-7">
+                            <label for="editCourseIcon" class="form-label">Icon class</label>
+                            <input type="text" class="form-control" id="editCourseIcon" name="icon" maxlength="100" placeholder="fas fa-book">
+                        </div>
+                        <div class="col-5">
+                            <label for="editCoursePrice" class="form-label">Price ($)</label>
+                            <input type="number" class="form-control" id="editCoursePrice" name="price" required min="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-sm btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fas fa-floppy-disk me-1"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const panels = { users: 'panelUsers', logins: 'panelLogins', tests: 'panelTests', progress: 'panelProgress', feedback: 'panelFeedback' };
+    const panels = { users: 'panelUsers', logins: 'panelLogins', tests: 'panelTests', progress: 'panelProgress', feedback: 'panelFeedback', courses: 'panelCourses' };
     function setActiveTab(tab) {
         const btn = document.querySelector(`#adminTabs [data-tab="${tab}"]`);
         if (!btn) return;
@@ -410,6 +601,19 @@
     // Keep the same tab after delete actions (?tab=...)
     const activeFromServer = /*[[${activeTab}]]*/ 'users';
     setActiveTab(activeFromServer);
+
+    // Course edit modal
+    const editCourseModal = document.getElementById('editCourseModal');
+    document.querySelectorAll('.course-edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('editCourseForm').action = '/admin/courses/' + btn.dataset.courseId + '/update';
+            document.getElementById('editCourseTitle').value = btn.dataset.courseTitle;
+            document.getElementById('editCourseDescription').value = btn.dataset.courseDescription;
+            document.getElementById('editCourseIcon').value = btn.dataset.courseIcon;
+            document.getElementById('editCoursePrice').value = btn.dataset.coursePrice;
+            new bootstrap.Modal(editCourseModal).show();
+        });
+    });
 </script>
 </body>
 </html>

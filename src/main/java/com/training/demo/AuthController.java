@@ -57,17 +57,11 @@ public class AuthController {
     @Autowired
     private QuizAttemptRepository quizAttemptRepository;
 
+    @Autowired
+    private CourseService courseService;
+
     @Value("${app.public-url:}")
     private String configuredPublicUrl;
-
-    private static final List<Course> COURSE_CATALOG = List.of(
-        new Course(1, "SQL Mastery", "Learn SQL query writing, joins, indexing, and database design fundamentals.", "fas fa-database", 89.0),
-        new Course(2, "Git Essentials", "Master version control workflows, branching, and collaboration with Git.", "fab fa-git-alt", 79.0),
-        new Course(3, "DSA Fundamentals", "Build strong algorithm and data structure skills for coding and interview success.", "fas fa-brain", 109.0),
-        new Course(4, "Java Essentials", "Start your programming journey with Java fundamentals and practical examples.", "fas fa-java", 99.0),
-        new Course(5, "Spring Framework", "Learn Spring Boot, dependency injection, and building modern Java applications.", "fas fa-seedling", 129.0),
-        new Course(6, "Mock Project", "Build a complete mock project to showcase real-world application skills.", "fas fa-robot", 119.0)
-    );
 
     @GetMapping("/login")
     public String login(@RequestParam(required = false, defaultValue = "login") String mode,
@@ -171,11 +165,7 @@ public class AuthController {
     public String landing(HttpSession session, Model model,
                           @RequestParam(required = false) String authMode,
                           @RequestParam(required = false) String signupSuccess) {
-        var user = session.getAttribute("loggedInUser");
-        if (user != null) {
-            model.addAttribute("user", user);
-            model.addAttribute("cartCount", getCart(session).size());
-        }
+        populateHomeModel(session, model);
         if (authMode != null) {
             model.addAttribute("authMode", authMode);
         }
@@ -187,12 +177,10 @@ public class AuthController {
 
     @GetMapping("/home")
     public String home(HttpSession session, Model model) {
-        var user = session.getAttribute("loggedInUser");
-        if (user == null) {
+        if (session.getAttribute("loggedInUser") == null) {
             return "redirect:/?authMode=login";
         }
-        model.addAttribute("user", user);
-        model.addAttribute("cartCount", getCart(session).size());
+        populateHomeModel(session, model);
         return "home";
     }
 
@@ -203,7 +191,7 @@ public class AuthController {
             return "redirect:/?authMode=login";
         }
         model.addAttribute("user", user);
-        model.addAttribute("courses", COURSE_CATALOG);
+        model.addAttribute("courses", courseService.findAll());
         model.addAttribute("cartCount", getCart(session).size());
         if (message != null) {
             model.addAttribute("message", message);
@@ -422,7 +410,7 @@ public class AuthController {
     }
 
     @PostMapping("/cart/add")
-    public String addToCart(HttpSession session, @RequestParam int courseId) {
+    public String addToCart(HttpSession session, @RequestParam long courseId) {
         var user = session.getAttribute("loggedInUser");
         if (user == null) {
             return "redirect:/?authMode=login";
@@ -619,7 +607,7 @@ public class AuthController {
     }
 
     @PostMapping("/cart/remove")
-    public String removeFromCart(HttpSession session, @RequestParam int courseId) {
+    public String removeFromCart(HttpSession session, @RequestParam long courseId) {
         var user = session.getAttribute("loggedInUser");
         if (user == null) {
             return "redirect:/?authMode=login";
@@ -780,8 +768,8 @@ public class AuthController {
         return cart;
     }
 
-    private Course findCourseById(int courseId) {
-        return COURSE_CATALOG.stream().filter(course -> course.getId() == courseId).findFirst().orElse(null);
+    private Course findCourseById(long courseId) {
+        return courseService.findById(courseId);
     }
 
     private void populateHomeModel(HttpSession session, Model model) {
@@ -790,5 +778,6 @@ public class AuthController {
             model.addAttribute("user", user);
             model.addAttribute("cartCount", getCart(session).size());
         }
+        model.addAttribute("featuredCourses", courseService.findFeatured());
     }
 }

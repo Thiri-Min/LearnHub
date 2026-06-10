@@ -537,50 +537,24 @@
                     </a>
                 </div>
             </div>
-            <div class="row text-center mt-5" th:if="${user}">
+            <div class="row text-center mt-5" th:if="${user != null and !#lists.isEmpty(featuredCourses)}">
                 <div class="col-12">
                     <h2 class="mb-4">Featured Courses</h2>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 mb-4" th:each="course : ${featuredCourses}">
                     <div class="feature-card d-flex flex-column h-100">
-                        <i class="fas fa-code feature-icon"></i>
-                        <h3>Java Essential</h3>
-                        <p>Learn the fundamentals of Java programming with guided exercises.</p>
+                        <i class="" th:classappend="${course.icon} + ' feature-icon'"></i>
+                        <h3 th:text="${course.title}">Course title</h3>
+                        <p th:text="${course.description}">Course description</p>
                         <div class="mt-auto d-grid gap-2">
-                            <button type="button" class="btn btn-outline-danger w-100" id="favBtn-4" data-course-id="4" data-course-title="Java Essential" onclick="toggleFavorite(this.dataset.courseId, this.dataset.courseTitle)">
+                            <button type="button" class="btn btn-outline-danger w-100"
+                                    th:id="'favBtn-' + ${course.id}"
+                                    th:attr="data-course-id=${course.id},data-course-title=${course.title}"
+                                    onclick="toggleFavorite(this.dataset.courseId, this.dataset.courseTitle)">
                                 <i class="fas fa-heart me-2"></i><span class="fav-text">Fav</span>
                             </button>
-                            <button type="button" class="btn btn-outline-primary w-100" onclick="window.location.href='/course-detail?courseId=4'">
-                                <i class="fas fa-book-open me-2"></i>Read
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card d-flex flex-column h-100">
-                        <i class="fab fa-python feature-icon"></i>
-                        <h3>Python Essential</h3>
-                        <p>Learn Python fundamentals and simple scripting for practical tasks.</p>
-                        <div class="mt-auto d-grid gap-2">
-                            <button type="button" class="btn btn-outline-danger w-100" id="favBtn-python-basics" data-course-id="python-basics" data-course-title="Python Essential" onclick="toggleFavorite(this.dataset.courseId, this.dataset.courseTitle)">
-                                <i class="fas fa-heart me-2"></i><span class="fav-text">Fav</span>
-                            </button>
-                            <button type="button" class="btn btn-outline-primary w-100" onclick="window.location.href='/course-detail?courseId=python-basics'">
-                                <i class="fas fa-book-open me-2"></i>Read
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card d-flex flex-column h-100">
-                        <i class="fab fa-microsoft feature-icon"></i>
-                        <h3>.NET Fundamentals</h3>
-                        <p>Explore .NET concepts and build modern, cross-platform applications.</p>
-                        <div class="mt-auto d-grid gap-2">
-                            <button type="button" class="btn btn-outline-danger w-100" id="favBtn-dotnet-basics" data-course-id="dotnet-basics" data-course-title=".NET Fundamentals" onclick="toggleFavorite(this.dataset.courseId, this.dataset.courseTitle)">
-                                <i class="fas fa-heart me-2"></i><span class="fav-text">Fav</span>
-                            </button>
-                            <button type="button" class="btn btn-outline-primary w-100" onclick="window.location.href='/course-detail?courseId=dotnet-basics'">
+                            <button type="button" class="btn btn-outline-primary w-100"
+                                    th:onclick="'window.location.href=&quot;/course-detail?courseId=' + ${course.id} + '&quot;'">
                                 <i class="fas fa-book-open me-2"></i>Read
                             </button>
                         </div>
@@ -618,6 +592,11 @@
                            class="text-decoration-none text-light" target="_blank" rel="noopener noreferrer"
                            title="Thiri Min on LinkedIn" aria-label="Thiri Min LinkedIn profile">
                             <i class="fab fa-linkedin me-1"></i>LinkedIn
+                        </a>
+                        <a href="https://www.tiktok.com/@ms.coding2"
+                           class="text-decoration-none text-light" target="_blank" rel="noopener noreferrer"
+                           title="ms.coding2 on TikTok" aria-label="ms.coding2 TikTok profile">
+                            <i class="fab fa-tiktok me-1"></i>TikTok
                         </a>
                     </div>
                 </div>
