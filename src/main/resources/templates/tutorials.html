@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Videos - Learning Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.3;
+            z-index: 0;
+            pointer-events: none;
+            animation: drift 16s ease-in-out infinite;
+        }
+        .blob-1 { width: 420px; height: 420px; background: #fbc2eb; top: -140px; left: -120px; }
+        .blob-2 { width: 340px; height: 340px; background: #38bdf8; bottom: -100px; right: -110px; animation-delay: -8s; }
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 40px) scale(1.1); }
+        }
+
+        main { position: relative; z-index: 1; }
+
+        .page-header {
+            padding: 4.5rem 0 1.5rem;
+            text-align: center;
+        }
+        .page-header .badge-pill {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .page-header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            font-weight: 800;
+        }
+        .page-header h1 .accent {
+            background: linear-gradient(90deg, #fde68a, #fbc2eb, #84fab0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Filter chips */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+            padding: 0.5rem 0 1.5rem;
+        }
+        .filter-chip {
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 999px;
+            padding: 0.45rem 1.3rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .filter-chip:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); }
+        .filter-chip.active {
+            background: #fff;
+            color: #4c1d95;
+            border-color: #fff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Video cards */
+        .video-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 22px;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .video-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 50px rgba(0, 0, 0, 0.3);
+        }
+        .video-card .topic-bar { height: 5px; }
+
+        .video-frame {
+            position: relative;
+            aspect-ratio: 16 / 9;
+            background: #0f172a;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .video-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease, opacity 0.3s ease;
+        }
+        .video-frame:hover img { transform: scale(1.07); opacity: 0.85; }
+        .video-frame iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #4c1d95;
+            padding-left: 5px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.25s ease, background 0.25s ease;
+        }
+        .video-frame:hover .play-btn {
+            transform: translate(-50%, -50%) scale(1.12);
+            background: #fff;
+        }
+        .duration-tag {
+            position: absolute;
+            bottom: 0.6rem;
+            right: 0.6rem;
+            background: rgba(15, 23, 42, 0.85);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 0.2rem 0.5rem;
+        }
+
+        .video-body {
+            padding: 1.15rem 1.25rem 1.3rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .topic-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            align-self: flex-start;
+            color: #fff;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 999px;
+            padding: 0.3rem 0.85rem;
+            margin-bottom: 0.7rem;
+        }
+        .video-body h5 {
+            font-weight: 700;
+            font-size: 1.02rem;
+            line-height: 1.4;
+        }
+        .video-body .channel {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.85rem;
+            margin-bottom: 0.9rem;
+        }
+        .watch-link {
+            margin-top: auto;
+            color: #fde68a;
+            font-weight: 600;
+            font-size: 0.88rem;
+            text-decoration: none;
+        }
+        .watch-link:hover { color: #fff; text-decoration: underline; }
+
+        /* Per-topic creative gradients */
+        .grad-java { background: linear-gradient(45deg, #f97316, #ef4444); }
+        .grad-sql { background: linear-gradient(45deg, #06b6d4, #3b82f6); }
+        .grad-spring { background: linear-gradient(45deg, #22c55e, #15803d); }
+        .grad-dotnet { background: linear-gradient(45deg, #8b5cf6, #6d28d9); }
+        .grad-ai { background: linear-gradient(45deg, #ec4899, #d946ef); }
+        .grad-cloud { background: linear-gradient(45deg, #38bdf8, #6366f1); }
+        .grad-automation { background: linear-gradient(45deg, #fbbf24, #f59e0b); }
+        .grad-python { background: linear-gradient(45deg, #3b82f6, #facc15); }
+        .grad-fullstack { background: linear-gradient(45deg, #f43f5e, #8b5cf6, #14b8a6); }
+
+        .video-item.hidden-by-filter { display: none; }
+
+        .site-footer {
+            background: rgba(17, 24, 39, 0.45);
+            backdrop-filter: blur(8px);
+            margin-top: auto;
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, '', '/home', false, 'tutorials')}"></nav>
+
+    <main class="flex-grow-1">
+        <section class="page-header">
+            <div class="container">
+                <span class="badge-pill"><i class="fas fa-circle-play me-2"></i>Free video library</span>
+                <h1>Tutorial <span class="accent">Videos</span></h1>
+                <p class="lead mb-0">Hand-picked YouTube courses to level up your tech skills — pick a topic and press play.</p>
+            </div>
+        </section>
+
+        <section class="container pb-5">
+            <div class="filter-bar" id="filterBar">
+                <button class="filter-chip active" data-filter="all">All</button>
+                <button class="filter-chip" data-filter="java">Java</button>
+                <button class="filter-chip" data-filter="sql">SQL</button>
+                <button class="filter-chip" data-filter="spring">Spring</button>
+                <button class="filter-chip" data-filter="dotnet">.NET</button>
+                <button class="filter-chip" data-filter="ai">AI</button>
+                <button class="filter-chip" data-filter="cloud">Cloud</button>
+                <button class="filter-chip" data-filter="automation">Automation</button>
+                <button class="filter-chip" data-filter="python">Python</button>
+                <button class="filter-chip" data-filter="fullstack">Full Stack</button>
+            </div>
+
+            <div class="row g-4" id="videoGrid">
+                <div class="col-md-6 col-xl-4 video-item" data-topic="java">
+                    <div class="video-card">
+                        <div class="topic-bar grad-java"></div>
+                        <div class="video-frame" data-video-id="eIrMbAQSU34" data-video-title="Java Full Course for Beginners">
+                            <img src="https://img.youtube.com/vi/eIrMbAQSU34/hqdefault.jpg" alt="Java Full Course for Beginners" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                            <span class="duration-tag">2h 30m</span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-java"><i class="fab fa-java"></i>Java</span>
+                            <h5>Java Full Course for Beginners</h5>
+                            <p class="channel"><i class="fas fa-tv me-1"></i>Programming with Mosh</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=eIrMbAQSU34" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="sql">
+                    <div class="video-card">
+                        <div class="topic-bar grad-sql"></div>
+                        <div class="video-frame" data-video-id="HXV3zeQKqGY" data-video-title="SQL Tutorial - Full Database Course for Beginners">
+                            <img src="https://img.youtube.com/vi/HXV3zeQKqGY/hqdefault.jpg" alt="SQL Tutorial - Full Database Course" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                            <span class="duration-tag">4h 20m</span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-sql"><i class="fas fa-database"></i>SQL</span>
+                            <h5>SQL Tutorial – Full Database Course for Beginners</h5>
+                            <p class="channel"><i class="fas fa-tv me-1"></i>freeCodeCamp.org</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=HXV3zeQKqGY" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="spring">
+                    <div class="video-card">
+                        <div class="topic-bar grad-spring"></div>
+                        <div class="video-frame" data-video-id="9SGDpanrc8U" data-video-title="Spring Boot Tutorial - Full Course">
+                            <img src="https://img.youtube.com/vi/9SGDpanrc8U/hqdefault.jpg" alt="Spring Boot Tutorial Full Course" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                            <span class="duration-tag">1h 37m</span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-spring"><i class="fas fa-leaf"></i>Spring</span>
+                            <h5>Spring Boot Tutorial – Full Course</h5>
+                            <p class="channel"><i class="fas fa-tv me-1"></i>Amigoscode</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=9SGDpanrc8U" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="dotnet">
+                    <div class="video-card">
+                        <div class="topic-bar grad-dotnet"></div>
+                        <div class="video-frame" data-video-id="gfkTfcpWqAY" data-video-title="C# Tutorial For Beginners - Learn C# Basics in 1 Hour">
+                            <img src="https://img.youtube.com/vi/gfkTfcpWqAY/hqdefault.jpg" alt="C# Tutorial For Beginners" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                            <span class="duration-tag">1h 10m</span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-dotnet"><i class="fas fa-code"></i>.NET</span>
+                            <h5>C# Tutorial for Beginners – Learn C# Basics in 1 Hour</h5>
+                            <p class="channel"><i class="fas fa-tv me-1"></i>Programming with Mosh</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=gfkTfcpWqAY" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="ai">
+                    <div class="video-card">
+                        <div class="topic-bar grad-ai"></div>
+                        <div class="video-frame" data-video-id="i_LwzRVP7bg" data-video-title="Machine Learning for Everybody - Full Course">
+                            <img src="https://img.youtube.com/vi/i_LwzRVP7bg/hqdefault.jpg" alt="Machine Learning for Everybody" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                            <span class="duration-tag">3h 53m</span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-ai"><i class="fas fa-robot"></i>AI</span>
+                            <h5>Machine Learning for Everybody – Full Course</h5>
+                            <p class="channel"><i class="fas fa-tv me-1"></i>freeCodeCamp.org</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=i_LwzRVP7bg" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="cloud">
+                    <div class="video-card">
+                        <div class="topic-bar grad-cloud"></div>
+                        <div class="video-frame" data-video-id="7HKot-brXFE" data-video-title="AWS Certified Cloud Practitioner Course (CLF-C02)">
+                            <img src="https://img.youtube.com/vi/7HKot-brXFE/hqdefault.jpg" alt="AWS Certified Cloud Practitioner Course" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                            <span class="duration-tag">13h 46m</span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-cloud"><i class="fas fa-cloud"></i>Cloud</span>
+                            <h5>AWS Certified Cloud Practitioner Course (CLF-C02)</h5>
+                            <p class="channel"><i class="fas fa-tv me-1"></i>freeCodeCamp.org</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=7HKot-brXFE" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="automation">
+                    <div class="video-card">
+                        <div class="topic-bar grad-automation"></div>
+                        <div class="video-frame" data-video-id="PXMJ6FS7llk" data-video-title="Automate with Python - Full Course for Beginners">
+                            <img src="https://img.youtube.com/vi/PXMJ6FS7llk/hqdefault.jpg" alt="Automate with Python Full Course" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                            <span class="duration-tag">2h 42m</span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-automation"><i class="fas fa-gears"></i>Automation</span>
+                            <h5>Automate with Python – Full Course for Beginners</h5>
+                            <p class="channel"><i class="fas fa-tv me-1"></i>freeCodeCamp.org</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=PXMJ6FS7llk" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="python">
+                    <div class="video-card">
+                        <div class="topic-bar grad-python"></div>
+                        <div class="video-frame" data-video-id="_uQrJ0TkZlc" data-video-title="Python Full Course for Beginners">
+                            <img src="https://img.youtube.com/vi/_uQrJ0TkZlc/hqdefault.jpg" alt="Python Full Course for Beginners" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                            <span class="duration-tag">6h 14m</span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-python"><i class="fab fa-python"></i>Python</span>
+                            <h5>Python Full Course for Beginners</h5>
+                            <p class="channel"><i class="fas fa-tv me-1"></i>Programming with Mosh</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=_uQrJ0TkZlc" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4 video-item" data-topic="fullstack">
+                    <div class="video-card">
+                        <div class="topic-bar grad-fullstack"></div>
+                        <div class="video-frame" data-video-id="LzMnsfqjzkA" data-video-title="Become a Fullstack Developer from Scratch - Full Beginner's Tutorial">
+                            <img src="https://img.youtube.com/vi/LzMnsfqjzkA/hqdefault.jpg" alt="Become a Fullstack Developer from Scratch" loading="lazy">
+                            <span class="play-btn"><i class="fas fa-play"></i></span>
+                            <span class="duration-tag">47h 29m</span>
+                        </div>
+                        <div class="video-body">
+                            <span class="topic-badge grad-fullstack"><i class="fas fa-layer-group"></i>Full Stack</span>
+                            <h5>Become a Fullstack Developer from Scratch – Full Tutorial</h5>
+                            <p class="channel"><i class="fas fa-tv me-1"></i>freeCodeCamp.org</p>
+                            <a class="watch-link" href="https://www.youtube.com/watch?v=LzMnsfqjzkA" target="_blank" rel="noopener">
+                                Watch on YouTube <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer text-white">
+        <div class="container py-4 text-center">
+            <p class="mb-0">&copy; 2026 Learning Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Topic filter chips
+        const chips = document.querySelectorAll('.filter-chip');
+        const items = document.querySelectorAll('.video-item');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                const filter = chip.dataset.filter;
+                items.forEach(item => {
+                    const show = filter === 'all' || item.dataset.topic === filter;
+                    item.classList.toggle('hidden-by-filter', !show);
+                });
+            });
+        });
+
+        // Click-to-play: swap the thumbnail for the YouTube player on demand
+        document.querySelectorAll('.video-frame').forEach(frame => {
+            frame.addEventListener('click', () => {
+                if (frame.querySelector('iframe')) {
+                    return;
+                }
+                const id = frame.dataset.videoId;
+                const title = frame.dataset.videoTitle || 'Tutorial video';
+                const iframe = document.createElement('iframe');
+                iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0';
+                iframe.title = title;
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+                iframe.allowFullscreen = true;
+                frame.innerHTML = '';
+                frame.appendChild(iframe);
+                frame.style.cursor = 'default';
+            });
+        });
+    </script>
+</body>
+</html>
