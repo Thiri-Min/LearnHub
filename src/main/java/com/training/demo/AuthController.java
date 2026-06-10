@@ -774,10 +774,11 @@ public class AuthController {
 
     private void populateHomeModel(HttpSession session, Model model) {
         var user = session.getAttribute("loggedInUser");
-        if (user != null) {
+        boolean loggedIn = user != null;
+        if (loggedIn) {
             model.addAttribute("user", user);
             model.addAttribute("cartCount", getCart(session).size());
         }
-        model.addAttribute("featuredCourses", courseService.findFeatured());
+        model.addAttribute("featuredCourses", courseService.findFeaturedForHome(loggedIn));
     }
 }

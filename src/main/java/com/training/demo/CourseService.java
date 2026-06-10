@@ -64,6 +64,23 @@ public class CourseService {
         return courseRepository.findAllByFeaturedTrueOrderByIdAsc();
     }
 
+    public List<Course> findDefaultFeatured(int limit) {
+        return courseRepository.findAllByOrderByIdAsc().stream()
+                .limit(limit)
+                .toList();
+    }
+
+    /** Guests always see defaults; logged-in users see admin-starred courses, falling back to defaults. */
+    public List<Course> findFeaturedForHome(boolean loggedIn) {
+        if (loggedIn) {
+            List<Course> starred = findFeatured();
+            if (!starred.isEmpty()) {
+                return starred;
+            }
+        }
+        return findDefaultFeatured(3);
+    }
+
     public Course toggleFeatured(long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found."));
