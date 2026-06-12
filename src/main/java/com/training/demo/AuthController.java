@@ -220,13 +220,19 @@ public class AuthController {
         User currentUser = (User) user;
         model.addAttribute("dsaMaxAttempts", TechQuizCatalog.DSA_MAX_ATTEMPTS);
         model.addAttribute("dsaAttemptCounts", buildDsaAttemptCounts(currentUser.getId()));
+        model.addAttribute("frontEndMaxAttempts", TechQuizCatalog.FRONTEND_MAX_ATTEMPTS);
+        model.addAttribute("frontEndAttemptCounts", buildSubjectAttemptCounts(currentUser.getId(), "FrontEnd"));
         return "tech";
     }
 
     private Map<String, Long> buildDsaAttemptCounts(Long userId) {
+        return buildSubjectAttemptCounts(userId, "DSA");
+    }
+
+    private Map<String, Long> buildSubjectAttemptCounts(Long userId, String subject) {
         Map<String, Long> counts = new LinkedHashMap<>();
         for (String level : List.of("Pre-Intermediate", "Intermediate", "Advanced")) {
-            counts.put(level, quizAttemptRepository.countByUserIdAndSubjectAndLevel(userId, "DSA", level));
+            counts.put(level, quizAttemptRepository.countByUserIdAndSubjectAndLevel(userId, subject, level));
         }
         return counts;
     }
@@ -342,10 +348,10 @@ public class AuthController {
             return "redirect:/?authMode=login";
         }
         User currentUser = (User) user;
-        if (isDsaQuiz(subject)) {
+        if (hasAttemptLimit(subject)) {
             long attemptsUsed = quizAttemptRepository.countByUserIdAndSubjectAndLevel(
-                    currentUser.getId(), "DSA", level);
-            if (fresh && attemptsUsed >= TechQuizCatalog.DSA_MAX_ATTEMPTS) {
+                    currentUser.getId(), normalizeLimitedSubject(subject), level);
+            if (fresh && attemptsUsed >= maxAttemptsForSubject(subject)) {
                 return "redirect:/tech";
             }
         }
@@ -379,10 +385,10 @@ public class AuthController {
             return Map.of("ok", false, "error", "Not logged in");
         }
         User current = (User) user;
-        if (isDsaQuiz(subject)) {
+        if (hasAttemptLimit(subject)) {
             long attemptsUsed = quizAttemptRepository.countByUserIdAndSubjectAndLevel(
-                    current.getId(), "DSA", level);
-            if (attemptsUsed >= TechQuizCatalog.DSA_MAX_ATTEMPTS) {
+                    current.getId(), normalizeLimitedSubject(subject), level);
+            if (attemptsUsed >= maxAttemptsForSubject(subject)) {
                 return Map.of("ok", false, "error", "This test is not available right now.");
             }
         }
@@ -393,6 +399,22 @@ public class AuthController {
 
     private static boolean isDsaQuiz(String subject) {
         return subject != null && "DSA".equalsIgnoreCase(subject.trim());
+    }
+
+    private static boolean isFrontEndQuiz(String subject) {
+        return subject != null && "FrontEnd".equalsIgnoreCase(subject.trim());
+    }
+
+    private static boolean hasAttemptLimit(String subject) {
+        return isDsaQuiz(subject) || isFrontEndQuiz(subject);
+    }
+
+    private static int maxAttemptsForSubject(String subject) {
+        return isFrontEndQuiz(subject) ? TechQuizCatalog.FRONTEND_MAX_ATTEMPTS : TechQuizCatalog.DSA_MAX_ATTEMPTS;
+    }
+
+    private static String normalizeLimitedSubject(String subject) {
+        return isFrontEndQuiz(subject) ? "FrontEnd" : "DSA";
     }
 
     private static String quizSessionKey(HttpSession session, String subject, String level) {

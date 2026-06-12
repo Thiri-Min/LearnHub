@@ -4,11 +4,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserActivityService {
@@ -49,8 +56,9 @@ public class UserActivityService {
         LoginEvent event = new LoginEvent();
         event.setUserId(saved.getId());
         event.setLoginAt(LocalDateTime.now());
-        event.setIpAddress(resolveClientIp(request));
-        event.setLocation("Detecting country…");
+        String ipAddress = resolveClientIp(request);
+        event.setIpAddress(ipAddress);
+        event.setLocation(resolveCountryFromIp(ipAddress));
         loginEventRepository.save(event);
         return saved;
     }
@@ -151,5 +159,65 @@ public class UserActivityService {
             return realIp.trim();
         }
         return request.getRemoteAddr();
+    }
+
+    private String resolveCountryFromIp(String ip) {
+        if (ip == null || ip.isBlank() || "Unknown".equalsIgnoreCase(ip.trim())) {
+            return "Unknown";
+        }
+        String normalized = ip.trim();
+        if (isLocalOrPrivateAddress(normalized)) {
+            return "Local development";
+        }
+        try {
+            URI uri = URI.create("http://ip-api.com/json/" + normalized + "?fields=status,country");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(2000);
+            connection.setReadTimeout(2000);
+            int statusCode = connection.getResponseCode();
+            if (statusCode != 200) {
+                return "Unknown";
+            }
+            StringBuilder body = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    body.append(line);
+                }
+            }
+            if (!body.toString().contains("\"status\":\"success\"")) {
+                return "Unknown";
+            }
+            Matcher matcher = Pattern.compile("\"country\"\\s*:\\s*\"([^\"]+)\"").matcher(body.toString());
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+        } catch (Exception ignored) {
+            // Fall back to client-side refinement when IP lookup is unavailable.
+        }
+        return "Unknown";
+    }
+
+    private boolean isLocalOrPrivateAddress(String ip) {
+        if ("127.0.0.1".equals(ip) || "::1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {
+            return true;
+        }
+        if (ip.startsWith("192.168.") || ip.startsWith("10.")) {
+            return true;
+        }
+        if (ip.startsWith("172.")) {
+            String[] parts = ip.split("\\.");
+            if (parts.length >= 2) {
+                try {
+                    int secondOctet = Integer.parseInt(parts[1]);
+                    return secondOctet >= 16 && secondOctet <= 31;
+                } catch (NumberFormatException ignored) {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 }

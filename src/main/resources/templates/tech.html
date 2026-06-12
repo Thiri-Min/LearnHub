@@ -119,6 +119,7 @@
                             <button type="button" class="btn filter-btn" data-filter="Database">Database</button>
                             <button type="button" class="btn filter-btn" data-filter="DSA">DSA</button>
                             <button type="button" class="btn filter-btn" data-filter="Git">Git</button>
+                            <button type="button" class="btn filter-btn" data-filter="FrontEnd">FrontEnd</button>
                             <button type="button" class="btn filter-btn" data-filter="DotNet">.NET</button>
                             <button type="button" class="btn filter-btn" data-filter="Fullstack">Fullstack</button>
                         </div>
@@ -145,6 +146,8 @@
     <script th:inline="javascript">
         const dsaAttemptCounts = /*[[${dsaAttemptCounts}]]*/ {};
         const dsaMaxAttempts = /*[[${dsaMaxAttempts}]]*/ 3;
+        const frontEndAttemptCounts = /*[[${frontEndAttemptCounts}]]*/ {};
+        const frontEndMaxAttempts = /*[[${frontEndMaxAttempts}]]*/ 5;
         const testData = {
             Java: {
                 icon: 'fab fa-java',
@@ -224,6 +227,16 @@
                     'Git Pre-Intermediate': 'repos, staging, commits, remotes (random each attempt).',
                     'Git Intermediate': ' branches, merge, conflicts, stash (random each attempt).',
                     'Git Advanced': ' rebase, Git Flow, reflog, team workflows (random each attempt).'
+                }
+            },
+            FrontEnd: {
+                icon: 'fas fa-code',
+                title: 'FrontEnd Test',
+                desc: '10 random MCQs per attempt for HTML, CSS, JavaScript, accessibility, and performance.',
+                levels: {
+                    'FrontEnd Pre-Intermediate': 'HTML, CSS, JavaScript basics, forms, links, and selectors.',
+                    'FrontEnd Intermediate': 'Responsive layouts, DOM events, Fetch API, semantic HTML, and storage.',
+                    'FrontEnd Advanced': 'Performance, accessibility, hydration, security, and build optimization.'
                 }
             },
             DotNet: {
@@ -698,6 +711,11 @@
                                 if (used >= dsaMaxAttempts) {
                                     btnDisabled = 'disabled';
                                 }
+                            } else if (filter === 'FrontEnd') {
+                                const used = Number(frontEndAttemptCounts[tier] || 0);
+                                if (used >= frontEndMaxAttempts) {
+                                    btnDisabled = 'disabled';
+                                }
                             }
                             const levelCard = document.createElement('div');
                             levelCard.className = 'col-md-4';
@@ -747,6 +765,11 @@
                 if (subject === 'DSA') {
                     const used = Number(dsaAttemptCounts[normalizedLevel] || 0);
                     if (used >= dsaMaxAttempts) {
+                        return;
+                    }
+                } else if (subject === 'FrontEnd') {
+                    const used = Number(frontEndAttemptCounts[normalizedLevel] || 0);
+                    if (used >= frontEndMaxAttempts) {
                         return;
                     }
                 }

@@ -19,6 +19,7 @@ public final class TechQuizCatalog {
         registerPython();
         registerGit();
         registerDsa();
+        registerFrontEnd();
     }
 
     private TechQuizCatalog() {
@@ -28,6 +29,7 @@ public final class TechQuizCatalog {
     /** Question bank size per level for subjects that randomize across attempts (e.g. DSA, Git). */
     public static final int QUIZ_BANK_SIZE = 15;
     public static final int DSA_MAX_ATTEMPTS = 3;
+    public static final int FRONTEND_MAX_ATTEMPTS = 5;
 
     public static List<Map<String, Object>> getQuestions(String subject, String level) {
         Map<String, List<Map<String, Object>>> byLevel = QUESTIONS.get(subject);
@@ -127,6 +129,14 @@ public final class TechQuizCatalog {
         levels.put("Intermediate", dsaIntermediate());
         levels.put("Advanced", dsaAdvanced());
         QUESTIONS.put("DSA", levels);
+    }
+
+    private static void registerFrontEnd() {
+        Map<String, List<Map<String, Object>>> levels = new LinkedHashMap<>();
+        levels.put("Pre-Intermediate", frontEndPreIntermediate());
+        levels.put("Intermediate", frontEndIntermediate());
+        levels.put("Advanced", frontEndAdvanced());
+        QUESTIONS.put("FrontEnd", levels);
     }
 
     private static Map<String, Object> q(String question, List<String> options, int answer) {
@@ -667,6 +677,170 @@ public final class TechQuizCatalog {
                         "Stack push/pop", "Array index access"), 0));
         list.add(q("Graph BFS time complexity with adjacency list is often:",
                 List.of("O(V + E)", "O(V²) only", "O(E²)", "O(1)"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> frontEndPreIntermediate() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("Which HTML element is used for the largest heading?",
+                List.of("h1 element", "heading element", "head element", "title element"), 0));
+        list.add(q("Which attribute provides alternative text for an image?",
+                List.of("alt", "src", "href", "title-only"), 0));
+        list.add(q("Which CSS property changes text color?",
+                List.of("color", "font-style", "background-color", "text-size"), 0));
+        list.add(q("Which tag links an external CSS file?",
+                List.of("link tag", "style tag", "script tag", "css tag"), 0));
+        list.add(q("Which JavaScript method writes a message to the browser console?",
+                List.of("console.log()", "print()", "System.out.println()", "echo()"), 0));
+        list.add(q("What does CSS stand for?",
+                List.of("Cascading Style Sheets", "Creative Style Syntax", "Computer Styled Sections",
+                        "Client Side Script"), 0));
+        list.add(q("Which HTML element creates a clickable link?",
+                List.of("anchor (a) element", "button-link element", "href element", "url element"), 0));
+        list.add(q("Which CSS selector targets an element with id='main'?",
+                List.of("#main", ".main", "main()", "*main"), 0));
+        list.add(q("Which input type is best for entering an email address?",
+                List.of("email", "text-email", "mail", "address"), 0));
+        list.add(q("Where should visible page content usually be placed in HTML?",
+                List.of("Inside the body element", "Inside the head element", "Inside the meta element",
+                        "Inside the doctype declaration"), 0));
+        list.add(q("Which HTML element creates an unordered list?",
+                List.of("ul", "ol", "li", "dl"), 0));
+        list.add(q("Which CSS property adds space inside an element between content and border?",
+                List.of("padding", "margin", "border", "gap"), 0));
+        list.add(q("How do you correctly include JavaScript in an HTML page?",
+                List.of("Using a script element", "Using a java element", "Using a link element",
+                        "Using a style element"), 0));
+        list.add(q("Which CSS property makes text bold?",
+                List.of("font-weight", "font-bold", "text-style", "font-size"), 0));
+        list.add(q("Which attribute opens a hyperlink in a new browser tab?",
+                List.of("target=\"_blank\"", "rel=\"new\"", "href=\"_blank\"", "open=\"tab\""), 0));
+        list.add(q("What is the purpose of the class attribute in HTML?",
+                List.of("To assign a CSS styling hook shared by multiple elements", "To make an element unique",
+                        "To store JavaScript code", "To hide content from users"), 0));
+        list.add(q("Which keyword declares a block-scoped variable in modern JavaScript?",
+                List.of("let", "int", "define", "static"), 0));
+        list.add(q("Which attribute on an img element specifies the image file URL?",
+                List.of("src", "href", "link", "path"), 0));
+        list.add(q("Which HTML form element is used for multi-line text input?",
+                List.of("textarea", "input type=\"text\"", "select", "label"), 0));
+        list.add(q("Which CSS property sets space outside an element's border?",
+                List.of("margin", "padding", "border", "outline"), 0));
+        list.add(q("Which Bootstrap 5 classes create a primary-styled button?",
+                List.of("btn btn-primary", "button-primary", "btn-main", "primary-btn"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> frontEndIntermediate() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("Which CSS layout model is designed for one-dimensional rows or columns?",
+                List.of("Flexbox", "CSS Grid", "Float layout", "Table layout"), 0));
+        list.add(q("Which CSS layout model is best for two-dimensional row and column layouts?",
+                List.of("CSS Grid", "Inline layout", "Float layout", "Position static"), 0));
+        list.add(q("What does event.preventDefault() usually do?",
+                List.of("Stops the browser's default action for an event", "Deletes the event listener",
+                        "Refreshes the page immediately", "Makes the event run twice"), 0));
+        list.add(q("Which method selects the first matching element in the DOM?",
+                List.of("document.querySelector()", "document.querySelectorAll()", "document.getAll()",
+                        "window.selectFirst()"), 0));
+        list.add(q("Which Web API is commonly used to make HTTP requests in modern JavaScript?",
+                List.of("fetch()", "alert()", "prompt()", "setTimeout()"), 0));
+        list.add(q("What is the purpose of a media query in CSS?",
+                List.of("Apply styles based on viewport or device conditions", "Query a database",
+                        "Load a video file", "Create a JavaScript promise"), 0));
+        list.add(q("Which attribute helps associate a label with a form control?",
+                List.of("for", "name", "value", "placeholder"), 0));
+        list.add(q("In JavaScript, what does === check?",
+                List.of("Value and type equality", "Value equality with type conversion", "Assignment",
+                        "Object inheritance"), 0));
+        list.add(q("Which storage API persists data after the browser tab is closed?",
+                List.of("localStorage", "sessionStorage", "WeakMap", "history.state"), 0));
+        list.add(q("What is semantic HTML mainly used for?",
+                List.of("Giving meaningful structure to content", "Making all text bold",
+                        "Replacing CSS completely", "Disabling browser defaults"), 0));
+        list.add(q("Which CSS unit is relative to the root element font size?",
+                List.of("rem", "px", "vh", "pt"), 0));
+        list.add(q("What does the async attribute on a script tag do?",
+                List.of("Downloads the script asynchronously without blocking HTML parsing",
+                        "Runs the script before any HTML loads", "Deletes other scripts on the page",
+                        "Blocks all JavaScript until parsing finishes"), 0));
+        list.add(q("Which DOM method appends a new child element to a parent?",
+                List.of("appendChild()", "removeChild()", "getAttribute()", "querySelectorAll()"), 0));
+        list.add(q("What does JSON.parse() do?",
+                List.of("Converts a JSON string into a JavaScript value", "Converts an object into a JSON string",
+                        "Validates HTML markup", "Sends an HTTP request"), 0));
+        list.add(q("Which HTML5 element represents self-contained content such as a blog post?",
+                List.of("article", "span", "b", "nav"), 0));
+        list.add(q("Which CSS Flexbox property aligns items along the cross axis?",
+                List.of("align-items", "justify-content", "flex-direction", "order"), 0));
+        list.add(q("What HTTP method does fetch() use by default when no options are specified?",
+                List.of("GET", "POST", "PUT", "DELETE"), 0));
+        list.add(q("Which semantic HTML element is intended for major navigation links?",
+                List.of("nav", "menu", "links", "header"), 0));
+        list.add(q("Which CSS pseudo-class applies styles when the user hovers over an element?",
+                List.of(":hover", ":active", ":focus", ":visited"), 0));
+        list.add(q("In Bootstrap's grid system, which class wraps a horizontal group of columns?",
+                List.of("row", "col", "container-fluid", "grid"), 0));
+        list.add(q("Which JavaScript method attaches a handler that runs when an event occurs?",
+                List.of("addEventListener()", "onload()", "attachEvent() only", "bindEvent()"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> frontEndAdvanced() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("What is hydration in a server-rendered frontend app?",
+                List.of("Attaching client-side JavaScript behavior to server-rendered HTML",
+                        "Compressing images before upload", "Clearing the browser cache",
+                        "Converting CSS into inline styles"), 0));
+        list.add(q("Which technique can improve initial load by splitting JavaScript bundles?",
+                List.of("Code splitting", "CSS reset", "DOM polling", "Inline event attributes"), 0));
+        list.add(q("What does ARIA primarily help with?",
+                List.of("Accessibility semantics for assistive technologies", "API caching",
+                        "Image compression", "Database indexing"), 0));
+        list.add(q("Which metric measures visual loading performance for the largest visible content element?",
+                List.of("Largest Contentful Paint (LCP)", "First Input Delay only", "Cumulative Layout Shift",
+                        "Time to First Byte only"), 0));
+        list.add(q("What causes Cumulative Layout Shift (CLS)?",
+                List.of("Unexpected movement of visible elements during page load", "Large JavaScript functions only",
+                        "Using semantic HTML", "A successful CSS transition after click"), 0));
+        list.add(q("What is the benefit of using a virtual DOM in libraries like React?",
+                List.of("Efficiently calculating UI updates before touching the real DOM",
+                        "Removing the need for HTML", "Running JavaScript on the database",
+                        "Preventing all runtime errors"), 0));
+        list.add(q("Which HTTP header is commonly used by browsers to enforce content security rules?",
+                List.of("Content-Security-Policy", "Content-Type", "Accept-Language", "X-Page-Color"), 0));
+        list.add(q("What is tree shaking in frontend builds?",
+                List.of("Removing unused code from the final bundle", "Animating nested menus",
+                        "Sorting DOM nodes alphabetically", "Refreshing CSS variables"), 0));
+        list.add(q("Which pattern helps avoid repeated DOM work during rapid resize or scroll events?",
+                List.of("Debouncing or throttling handlers", "Adding more event listeners",
+                        "Using alert() inside the handler", "Disabling CSS media queries"), 0));
+        list.add(q("Why should critical images often include width and height attributes?",
+                List.of("To reserve layout space and reduce layout shift", "To make them private",
+                        "To convert them into SVG", "To disable lazy loading"), 0));
+        list.add(q("What is the main benefit of lazy loading images?",
+                List.of("Defers loading off-screen images until needed, improving performance",
+                        "Makes images private", "Converts PNG files to JPG", "Removes the need for alt text"), 0));
+        list.add(q("Why use rel=\"noopener\" with target=\"_blank\" on links?",
+                List.of("Prevents the new page from accessing window.opener for security",
+                        "Opens the link faster", "Improves SEO ranking", "Disables browser caching"), 0));
+        list.add(q("What does code minification do in production builds?",
+                List.of("Removes unnecessary whitespace and characters to reduce file size",
+                        "Deletes all HTML comments visible to users", "Removes unused DOM nodes at runtime",
+                        "Encrypts JavaScript source code"), 0));
+        list.add(q("Which HTML feature serves different image files based on screen size?",
+                List.of("srcset on img", "meta viewport only", "CSS float", "onclick handler"), 0));
+        list.add(q("What does the Same-Origin Policy restrict?",
+                List.of("How scripts from one origin access data from another origin",
+                        "CSS inheritance between parent and child", "Supported image formats",
+                        "Which fonts a page may load"), 0));
+        list.add(q("In frontend architecture, what does SSR stand for?",
+                List.of("Server-Side Rendering", "Single Source Repository", "Secure Socket Relay",
+                        "Static Style Rules"), 0));
+        list.add(q("Which Bootstrap class provides a centered, responsive page-width wrapper?",
+                List.of("container", "row", "col-12", "wrapper"), 0));
+        list.add(q("Which JavaScript array method returns a new array by transforming each element?",
+                List.of("map()", "push()", "sort()", "join()"), 0));
         return list;
     }
 }

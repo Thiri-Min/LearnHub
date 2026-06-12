@@ -67,36 +67,101 @@
     }
 </style>
 
-<nav th:fragment="navbarShell(homeActive, coursesActive, activeTech, homeHref, useAuthModal, activeNav)"
-     class="navbar navbar-expand-lg navbar-dark bg-transparent lms-navbar">
-    <div class="container">
-        <a class="navbar-brand" href="/home">
-            <i class="fas fa-graduation-cap me-2"></i>LMS
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <ul th:replace="~{fragments/navbar :: navLinks(${homeActive}, ${coursesActive}, ${activeTech}, ${homeHref}, ${useAuthModal}, ${activeNav})}"></ul>
+<th:block th:fragment="navbarShell(homeActive, coursesActive, activeTech, homeHref, useAuthModal, activeNav)">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent lms-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="/home">
+                <i class="fas fa-graduation-cap me-2"></i>LMS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                    aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul th:replace="~{fragments/navbar :: navLinks(${homeActive}, ${coursesActive}, ${activeTech}, ${homeHref}, ${useAuthModal}, ${activeNav})}"></ul>
+            </div>
         </div>
-    </div>
-</nav>
-<th:block th:if="${ga4MeasurementId != null and !#strings.isEmpty(ga4MeasurementId)}">
-    <script async th:src="'https://www.googletagmanager.com/gtag/js?id=' + ${ga4MeasurementId}"></script>
-    <script th:inline="javascript">
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        const gaMeasurementId = /*[[${ga4MeasurementId}]]*/ '';
-        gtag('js', new Date());
-        gtag('config', gaMeasurementId);
+    </nav>
+    <th:block th:replace="~{fragments/navbar :: analyticsAndLoginTracking}"></th:block>
+</th:block>
 
-        const gaTrackLoginSuccess = /*[[${gaTrackLoginSuccess}]]*/ false;
-        if (gaTrackLoginSuccess) {
-            gtag('event', 'login_success', {
-                method: 'password'
-            });
+<th:block th:fragment="analyticsAndLoginTracking">
+    <th:block th:if="${ga4MeasurementId != null and !#strings.isEmpty(ga4MeasurementId)}">
+        <script async th:src="'https://www.googletagmanager.com/gtag/js?id=' + ${ga4MeasurementId}"></script>
+        <script th:inline="javascript">
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            const gaMeasurementId = /*[[${ga4MeasurementId}]]*/ '';
+            gtag('js', new Date());
+            gtag('config', gaMeasurementId);
+
+            const gaTrackLoginSuccess = /*[[${gaTrackLoginSuccess}]]*/ false;
+            if (gaTrackLoginSuccess) {
+                gtag('event', 'login_success', {
+                    method: 'password'
+                });
+            }
+        </script>
+    </th:block>
+    <script th:inline="javascript">
+        function postLoginCountry(country) {
+            const body = new URLSearchParams();
+            body.append('location', country || 'Unknown');
+            fetch('/api/track/location', { method: 'POST', body: body }).catch(function() {});
         }
+
+        function countryFromCoordinates(lat, lng) {
+            const url = 'https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='
+                + encodeURIComponent(lat) + '&longitude=' + encodeURIComponent(lng) + '&localityLanguage=en';
+            return fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.countryName) return data.countryName;
+                    if (data.countryCode) return data.countryCode;
+                    return 'Unknown';
+                })
+                .catch(function() { return null; });
+        }
+
+        function countryFromIp() {
+            return fetch('https://ipapi.co/json/')
+                .then(function(r) { return r.json(); })
+                .then(function(data) { return data.country_name || data.country || null; })
+                .catch(function() { return null; });
+        }
+
+        function trackLoginLocation() {
+            function useIpFallback() {
+                countryFromIp().then(function(country) {
+                    postLoginCountry(country || 'Unknown (IP lookup failed)');
+                });
+            }
+
+            if (!navigator.geolocation) {
+                useIpFallback();
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    countryFromCoordinates(pos.coords.latitude, pos.coords.longitude)
+                        .then(function(country) {
+                            if (country) {
+                                postLoginCountry(country);
+                            } else {
+                                useIpFallback();
+                            }
+                        });
+                },
+                function() {
+                    useIpFallback();
+                },
+                { timeout: 10000, maximumAge: 300000 }
+            );
+        }
+    </script>
+    <script th:if="${trackLocation}">
+        document.addEventListener('DOMContentLoaded', trackLoginLocation);
     </script>
 </th:block>
 
