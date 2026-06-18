@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${unit.title} + ' - English for IT'">Unit Lecture</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --ei-bg-1: #0f172a;
+            --ei-bg-2: #134e4a;
+            --ei-accent: #2dd4bf;
+            --ei-accent-2: #fb7185;
+            --ei-accent-3: #fbbf24;
+            --ei-text: #0f172a;
+            --ei-muted: #64748b;
+        }
+        body {
+            background: linear-gradient(145deg, #0f172a 0%, #1e3a5f 50%, #134e4a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+        .lecture-wrap {
+            max-width: 860px;
+            margin: 2rem auto 3rem;
+            padding: 0 1rem;
+        }
+        .lecture-card {
+            background: #fff;
+            color: var(--ei-text);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+        .lecture-hero {
+            background: linear-gradient(120deg, #134e4a, #1e3a5f);
+            color: #f8fafc;
+            padding: 2rem 2.25rem;
+        }
+        .lecture-hero .cefr-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.35rem 0.7rem;
+            border-radius: 8px;
+            background: rgba(45, 212, 191, 0.25);
+            color: #99f6e4;
+        }
+        .lecture-hero h1 {
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-weight: 800;
+            margin: 0.75rem 0 0.5rem;
+        }
+        .lecture-body { padding: 2rem 2.25rem; }
+        .back-link {
+            color: rgba(248, 250, 252, 0.85);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        .back-link:hover { color: #fff; }
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title i { color: #0d9488; }
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .objectives-list li {
+            padding: 0.55rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            gap: 0.65rem;
+            font-size: 0.95rem;
+        }
+        .objectives-list li i { color: var(--ei-accent); margin-top: 0.2rem; }
+        .reading-block p {
+            font-size: 1.05rem;
+            line-height: 1.75;
+            color: #334155;
+            margin-bottom: 1.25rem;
+        }
+        .grammar-box {
+            background: linear-gradient(135deg, rgba(45, 212, 191, 0.12), rgba(56, 189, 248, 0.1));
+            border-left: 4px solid #14b8a6;
+            border-radius: 0 14px 14px 0;
+            padding: 1.1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .grammar-box h6 { font-weight: 800; color: #0f766e; margin-bottom: 0.5rem; }
+        /* Key vocabulary — compact scrollable list */
+        .vocab-section-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+        }
+        .vocab-count-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ecfdf5, #e0f2fe);
+            color: #0f766e;
+            border-radius: 999px;
+            padding: 0.2rem 0.65rem;
+            white-space: nowrap;
+        }
+        .vocab-panel {
+            background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+        .vocab-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.65rem 0.85rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .vocab-search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+        }
+        .vocab-search-wrap i {
+            position: absolute;
+            left: 0.65rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+        .vocab-search {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.4rem 0.75rem 0.4rem 2rem;
+            font-size: 0.82rem;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .vocab-search:focus {
+            border-color: #2dd4bf;
+            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
+        }
+        .vocab-scroll {
+            max-height: min(52vh, 380px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #99f6e4 #f1f5f9;
+        }
+        .vocab-scroll::-webkit-scrollbar { width: 6px; }
+        .vocab-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .vocab-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #5eead4, #38bdf8);
+            border-radius: 999px;
+        }
+        .vocab-head,
+        .vocab-row {
+            display: grid;
+            grid-template-columns: 1.75rem minmax(6.5rem, 30%) 1fr;
+            gap: 0.5rem 0.75rem;
+            align-items: start;
+            padding: 0.45rem 0.85rem;
+        }
+        .vocab-head {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #f1f5f9;
+            border-bottom: 1px solid #e2e8f0;
+            padding-top: 0.55rem;
+            padding-bottom: 0.55rem;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #64748b;
+        }
+        .vocab-head .vocab-col-key { color: #0f766e; }
+        .vocab-list { padding: 0; }
+        .vocab-row {
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.18s ease;
+        }
+        .vocab-row:last-child { border-bottom: none; }
+        .vocab-row:hover {
+            background: linear-gradient(90deg, rgba(45, 212, 191, 0.08), transparent);
+        }
+        .vocab-row.hidden { display: none; }
+        .vocab-index {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #94a3b8;
+            line-height: 1.5;
+            padding-top: 0.1rem;
+        }
+        .vocab-term {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #0f766e;
+            line-height: 1.45;
+            min-width: 0;
+        }
+        .vocab-def {
+            font-size: 0.78rem;
+            color: var(--ei-muted);
+            line-height: 1.45;
+            min-width: 0;
+        }
+        .vocab-empty {
+            display: none;
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--ei-muted);
+        }
+        .vocab-empty.visible { display: block; }
+        @media (max-width: 576px) {
+            .vocab-head,
+            .vocab-row {
+                grid-template-columns: 1.5rem 1fr;
+                grid-template-areas:
+                    "num key"
+                    "num def";
+                gap: 0.2rem 0.5rem;
+            }
+            .vocab-col-num,
+            .vocab-index { grid-area: num; }
+            .vocab-col-key,
+            .vocab-term { grid-area: key; }
+            .vocab-col-def,
+            .vocab-def { grid-area: def; }
+        }
+
+        .phrase-list li {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.6rem;
+            font-style: italic;
+            color: #9a3412;
+        }
+        .reflect-list li {
+            padding: 0.65rem 0;
+            border-bottom: 1px dashed #e2e8f0;
+            color: #475569;
+        }
+        .lecture-nav {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1.25rem 2.25rem 2rem;
+            border-top: 1px solid #f1f5f9;
+        }
+        .btn-ei {
+            background: linear-gradient(45deg, #2dd4bf, #22d3ee);
+            color: #0f172a;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            padding: 0.65rem 1.25rem;
+            text-decoration: none;
+        }
+        .btn-ei:hover { color: #0f172a; opacity: 0.92; }
+        .btn-ei-outline {
+            border: 2px solid #14b8a6;
+            color: #0f766e;
+            font-weight: 700;
+            border-radius: 12px;
+            padding: 0.65rem 1.25rem;
+            text-decoration: none;
+            background: #fff;
+        }
+        .btn-ei-outline:hover { background: #f0fdfa; color: #0f766e; }
+        .site-footer {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            margin-top: auto;
+            color: #fff;
+        }
+        .read-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #2dd4bf, #fbbf24);
+            width: 0;
+            z-index: 1200;
+        }
+    </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
+</head>
+<body>
+    <div class="read-progress" id="readProgress"></div>
+
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, '', '/home', false, 'english-it')}"></nav>
+
+    <div class="lecture-wrap flex-grow-1">
+        <a href="/english-it" class="back-link"><i class="fas fa-arrow-left"></i> Back to all units</a>
+
+        <article class="lecture-card">
+            <header class="lecture-hero">
+                <span class="cefr-badge" th:text="${unit.cefr + ' · ' + unit.category}">B1 · Foundations</span>
+                <h1 th:text="${unit.title}">Unit title</h1>
+                <p class="mb-0 opacity-75" th:text="${unit.description}">Description</p>
+            </header>
+
+            <div class="lecture-body">
+                <section class="mb-4">
+                    <h2 class="section-title"><i class="fas fa-bullseye"></i> Learning objectives</h2>
+                    <ul class="objectives-list">
+                        <li th:each="obj : ${lecture.objectives}">
+                            <i class="fas fa-check-circle"></i>
+                            <span th:text="${obj}">Objective</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="mb-4 reading-block">
+                    <h2 class="section-title"><i class="fas fa-book-open"></i> Lecture reading</h2>
+                    <p th:each="para : ${lecture.readingParagraphs}" th:text="${para}">Paragraph</p>
+                </section>
+
+                <div class="grammar-box">
+                    <h6><i class="fas fa-lightbulb me-1"></i> Grammar &amp; communication tip</h6>
+                    <p class="mb-0" th:text="${lecture.grammarTip}">Grammar tip</p>
+                </div>
+
+                <section class="mb-4">
+                    <div class="vocab-section-header">
+                        <h2 class="section-title mb-0">
+                            <i class="fas fa-spell-check"></i> Key vocabulary
+                        </h2>
+                        <span class="vocab-count-badge"
+                              th:text="${#lists.size(lecture.vocabulary)} + ' terms'">24 terms</span>
+                    </div>
+                    <div class="vocab-panel">
+                        <div class="vocab-toolbar">
+                            <div class="vocab-search-wrap">
+                                <i class="fas fa-search"></i>
+                                <input type="search" id="vocabSearch" class="vocab-search"
+                                       placeholder="Filter vocabulary…" aria-label="Filter vocabulary">
+                            </div>
+                        </div>
+                        <div class="vocab-scroll">
+                            <div class="vocab-head" role="row">
+                                <span class="vocab-col-num" aria-hidden="true">#</span>
+                                <span class="vocab-col-key">Key</span>
+                                <span class="vocab-col-def">Definition</span>
+                            </div>
+                            <div class="vocab-list">
+                                <div class="vocab-row" th:each="entry, stat : ${lecture.vocabulary}"
+                                     th:attr="data-search=${entry.term + ' ' + entry.definition}">
+                                    <span class="vocab-index" th:text="${stat.count}">1</span>
+                                    <span class="vocab-term" th:text="${entry.term}">term</span>
+                                    <span class="vocab-def" th:text="${entry.definition}">definition</span>
+                                </div>
+                            </div>
+                            <p id="vocabEmpty" class="vocab-empty mb-0">No terms match your search.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4">
+                    <h2 class="section-title"><i class="fas fa-comments"></i> Practice phrases</h2>
+                    <ul class="list-unstyled phrase-list mb-0">
+                        <li th:each="phrase : ${lecture.practicePhrases}" th:text="${phrase}">Phrase</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="section-title"><i class="fas fa-pen"></i> Reflect &amp; practice</h2>
+                    <ol class="reflect-list">
+                        <li th:each="prompt : ${lecture.reflectionPrompts}" th:text="${prompt}">Prompt</li>
+                    </ol>
+                </section>
+            </div>
+
+            <div class="lecture-nav">
+                <a href="/english-it" class="btn-ei-outline"><i class="fas fa-th-large me-1"></i> All units</a>
+                <a href="/english-it" class="btn-ei">Next unit <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+        </article>
+    </div>
+
+    <footer class="site-footer text-white">
+        <div class="container py-4 text-center">
+            <p class="mb-0">&copy; 2026 Learning Management System. English for IT lecture.</p>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', function() {
+            const doc = document.documentElement;
+            const scrolled = doc.scrollTop;
+            const height = doc.scrollHeight - doc.clientHeight;
+            const pct = height > 0 ? (scrolled / height) * 100 : 0;
+            document.getElementById('readProgress').style.width = pct + '%';
+        });
+
+        (function initVocabListFilter() {
+            const input = document.getElementById('vocabSearch');
+            const rows = document.querySelectorAll('.vocab-row');
+            const empty = document.getElementById('vocabEmpty');
+            if (!input || !rows.length) return;
+
+            input.addEventListener('input', function() {
+                const query = input.value.trim().toLowerCase();
+                let visible = 0;
+                rows.forEach(function(row) {
+                    const text = (row.dataset.search || '').toLowerCase();
+                    const show = !query || text.includes(query);
+                    row.classList.toggle('hidden', !show);
+                    if (show) visible++;
+                });
+                empty.classList.toggle('visible', visible === 0);
+            });
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

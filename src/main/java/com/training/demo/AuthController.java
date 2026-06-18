@@ -222,6 +222,8 @@ public class AuthController {
         model.addAttribute("dsaAttemptCounts", buildDsaAttemptCounts(currentUser.getId()));
         model.addAttribute("frontEndMaxAttempts", TechQuizCatalog.FRONTEND_MAX_ATTEMPTS);
         model.addAttribute("frontEndAttemptCounts", buildSubjectAttemptCounts(currentUser.getId(), "FrontEnd"));
+        model.addAttribute("baseFrameworkMaxAttempts", TechQuizCatalog.BASE_FRAMEWORK_MAX_ATTEMPTS);
+        model.addAttribute("baseFrameworkAttemptCounts", buildSubjectAttemptCounts(currentUser.getId(), "BaseFramework"));
         return "tech";
     }
 
@@ -405,16 +407,32 @@ public class AuthController {
         return subject != null && "FrontEnd".equalsIgnoreCase(subject.trim());
     }
 
+    private static boolean isBaseFrameworkQuiz(String subject) {
+        return subject != null && "BaseFramework".equalsIgnoreCase(subject.trim());
+    }
+
     private static boolean hasAttemptLimit(String subject) {
-        return isDsaQuiz(subject) || isFrontEndQuiz(subject);
+        return isDsaQuiz(subject) || isFrontEndQuiz(subject) || isBaseFrameworkQuiz(subject);
     }
 
     private static int maxAttemptsForSubject(String subject) {
-        return isFrontEndQuiz(subject) ? TechQuizCatalog.FRONTEND_MAX_ATTEMPTS : TechQuizCatalog.DSA_MAX_ATTEMPTS;
+        if (isFrontEndQuiz(subject)) {
+            return TechQuizCatalog.FRONTEND_MAX_ATTEMPTS;
+        }
+        if (isBaseFrameworkQuiz(subject)) {
+            return TechQuizCatalog.BASE_FRAMEWORK_MAX_ATTEMPTS;
+        }
+        return TechQuizCatalog.DSA_MAX_ATTEMPTS;
     }
 
     private static String normalizeLimitedSubject(String subject) {
-        return isFrontEndQuiz(subject) ? "FrontEnd" : "DSA";
+        if (isFrontEndQuiz(subject)) {
+            return "FrontEnd";
+        }
+        if (isBaseFrameworkQuiz(subject)) {
+            return "BaseFramework";
+        }
+        return "DSA";
     }
 
     private static String quizSessionKey(HttpSession session, String subject, String level) {

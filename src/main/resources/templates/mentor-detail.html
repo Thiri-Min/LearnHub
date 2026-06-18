@@ -423,7 +423,19 @@
             border-radius: 12px;
             padding: 1rem;
             margin-bottom: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: #86efac #e2e8f0;
         }
+        .chat-box::-webkit-scrollbar { width: 8px; }
+        .chat-box::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 999px;
+        }
+        .chat-box::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #86efac, #4ade80);
+            border-radius: 999px;
+        }
+        .chat-box::-webkit-scrollbar-thumb:hover { background: #22c55e; }
         .chat-bubble {
             max-width: 85%;
             padding: 0.65rem 1rem;
@@ -485,9 +497,32 @@
             box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
         }
         .conversation-list {
+            --conversation-row-height: 5.75rem;
+            --conversation-gap: 0.65rem;
             display: flex;
             flex-direction: column;
-            gap: 0.65rem;
+            gap: var(--conversation-gap);
+        }
+        .conversation-list.scrollable {
+            max-height: calc(3 * var(--conversation-row-height) + 2 * var(--conversation-gap));
+            overflow-y: auto;
+            padding-right: 0.35rem;
+            scrollbar-width: thin;
+            scrollbar-color: #86efac #f1f5f9;
+        }
+        .conversation-list.scrollable::-webkit-scrollbar { width: 8px; }
+        .conversation-list.scrollable::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 999px;
+        }
+        .conversation-list.scrollable::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #86efac, #4ade80);
+            border-radius: 999px;
+        }
+        .conversation-list.scrollable::-webkit-scrollbar-thumb:hover { background: #22c55e; }
+        .conversation-list.scrollable .conversation-item {
+            flex-shrink: 0;
+            min-height: var(--conversation-row-height);
         }
         .conversation-item {
             display: flex;
@@ -700,7 +735,9 @@
                         <i class="fas fa-comment-dots fa-2x mb-2 d-block"></i>
                         No mentee messages yet.
                     </div>
-                    <div th:unless="${#lists.isEmpty(chatConversations)}" class="conversation-list">
+                    <div th:unless="${#lists.isEmpty(chatConversations)}"
+                         class="conversation-list"
+                         th:classappend="${#lists.size(chatConversations) > 3} ? ' scrollable' : ''">
                         <a th:each="conversation : ${chatConversations}"
                            class="conversation-item"
                            th:classappend="${conversation.userId == selectedMenteeId} ? ' active' : ''"

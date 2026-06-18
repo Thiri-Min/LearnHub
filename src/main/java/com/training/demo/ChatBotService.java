@@ -49,8 +49,8 @@ public class ChatBotService {
             5. Spring Framework - Spring Boot and Java applications
             6. Mock Project - build a mock project with web practice lab (HTML, CSS, JavaScript)
 
-            Counts: 6 courses in the catalog, 6 mentors on the mentoring page, 9 tech skill areas on the Tech page (Java, SQL, Git, DSA, Spring, Mock Project, Python, C++, .NET).
-            Skill quizzes: 3 levels (Pre-Intermediate, Intermediate, Advanced), 10 random questions per attempt, start from /tech then /quiz. DSA tests: up to 3 attempts per user per level, new random MCQs each attempt.
+            Counts: 6 courses in the catalog, 6 mentors on the mentoring page, 8 tech skill areas on the Tech page (Java, SQL, Git, DSA, Spring, Mock Project, Python, Base Framework).
+            Skill quizzes: 3 levels (Pre-Intermediate, Intermediate, Advanced), 10 random questions per attempt, start from /tech then /quiz. DSA tests: up to 3 attempts per user per level; FrontEnd and Base Framework: up to 5 attempts per level — new random MCQs each attempt.
 
             Users can sign up, log in, reset password via forgot password on the home page, add courses to cart, favorite courses, read course materials, take Git quizzes, and use mentoring.
             Do not invent features or prices not listed above. Stay focused on helping users navigate and use Learn Hub.
@@ -309,7 +309,7 @@ public class ChatBotService {
         if (q.contains("how many") && (q.contains("tech") || q.contains("skill"))) {
             return """
                     The Tech page (/tech) includes 9 tech skill areas:
-                    Java, SQL, Git, DSA, Spring, Mock Project, Python, C++, and .NET.
+                    Java, SQL, Git, DSA, Spring, Mock Project, Python, and Base Framework.
                     Each area has learning materials (PDFs and videos). Git also has MCQ quizzes at three levels.""";
         }
         if (q.contains("course") || q.contains("catalog") || q.contains("learn")) {

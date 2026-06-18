@@ -64,13 +64,13 @@ public final class TechContentCatalog {
                             material("Python for Beginners", "video", "YouTube · Programming with Mosh", "https://www.youtube.com/watch?v=_uQrJ0TkZlc"),
                             material("Python Full Course", "video", "YouTube · freeCodeCamp", "https://www.youtube.com/watch?v=rfscVS0vtbw")
                     )),
-            topic("cpp", "C++", "fas fa-code",
-                    "C++ programming — memory, pointers, OOP, STL, and performance-oriented design.",
+            topic("base-framework", "Base Framework", "fas fa-layer-group",
+                    "Spring Boot foundations — DB connection, JPA, Hibernate, CRUD APIs, and layered architecture.",
                     List.of(
-                            material("Learn C++", "pdf", "LearnCpp.com", "https://www.learncpp.com/"),
-                            material("C++ Reference", "pdf", "cppreference.com", "https://en.cppreference.com/w/"),
-                            material("C++ Programming Course", "video", "YouTube · freeCodeCamp", "https://www.youtube.com/watch?v=vLnPwxZdW4Y"),
-                            material("C++ Full Course", "video", "YouTube · Bro Code", "https://www.youtube.com/watch?v=-TkoO8H07kI")
+                            material("Spring Boot Reference", "pdf", "Spring.io", "https://docs.spring.io/spring-boot/docs/current/reference/html/"),
+                            material("Spring Data JPA", "pdf", "Spring.io", "https://spring.io/projects/spring-data-jpa"),
+                            material("Spring Boot Tutorial for Beginners", "video", "YouTube · Amigoscode", "https://www.youtube.com/watch?v=9SGDpanrc8U"),
+                            material("Spring Boot REST API", "video", "YouTube · Telusko", "https://www.youtube.com/watch?v=Qt9yGDCn4ok")
                     )),
             topic("dotnet", ".NET", "fab fa-microsoft",
                     "Microsoft .NET and C# — desktop, web, and cloud application development.",

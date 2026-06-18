@@ -114,13 +114,12 @@
                             <button type="button" class="btn filter-btn active" data-filter="Java">Java</button>
                             <button type="button" class="btn filter-btn" data-filter="SQL">SQL</button>
                             <button type="button" class="btn filter-btn" data-filter="Python">Python</button>
-                            <button type="button" class="btn filter-btn" data-filter="C++">C++</button>
+                            <button type="button" class="btn filter-btn" data-filter="BaseFramework">Base Framework</button>
                             <button type="button" class="btn filter-btn" data-filter="AI">AI</button>
                             <button type="button" class="btn filter-btn" data-filter="Database">Database</button>
                             <button type="button" class="btn filter-btn" data-filter="DSA">DSA</button>
                             <button type="button" class="btn filter-btn" data-filter="Git">Git</button>
                             <button type="button" class="btn filter-btn" data-filter="FrontEnd">FrontEnd</button>
-                            <button type="button" class="btn filter-btn" data-filter="DotNet">.NET</button>
                             <button type="button" class="btn filter-btn" data-filter="Fullstack">Fullstack</button>
                         </div>
                     </div>
@@ -148,6 +147,8 @@
         const dsaMaxAttempts = /*[[${dsaMaxAttempts}]]*/ 3;
         const frontEndAttemptCounts = /*[[${frontEndAttemptCounts}]]*/ {};
         const frontEndMaxAttempts = /*[[${frontEndMaxAttempts}]]*/ 5;
+        const baseFrameworkAttemptCounts = /*[[${baseFrameworkAttemptCounts}]]*/ {};
+        const baseFrameworkMaxAttempts = /*[[${baseFrameworkMaxAttempts}]]*/ 5;
         const testData = {
             Java: {
                 icon: 'fab fa-java',
@@ -179,14 +180,14 @@
                     'Python Advanced': 'Advanced topics, frameworks, and complex problem-solving.'
                 }
             },
-            'C++': {
-                icon: 'fas fa-code',
-                title: 'C++ Test',
-                desc: 'Measure your C++ knowledge of pointers, memory, and object-oriented design.',
+            BaseFramework: {
+                icon: 'fas fa-layer-group',
+                title: 'Base Framework Test',
+                desc: '10 random MCQs per attempt on Spring Boot DB setup, JPA, Hibernate, CRUD routes, and layered architecture.',
                 levels: {
-                    'C++ Pre-Intermediate': 'Basic C++ syntax, pointers, and memory management.',
-                    'C++ Intermediate': 'OOP, templates, STL, and exception handling.',
-                    'C++ Advanced': 'Advanced memory management, concurrency, and optimization.'
+                    'Base Framework Pre-Intermediate': 'Spring dependencies, datasource config, JPA basics, and GET/POST routes.',
+                    'Base Framework Intermediate': 'Repository, Service layer, PUT/DELETE mapping, and CRUD flow.',
+                    'Base Framework Advanced': 'REST design, DTOs, exception handling, and Clean Architecture concepts.'
                 }
             },
             AI: {
@@ -237,16 +238,6 @@
                     'FrontEnd Pre-Intermediate': 'HTML, CSS, JavaScript basics, forms, links, and selectors.',
                     'FrontEnd Intermediate': 'Responsive layouts, DOM events, Fetch API, semantic HTML, and storage.',
                     'FrontEnd Advanced': 'Performance, accessibility, hydration, security, and build optimization.'
-                }
-            },
-            DotNet: {
-                icon: 'fab fa-microsoft',
-                title: '.NET Test',
-                desc: 'Check your .NET and C# understanding with questions on frameworks and architecture.',
-                levels: {
-                    'DotNet Pre-Intermediate': 'Basic C# syntax, .NET fundamentals.',
-                    'DotNet Intermediate': 'ASP.NET, Entity Framework, and web development.',
-                    'DotNet Advanced': 'Architecture patterns, microservices, and advanced .NET features.'
                 }
             },
             Fullstack: {
@@ -716,6 +707,11 @@
                                 if (used >= frontEndMaxAttempts) {
                                     btnDisabled = 'disabled';
                                 }
+                            } else if (filter === 'BaseFramework') {
+                                const used = Number(baseFrameworkAttemptCounts[tier] || 0);
+                                if (used >= baseFrameworkMaxAttempts) {
+                                    btnDisabled = 'disabled';
+                                }
                             }
                             const levelCard = document.createElement('div');
                             levelCard.className = 'col-md-4';
@@ -770,6 +766,11 @@
                 } else if (subject === 'FrontEnd') {
                     const used = Number(frontEndAttemptCounts[normalizedLevel] || 0);
                     if (used >= frontEndMaxAttempts) {
+                        return;
+                    }
+                } else if (subject === 'BaseFramework') {
+                    const used = Number(baseFrameworkAttemptCounts[normalizedLevel] || 0);
+                    if (used >= baseFrameworkMaxAttempts) {
                         return;
                     }
                 }

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English for IT - Learning Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --ei-bg-1: #0f172a;
+            --ei-bg-2: #134e4a;
+            --ei-bg-3: #1e3a5f;
+            --ei-accent: #2dd4bf;
+            --ei-accent-2: #fb7185;
+            --ei-accent-3: #fbbf24;
+            --ei-card: rgba(255, 255, 255, 0.08);
+            --ei-border: rgba(255, 255, 255, 0.14);
+            --ei-text: #f8fafc;
+            --ei-muted: rgba(248, 250, 252, 0.72);
+        }
+
+        body {
+            background: linear-gradient(145deg, var(--ei-bg-1) 0%, var(--ei-bg-3) 45%, var(--ei-bg-2) 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ei-text);
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .mesh {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(45, 212, 191, 0.18), transparent 42%),
+                radial-gradient(circle at 85% 10%, rgba(251, 113, 133, 0.14), transparent 38%),
+                radial-gradient(circle at 70% 80%, rgba(251, 191, 36, 0.12), transparent 40%);
+        }
+
+        main { position: relative; z-index: 1; }
+
+        .page-header {
+            padding: 4.5rem 0 1.5rem;
+            text-align: center;
+        }
+        .page-header .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(45, 212, 191, 0.15);
+            border: 1px solid rgba(45, 212, 191, 0.45);
+            border-radius: 999px;
+            padding: 0.45rem 1.2rem;
+            font-size: 0.82rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            color: var(--ei-accent);
+        }
+        .page-header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.15;
+        }
+        .page-header h1 .accent {
+            background: linear-gradient(90deg, var(--ei-accent), #7dd3fc, var(--ei-accent-3));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-header .lead { color: var(--ei-muted); max-width: 720px; margin: 0 auto; }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            max-width: 900px;
+            margin: 2rem auto 0;
+        }
+        .stat-card {
+            background: var(--ei-card);
+            border: 1px solid var(--ei-border);
+            border-radius: 18px;
+            padding: 1.1rem;
+            text-align: center;
+            backdrop-filter: blur(12px);
+        }
+        .stat-card .num {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--ei-accent);
+        }
+        .stat-card .lbl {
+            font-size: 0.82rem;
+            color: var(--ei-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .toolbar {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid var(--ei-border);
+            border-radius: 20px;
+            padding: 1.25rem;
+            backdrop-filter: blur(14px);
+            margin-bottom: 1.5rem;
+        }
+        .search-wrap {
+            position: relative;
+        }
+        .search-wrap i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--ei-muted);
+        }
+        .search-input {
+            width: 100%;
+            border: 1.5px solid var(--ei-border);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--ei-text);
+            border-radius: 14px;
+            padding: 0.7rem 1rem 0.7rem 2.6rem;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: var(--ei-accent);
+            box-shadow: 0 0 0 0.2rem rgba(45, 212, 191, 0.2);
+        }
+        .search-input::placeholder { color: rgba(248, 250, 252, 0.45); }
+
+        .filter-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--ei-muted);
+            margin-bottom: 0.5rem;
+        }
+        .filter-chip {
+            border: 1.5px solid var(--ei-border);
+            background: transparent;
+            color: var(--ei-text);
+            border-radius: 999px;
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .filter-chip:hover { background: rgba(255, 255, 255, 0.1); }
+        .filter-chip.active {
+            background: linear-gradient(45deg, var(--ei-accent), #22d3ee);
+            border-color: transparent;
+            color: #0f172a;
+        }
+        .filter-chip.cefr-b1.active { background: linear-gradient(45deg, #38bdf8, #818cf8); }
+        .filter-chip.cefr-b2.active { background: linear-gradient(45deg, #a78bfa, #f472b6); color: #fff; }
+        .filter-chip.cefr-c1.active { background: linear-gradient(45deg, var(--ei-accent-3), #f97316); color: #0f172a; }
+
+        .unit-card {
+            background: var(--ei-card);
+            border: 1px solid var(--ei-border);
+            border-radius: 22px;
+            padding: 1.35rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(12px);
+            transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+            cursor: pointer;
+        }
+        .unit-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(45, 212, 191, 0.45);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+        }
+        .unit-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+        }
+        .cefr-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.3rem 0.65rem;
+            border-radius: 8px;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        .cefr-A2 { background: rgba(45, 212, 191, 0.2); color: #5eead4; }
+        .cefr-B1 { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; }
+        .cefr-B2 { background: rgba(167, 139, 250, 0.2); color: #c4b5fd; }
+        .cefr-C1 { background: rgba(251, 191, 36, 0.2); color: #fde68a; }
+
+        .unit-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.35;
+        }
+        .unit-card p {
+            font-size: 0.88rem;
+            color: var(--ei-muted);
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+        .unit-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .meta-pill {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--ei-muted);
+        }
+        .meta-pill i { margin-right: 0.25rem; color: var(--ei-accent); }
+
+        .unit-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .category-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--ei-accent-2);
+        }
+        .btn-open {
+            border: none;
+            background: linear-gradient(45deg, var(--ei-accent), #22d3ee);
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 10px;
+        }
+        .btn-open:hover { opacity: 0.9; color: #0f172a; }
+
+        .benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin: 3rem 0 2rem;
+        }
+        .benefit-card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--ei-border);
+            border-radius: 18px;
+            padding: 1.25rem;
+        }
+        .benefit-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+        .benefit-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .benefit-card p { font-size: 0.88rem; color: var(--ei-muted); margin: 0; }
+
+        .info-banner {
+            background: linear-gradient(120deg, rgba(45, 212, 191, 0.15), rgba(251, 113, 133, 0.12));
+            border: 1px solid rgba(45, 212, 191, 0.3);
+            border-radius: 20px;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--ei-muted);
+            display: none;
+        }
+        .empty-state.visible { display: block; }
+
+        a.unit-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            height: 100%;
+        }
+
+        .site-footer {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            margin-top: auto;
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
+</head>
+<body>
+    <div class="mesh"></div>
+
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, '', '/home', false, 'english-it')}"></nav>
+
+    <main class="flex-grow-1">
+        <section class="page-header">
+            <div class="container">
+                <span class="badge-pill"><i class="fas fa-language"></i> ESP for Tech Professionals</span>
+                <h1>English for <span class="accent">Information Technology</span></h1>
+                <p class="lead mb-0">
+                    Build job-ready English for stand-ups, documentation, interviews, and global tech teams.
+                    Browse units by CEFR level — from A2 foundations to C1 advanced fluency.
+                </p>
+                <div class="stat-row">
+                    <div class="stat-card">
+                        <div class="num" th:text="${summary.unitCount}">15</div>
+                        <div class="lbl">Units</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="num" th:text="${summary.vocabTotal}">450+</div>
+                        <div class="lbl">Vocabulary</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="num" th:text="${summary.activityTotal}">105</div>
+                        <div class="lbl">Activities</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="num" th:text="${summary.readingCount}">15</div>
+                        <div class="lbl">Readings</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container pb-5">
+            <div class="info-banner">
+                <h5 class="mb-1 fw-bold"><i class="fas fa-book-reader me-2 text-info"></i>Built-in lectures</h5>
+                <p class="mb-0 small" style="color: var(--ei-muted);">
+                    Each unit includes a full reading lecture, vocabulary, grammar tips, practice phrases,
+                    and reflection exercises — tailored to CEFR levels from A2 to C1.
+                </p>
+            </div>
+
+            <div class="toolbar">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-5">
+                        <div class="search-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="search" id="unitSearch" class="search-input"
+                                   placeholder="Search units, topics, or vocabulary…" aria-label="Search units">
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="filter-label">CEFR Level</div>
+                        <div class="d-flex flex-wrap gap-2" id="cefrFilters">
+                            <button type="button" class="filter-chip active" data-cefr="all">All</button>
+                            <button type="button" class="filter-chip" th:each="level : ${cefrLevels}"
+                                    th:text="${level}" th:attr="data-cefr=${level}"
+                                    th:classappend="' cefr-' + ${level}">A2</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="filter-label">Category</div>
+                    <div class="d-flex flex-wrap gap-2" id="categoryFilters">
+                        <button type="button" class="filter-chip active" data-category="all">All topics</button>
+                        <button type="button" class="filter-chip" th:each="cat : ${categories}"
+                                th:text="${cat}" th:attr="data-category=${cat}">Foundations</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4" id="unitGrid">
+                <div class="col-md-6 col-xl-4 unit-item" th:each="unit : ${units}"
+                     th:attr="data-cefr=${unit.cefr},data-category=${unit.category},
+                              data-search=${unit.title + ' ' + unit.description + ' ' + unit.category}">
+                    <a th:href="@{/english-it/unit/{id}(id=${unit.id})}" class="unit-card-link"
+                       th:aria-label="'Read lecture: ' + ${unit.title}">
+                        <article class="unit-card">
+                            <div class="unit-top">
+                                <span class="category-tag" th:text="${unit.category}">Foundations</span>
+                                <span class="cefr-badge" th:classappend="' cefr-' + ${unit.cefr}" th:text="${unit.cefr}">B1</span>
+                            </div>
+                            <h3 th:text="${unit.title}">Unit title</h3>
+                            <p th:text="${unit.description}">Description</p>
+                            <div class="unit-meta">
+                                <span class="meta-pill"><i class="fas fa-book"></i><span th:text="${unit.vocabCount}">24</span> vocab</span>
+                                <span class="meta-pill"><i class="fas fa-puzzle-piece"></i><span th:text="${unit.activityCount}">7</span> activities</span>
+                                <span class="meta-pill" th:if="${unit.hasReading}"><i class="fas fa-file-alt"></i> Lecture</span>
+                            </div>
+                            <div class="unit-footer">
+                                <span class="small" style="color: var(--ei-muted);">Read full lecture</span>
+                                <span class="btn-open">Open <i class="fas fa-chevron-right ms-1"></i></span>
+                            </div>
+                        </article>
+                    </a>
+                </div>
+            </div>
+
+            <div id="emptyState" class="empty-state">
+                <i class="fas fa-search fa-2x mb-3 d-block"></i>
+                <p class="mb-0">No units match your filters. Try a different search or level.</p>
+            </div>
+
+            <div class="benefits">
+                <div class="benefit-card">
+                    <div class="benefit-icon" style="background: rgba(45, 212, 191, 0.2); color: #5eead4;">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h4>Industry-Specific English</h4>
+                    <p>Vocabulary written for IT roles — not generic ESL with a few tech words added.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon" style="background: rgba(129, 140, 248, 0.2); color: #a5b4fc;">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h4>CEFR-Aligned Levels</h4>
+                    <p>From A2 basics to C1 professional fluency — pick units that match your current level.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon" style="background: rgba(251, 113, 133, 0.2); color: #fda4af;">
+                        <i class="fas fa-mobile-screen"></i>
+                    </div>
+                    <h4>Learn Anywhere</h4>
+                    <p>Responsive layout works on phone, tablet, or desktop — study at your own pace.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon" style="background: rgba(251, 191, 36, 0.2); color: #fde68a;">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h4>Job-Ready Skills</h4>
+                    <p>Practice vocabulary for meetings, tickets, code reviews, and technical documentation.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer text-white">
+        <div class="container py-4 text-center">
+            <p class="mb-0">&copy; 2026 Learning Management System. English for IT learning path.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let activeCefr = 'all';
+        let activeCategory = 'all';
+
+        const unitGrid = document.getElementById('unitGrid');
+        const emptyState = document.getElementById('emptyState');
+        const searchInput = document.getElementById('unitSearch');
+
+        function applyFilters() {
+            const query = (searchInput.value || '').trim().toLowerCase();
+            let visible = 0;
+            unitGrid.querySelectorAll('.unit-item').forEach(function(item) {
+                const cefr = item.dataset.cefr;
+                const category = item.dataset.category;
+                const search = (item.dataset.search || '').toLowerCase();
+                const cefrOk = activeCefr === 'all' || cefr === activeCefr;
+                const catOk = activeCategory === 'all' || category === activeCategory;
+                const searchOk = !query || search.includes(query);
+                const show = cefrOk && catOk && searchOk;
+                item.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            emptyState.classList.toggle('visible', visible === 0);
+        }
+
+        document.getElementById('cefrFilters').addEventListener('click', function(e) {
+            const btn = e.target.closest('.filter-chip');
+            if (!btn) return;
+            activeCefr = btn.dataset.cefr;
+            this.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+            btn.classList.add('active');
+            applyFilters();
+        });
+
+        document.getElementById('categoryFilters').addEventListener('click', function(e) {
+            const btn = e.target.closest('.filter-chip');
+            if (!btn) return;
+            activeCategory = btn.dataset.category;
+            this.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+            btn.classList.add('active');
+            applyFilters();
+        });
+
+        searchInput.addEventListener('input', applyFilters);
+    </script>
+</body>
+</html>

@@ -176,6 +176,9 @@
     <li class="nav-item">
         <a class="nav-link" href="/tutorials" th:classappend="${activeNav == 'tutorials'} ? 'active' : ''">Tutorials</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/english-it" th:classappend="${activeNav == 'english-it'} ? 'active' : ''">English for IT</a>
+    </li>
     <li class="nav-item" th:if="${user != null and !isAdminUser}">
         <a class="nav-link" href="/feedback" th:classappend="${activeNav == 'feedback'} ? 'active' : ''">Feedback</a>
     </li>

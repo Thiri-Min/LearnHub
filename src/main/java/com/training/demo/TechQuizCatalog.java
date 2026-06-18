@@ -20,6 +20,7 @@ public final class TechQuizCatalog {
         registerGit();
         registerDsa();
         registerFrontEnd();
+        registerBaseFramework();
     }
 
     private TechQuizCatalog() {
@@ -30,6 +31,7 @@ public final class TechQuizCatalog {
     public static final int QUIZ_BANK_SIZE = 15;
     public static final int DSA_MAX_ATTEMPTS = 3;
     public static final int FRONTEND_MAX_ATTEMPTS = 5;
+    public static final int BASE_FRAMEWORK_MAX_ATTEMPTS = 5;
 
     public static List<Map<String, Object>> getQuestions(String subject, String level) {
         Map<String, List<Map<String, Object>>> byLevel = QUESTIONS.get(subject);
@@ -137,6 +139,14 @@ public final class TechQuizCatalog {
         levels.put("Intermediate", frontEndIntermediate());
         levels.put("Advanced", frontEndAdvanced());
         QUESTIONS.put("FrontEnd", levels);
+    }
+
+    private static void registerBaseFramework() {
+        Map<String, List<Map<String, Object>>> levels = new LinkedHashMap<>();
+        levels.put("Pre-Intermediate", baseFrameworkPreIntermediate());
+        levels.put("Intermediate", baseFrameworkIntermediate());
+        levels.put("Advanced", baseFrameworkAdvanced());
+        QUESTIONS.put("BaseFramework", levels);
     }
 
     private static Map<String, Object> q(String question, List<String> options, int answer) {
@@ -841,6 +851,129 @@ public final class TechQuizCatalog {
                 List.of("container", "row", "col-12", "wrapper"), 0));
         list.add(q("Which JavaScript array method returns a new array by transforming each element?",
                 List.of("map()", "push()", "sort()", "join()"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> baseFrameworkPreIntermediate() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("Which Spring Boot starter is required for JPA and database access?",
+                List.of("spring-boot-starter-data-jpa", "spring-boot-starter-webflux", "spring-boot-starter-mail",
+                        "spring-boot-starter-security"), 0));
+        list.add(q("Which dependency connects a Spring Boot project to MySQL?",
+                List.of("mysql-connector-j", "postgresql-driver", "h2-console", "spring-boot-starter-jdbc-only"), 0));
+        list.add(q("Which property in application.properties sets the database connection URL?",
+                List.of("spring.datasource.url", "spring.jpa.url", "database.connection", "jdbc.url"), 0));
+        list.add(q("Which annotation marks a Java class as a JPA entity mapped to a database table?",
+                List.of("@Entity", "@Component", "@Service", "@Repository"), 0));
+        list.add(q("Which HTTP method is typically used to retrieve data from a REST API?",
+                List.of("GET", "POST", "PUT", "DELETE"), 0));
+        list.add(q("Which HTTP method is typically used to create a new resource?",
+                List.of("POST", "GET", "DELETE", "PATCH"), 0));
+        list.add(q("What does JPA stand for?",
+                List.of("Java Persistence API", "Java Programming Application", "Joint Project Architecture",
+                        "Java Package Annotation"), 0));
+        list.add(q("What is Hibernate in a Spring Boot JPA project?",
+                List.of("The JPA provider that generates and runs SQL", "A frontend framework",
+                        "A build tool like Maven", "A JSON serializer only"), 0));
+        list.add(q("Which annotation defines a class as a REST controller that returns JSON?",
+                List.of("@RestController", "@Controller only", "@Entity", "@Configuration"), 0));
+        list.add(q("Which annotation maps an HTTP GET request to a controller method?",
+                List.of("@GetMapping", "@PostMapping", "@RequestBody", "@Autowired"), 0));
+        list.add(q("Which Spring Data interface provides built-in CRUD methods such as save() and findById()?",
+                List.of("JpaRepository", "HttpServlet", "JdbcTemplate only", "EntityManagerFactory"), 0));
+        list.add(q("Which layer should contain business rules in a layered Spring application?",
+                List.of("Service layer", "Controller layer", "Repository layer", "HTML template layer"), 0));
+        list.add(q("Which annotation is used for dependency injection in Spring?",
+                List.of("@Autowired (or constructor injection)", "@InjectSQL", "@Database", "@Route"), 0));
+        list.add(q("What is the default port for a Spring Boot web application?",
+                List.of("8080", "3000", "5432", "80"), 0));
+        list.add(q("Which property sets the database username in application.properties?",
+                List.of("spring.datasource.username", "spring.jpa.username", "db.user", "jdbc.user"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> baseFrameworkIntermediate() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("Which annotation maps an HTTP PUT request for updating a resource?",
+                List.of("@PutMapping", "@GetMapping", "@PostMapping", "@PatchMapping only"), 0));
+        list.add(q("Which annotation maps an HTTP DELETE request?",
+                List.of("@DeleteMapping", "@RemoveMapping", "@DropMapping", "@EraseMapping"), 0));
+        list.add(q("In GET /api/courses/{id}, what does {id} represent?",
+                List.of("A path variable identifying the course", "A query parameter named id",
+                        "A request header", "A JSON body field"), 0));
+        list.add(q("Which annotation binds a URL path segment to a method parameter?",
+                List.of("@PathVariable", "@RequestParam", "@RequestBody", "@ResponseBody only"), 0));
+        list.add(q("Which annotation binds JSON from the request body to a Java object?",
+                List.of("@RequestBody", "@PathVariable", "@GetMapping", "@Column"), 0));
+        list.add(q("What does repository.findById(id) return in Spring Data JPA?",
+                List.of("Optional<Entity>", "Entity always (never empty)", "List<Entity>", "void"), 0));
+        list.add(q("Which annotation marks the data access layer interface?",
+                List.of("@Repository", "@RestController", "@Entity", "@GetMapping"), 0));
+        list.add(q("Which annotation marks a service class containing business logic?",
+                List.of("@Service", "@Repository", "@Entity", "@Table"), 0));
+        list.add(q("What does @Transactional ensure in a service method?",
+                List.of("Database operations succeed or fail together as one unit", "The method runs faster only",
+                        "The method is public", "HTTP caching is enabled"), 0));
+        list.add(q("Which annotation maps an entity field to a database column?",
+                List.of("@Column", "@Field", "@Property", "@DbColumn"), 0));
+        list.add(q("Which annotation marks the primary key field in a JPA entity?",
+                List.of("@Id", "@Key", "@Primary", "@PK"), 0));
+        list.add(q("What does @GeneratedValue(strategy = GenerationType.IDENTITY) typically do?",
+                List.of("Auto-generates primary key values (e.g. auto-increment)", "Encrypts the primary key",
+                        "Creates a foreign key", "Validates the ID format"), 0));
+        list.add(q("Which route and method pair is correct for listing all courses?",
+                List.of("GET /api/courses", "POST /api/courses/list", "DELETE /api/courses", "PUT /api/courses/all"), 0));
+        list.add(q("Which route and method pair is correct for creating a new course?",
+                List.of("POST /api/courses", "GET /api/courses", "PUT /api/courses", "DELETE /api/courses"), 0));
+        list.add(q("What does spring.jpa.hibernate.ddl-auto=update do in development?",
+                List.of("Updates database schema to match entities automatically", "Deletes all tables on startup",
+                        "Disables Hibernate", "Encrypts database columns"), 0));
+        return list;
+    }
+
+    private static List<Map<String, Object>> baseFrameworkAdvanced() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(q("In REST APIs, what is the main difference between PUT and PATCH?",
+                List.of("PUT replaces the full resource; PATCH updates part of it", "PUT is read-only; PATCH is write-only",
+                        "PATCH always deletes data", "They are identical"), 0));
+        list.add(q("Why use ResponseEntity in a controller instead of returning the object directly?",
+                List.of("To control HTTP status code and headers", "To avoid using JSON",
+                        "To replace the service layer", "To disable validation"), 0));
+        list.add(q("What is the purpose of @RestControllerAdvice?",
+                List.of("Centralized exception handling for REST controllers", "Defining database tables",
+                        "Creating JWT tokens only", "Mapping entities to DTOs automatically"), 0));
+        list.add(q("Why should APIs use DTOs instead of exposing JPA entities directly?",
+                List.of("To control the API contract and hide internal persistence details", "To make SQL faster only",
+                        "Because entities cannot be serialized", "To remove validation"), 0));
+        list.add(q("Which property logs generated SQL statements in the console (useful for debugging)?",
+                List.of("spring.jpa.show-sql=true", "spring.sql.debug=true", "hibernate.log=all",
+                        "database.print=true"), 0));
+        list.add(q("In Clean Architecture, dependency direction should point:",
+                List.of("Inward toward domain/business rules", "Outward toward the database only",
+                        "Randomly between layers", "Only to the controller"), 0));
+        list.add(q("Which HTTP status should be returned when a requested resource does not exist?",
+                List.of("404 Not Found", "200 OK", "201 Created", "500 Internal Server Error"), 0));
+        list.add(q("Which HTTP status is appropriate for a successful POST that creates a resource?",
+                List.of("201 Created", "204 No Content", "404 Not Found", "301 Moved Permanently"), 0));
+        list.add(q("What does @RequestMapping(\"/api/courses\") on a controller class define?",
+                List.of("A base route prefix for all handler methods in that controller", "The database table name",
+                        "The entity package", "The JWT secret key"), 0));
+        list.add(q("Which repository method persists a new or updated entity?",
+                List.of("save()", "findAll()", "count()", "deleteAllInBatch() only"), 0));
+        list.add(q("Which repository method removes an entity by primary key?",
+                List.of("deleteById(id)", "removeByKey(id)", "drop(id)", "erase(id)"), 0));
+        list.add(q("What is the correct layered call order for a create-course API?",
+                List.of("Controller -> Service -> Repository -> Database", "Repository -> Controller -> Service",
+                        "Database -> Controller -> Service", "Controller -> Database -> Service"), 0));
+        list.add(q("Which annotation runs a custom JPQL query on a repository method?",
+                List.of("@Query", "@Sql", "@Select", "@JpqlMapping"), 0));
+        list.add(q("What does @OneToMany represent in JPA?",
+                List.of("One parent entity relates to many child entities", "One column maps to many tables",
+                        "One HTTP request maps to many controllers", "One user has one role only"), 0));
+        list.add(q("Which combination correctly maps CRUD to REST routes for /api/courses/{id}?",
+                List.of("GET read, PUT update, DELETE remove; POST on /api/courses for create",
+                        "GET create, POST read, PUT delete", "DELETE read, GET update, POST remove",
+                        "All operations use GET only"), 0));
         return list;
     }
 }
