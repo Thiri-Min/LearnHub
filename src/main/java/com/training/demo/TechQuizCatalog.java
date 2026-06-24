@@ -28,7 +28,7 @@ public final class TechQuizCatalog {
 
     public static final int QUIZ_QUESTION_COUNT = 10;
     /** Question bank size per level for subjects that randomize across attempts (e.g. DSA, Git). */
-    public static final int QUIZ_BANK_SIZE = 15;
+    public static final int QUIZ_BANK_SIZE = 25;
     public static final int DSA_MAX_ATTEMPTS = 3;
     public static final int FRONTEND_MAX_ATTEMPTS = 5;
     public static final int BASE_FRAMEWORK_MAX_ATTEMPTS = 5;
@@ -78,7 +78,8 @@ public final class TechQuizCatalog {
         String correctText = options.get(answer);
         Collections.shuffle(options);
         question.put("options", options);
-        question.put("answer", options.indexOf(correctText));
+        int newAnswer = options.indexOf(correctText);
+        question.put("answer", newAnswer >= 0 ? newAnswer : answer);
         return question;
     }
 
@@ -277,8 +278,8 @@ public final class TechQuizCatalog {
         list.add(q("What is list comprehension used for in Python?",
                 List.of("Creating lists using loops in a single expression", "Declaring classes",
                         "Handling exceptions", "Defining functions"), 0));
-        list.add(q("Which keyword is used to handle exceptions in Python?",
-                List.of("try", "catch", "except", "error"), 2));
+        list.add(q("Which keyword catches an exception after a try block in Python?",
+                List.of("except", "catch", "finally", "throw"), 0));
         list.add(q("How do you import a module named math?",
                 List.of("import math", "include math", "using math", "require math"), 0));
         list.add(q("What does the strip() method do on a string?",
@@ -296,6 +297,37 @@ public final class TechQuizCatalog {
                 List.of("True", "False", "None", "Error"), 0));
         list.add(q("Which function generates a sequence of numbers?",
                 List.of("range()", "list()", "numbers()", "sequence()"), 0));
+        list.add(q("Which list method adds a single item to the end of a list?",
+                List.of("append()", "add()", "push()", "insertEnd()"), 0));
+        list.add(q("Which method opens a file for reading in Python?",
+                List.of("open()", "read()", "file()", "load()"), 0));
+        list.add(q("Which string method splits text into a list by a separator?",
+                List.of("split()", "divide()", "break()", "separate()"), 0));
+        list.add(q("Which method joins list elements into one string?",
+                List.of("join()", "merge()", "combine()", "concat()"), 0));
+        list.add(q("What does the finally block do in exception handling?",
+                List.of("Runs cleanup code whether or not an exception occurred", "Catches all exceptions only",
+                        "Stops the program immediately", "Imports a module"), 0));
+        list.add(q("Which keyword is used to raise an exception manually?",
+                List.of("raise", "throw", "error", "except"), 0));
+        list.add(q("What does enumerate() provide when looping over a list?",
+                List.of("Index and value pairs", "Only sorted values", "Unique keys only",
+                        "A reversed copy of the list"), 0));
+        list.add(q("Which method safely returns a default when a dictionary key is missing?",
+                List.of("get()", "find()", "lookup()", "fetch()"), 0));
+        list.add(q("What is the output of len([10, 20, 30])?",
+                List.of("3", "30", "6", "Error"), 0));
+        list.add(q("Which symbol is used to define a lambda function?",
+                List.of("lambda", "fn", "func", "def lambda"), 0));
+        list.add(q("Which module is commonly used to work with JSON data?",
+                List.of("json", "csv", "xml", "pickle"), 0));
+        list.add(q("What does pip install do?",
+                List.of("Installs a Python package from PyPI", "Runs unit tests", "Compiles Python to Java",
+                        "Deletes unused imports"), 0));
+        list.add(q("Which method returns dictionary keys as a view object?",
+                List.of("keys()", "items()", "values()", "entries()"), 0));
+        list.add(q("What is the result of 'hello'.upper()?",
+                List.of("HELLO", "hello", "Hello", "Error"), 0));
         return list;
     }
 
@@ -889,6 +921,26 @@ public final class TechQuizCatalog {
                 List.of("8080", "3000", "5432", "80"), 0));
         list.add(q("Which property sets the database username in application.properties?",
                 List.of("spring.datasource.username", "spring.jpa.username", "db.user", "jdbc.user"), 0));
+        list.add(q("Which annotation marks the main Spring Boot application entry class?",
+                List.of("@SpringBootApplication", "@Entity", "@RestController", "@Configuration only"), 0));
+        list.add(q("Which starter adds Spring MVC and an embedded web server for REST APIs?",
+                List.of("spring-boot-starter-web", "spring-boot-starter-test", "spring-boot-starter-mail",
+                        "spring-boot-starter-actuator only"), 0));
+        list.add(q("Which annotation maps an HTTP POST request to a controller method?",
+                List.of("@PostMapping", "@GetMapping", "@PutMapping", "@DeleteMapping"), 0));
+        list.add(q("Which Content-Type header is commonly used when sending JSON in a REST request?",
+                List.of("application/json", "text/html", "multipart/form-data", "application/xml only"), 0));
+        list.add(q("Which JPA annotation specifies the database table name for an entity?",
+                List.of("@Table", "@Column", "@Database", "@SqlTable"), 0));
+        list.add(q("Which property sets the database password in application.properties?",
+                List.of("spring.datasource.password", "spring.jpa.password", "db.pass", "jdbc.secret"), 0));
+        list.add(q("Which embedded server does Spring Boot use by default for web applications?",
+                List.of("Tomcat", "Jetty only", "Node.js", "Nginx"), 0));
+        list.add(q("In REST, resources should be named using:",
+                List.of("Nouns (e.g. /api/courses)", "Verbs (e.g. /getCourses)", "SQL queries",
+                        "Java method names"), 0));
+        list.add(q("Which build tool manages dependencies and packages a Spring Boot project?",
+                List.of("Maven (or Gradle)", "npm", "pip", "Composer"), 0));
         return list;
     }
 
@@ -928,6 +980,26 @@ public final class TechQuizCatalog {
         list.add(q("What does spring.jpa.hibernate.ddl-auto=update do in development?",
                 List.of("Updates database schema to match entities automatically", "Deletes all tables on startup",
                         "Disables Hibernate", "Encrypts database columns"), 0));
+        list.add(q("Which annotation binds a query string parameter to a method argument?",
+                List.of("@RequestParam", "@PathVariable", "@RequestBody", "@Column"), 0));
+        list.add(q("Which repository method returns all records of an entity type?",
+                List.of("findAll()", "findOne()", "getAllSQL()", "listTables()"), 0));
+        list.add(q("Which Spring Data JPA feature lets you define methods like findByTitleContaining?",
+                List.of("Derived query methods from method names", "Only raw SQL files",
+                        "HTML templates", "JWT parsing"), 0));
+        list.add(q("Which JPA annotation defines a many-to-one relationship to another entity?",
+                List.of("@ManyToOne", "@OneToMany only", "@ManyToMany only", "@JoinTable only"), 0));
+        list.add(q("When findById returns Optional.empty(), the API should typically respond with:",
+                List.of("404 Not Found", "200 OK with null body", "201 Created", "500 always"), 0));
+        list.add(q("Which HTTP status is appropriate after a successful DELETE with no response body?",
+                List.of("204 No Content", "201 Created", "302 Found", "400 Bad Request"), 0));
+        list.add(q("Which annotation maps a foreign-key column in a JPA relationship?",
+                List.of("@JoinColumn", "@ForeignKey only", "@PathVariable", "@RequestParam"), 0));
+        list.add(q("Which repository method checks whether a record exists by primary key?",
+                List.of("existsById(id)", "hasId(id)", "contains(id)", "isPresent(id)"), 0));
+        list.add(q("Which property helps Hibernate generate correct SQL for your database dialect?",
+                List.of("spring.jpa.properties.hibernate.dialect", "spring.web.dialect",
+                        "database.sql.mode", "jdbc.driver.only"), 0));
         return list;
     }
 
@@ -974,6 +1046,27 @@ public final class TechQuizCatalog {
                 List.of("GET read, PUT update, DELETE remove; POST on /api/courses for create",
                         "GET create, POST read, PUT delete", "DELETE read, GET update, POST remove",
                         "All operations use GET only"), 0));
+        list.add(q("Which annotation triggers Bean Validation on a request DTO in a controller?",
+                List.of("@Valid", "@Validated only on class", "@Entity", "@Transactional"), 0));
+        list.add(q("Which validation annotation ensures a string field is not null and not blank?",
+                List.of("@NotBlank", "@NotNull only (allows empty string)", "@Size only", "@Email only"), 0));
+        list.add(q("Which HTTP status should be returned when request validation fails?",
+                List.of("400 Bad Request", "200 OK", "201 Created", "404 Not Found"), 0));
+        list.add(q("Which HTTP status fits a duplicate email or unique constraint violation?",
+                List.of("409 Conflict", "204 No Content", "301 Moved Permanently", "101 Switching Protocols"), 0));
+        list.add(q("Where should a client send a JWT access token in a secured REST API?",
+                List.of("Authorization: Bearer <token>", "Cookie: token=<token> only", "X-Body-Token header only",
+                        "Query string ?jwt= always"), 0));
+        list.add(q("Why map Entity objects to Response DTOs before returning JSON?",
+                List.of("To expose only safe fields and decouple API from persistence model",
+                        "Because JPA cannot serialize objects", "To disable validation", "To avoid using HTTP"), 0));
+        list.add(q("Which annotation enables cross-origin requests from a separate frontend origin?",
+                List.of("@CrossOrigin", "@CorsFilter only in HTML", "@Entity", "@Table"), 0));
+        list.add(q("Which injection style is generally preferred in Spring for required dependencies?",
+                List.of("Constructor injection", "Field injection only", "Static injection", "Manual new in controller"), 0));
+        list.add(q("What should a global exception handler return for API errors?",
+                List.of("Consistent JSON error structure with message and status", "Raw stack trace to clients always",
+                        "Empty 200 OK", "HTML error page only"), 0));
         return list;
     }
 }

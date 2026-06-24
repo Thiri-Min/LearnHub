@@ -217,6 +217,12 @@ public class AuthController {
         model.addAttribute("gitPreIntermediateQuestions", getQuestions("Git", "Pre-Intermediate"));
         model.addAttribute("gitIntermediateQuestions", getQuestions("Git", "Intermediate"));
         model.addAttribute("gitAdvancedQuestions", getQuestions("Git", "Advanced"));
+        model.addAttribute("baseFrameworkPreIntermediateQuestions", getQuestions("BaseFramework", "Pre-Intermediate"));
+        model.addAttribute("baseFrameworkIntermediateQuestions", getQuestions("BaseFramework", "Intermediate"));
+        model.addAttribute("baseFrameworkAdvancedQuestions", getQuestions("BaseFramework", "Advanced"));
+        model.addAttribute("pythonPreIntermediateQuestions", getQuestions("Python", "Pre-Intermediate"));
+        model.addAttribute("pythonIntermediateQuestions", getQuestions("Python", "Intermediate"));
+        model.addAttribute("pythonAdvancedQuestions", getQuestions("Python", "Advanced"));
         User currentUser = (User) user;
         model.addAttribute("dsaMaxAttempts", TechQuizCatalog.DSA_MAX_ATTEMPTS);
         model.addAttribute("dsaAttemptCounts", buildDsaAttemptCounts(currentUser.getId()));

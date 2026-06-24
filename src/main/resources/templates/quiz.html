@@ -221,15 +221,27 @@
             }
         }
 
+        function getCorrectIndex(question) {
+            if (question.answer !== undefined && question.answer !== null) {
+                return question.answer;
+            }
+            if (question.correct !== undefined && question.correct !== null) {
+                return question.correct;
+            }
+            return -1;
+        }
+
         function buildReviewHtml() {
             return questions.map((q, i) => {
                 const userIdx = answers[i];
-                const correctIdx = q.answer;
+                const correctIdx = getCorrectIndex(q);
                 const isCorrect = userIdx === correctIdx;
                 const userText = userIdx !== null && userIdx !== undefined
                     ? `${String.fromCharCode(65 + userIdx)}. ${q.options[userIdx]}`
                     : 'No answer selected';
-                const correctText = `${String.fromCharCode(65 + correctIdx)}. ${q.options[correctIdx]}`;
+                const correctText = correctIdx >= 0
+                    ? `${String.fromCharCode(65 + correctIdx)}. ${q.options[correctIdx]}`
+                    : 'Answer not available';
                 return `
                     <div class="review-item ${isCorrect ? 'correct' : 'incorrect'}">
                         <div class="d-flex justify-content-between align-items-start mb-2">
@@ -270,7 +282,7 @@
             const total = questions.length || 10;
             let score = 0;
             answers.forEach((answer, i) => {
-                if (answer === questions[i].answer) score++;
+                if (answer === getCorrectIndex(questions[i])) score++;
             });
             const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
 

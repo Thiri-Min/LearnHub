@@ -185,9 +185,9 @@
                 title: 'Base Framework Test',
                 desc: '10 random MCQs per attempt on Spring Boot DB setup, JPA, Hibernate, CRUD routes, and layered architecture.',
                 levels: {
-                    'Base Framework Pre-Intermediate': 'Spring dependencies, datasource config, JPA basics, and GET/POST routes.',
-                    'Base Framework Intermediate': 'Repository, Service layer, PUT/DELETE mapping, and CRUD flow.',
-                    'Base Framework Advanced': 'REST design, DTOs, exception handling, and Clean Architecture concepts.'
+                    'Base Framework Pre-Intermediate': 'Spring Boot setup, datasource, JPA entities, REST basics, and layered architecture.',
+                    'Base Framework Intermediate': 'Repository & Service layers, path/query params, relationships, and full CRUD APIs.',
+                    'Base Framework Advanced': 'DTOs, validation, exception handling, JWT, CORS, and Clean Architecture concepts.'
                 }
             },
             AI: {
@@ -450,6 +450,9 @@
         const gitPreIntermediateQuestions = /*[[${gitPreIntermediateQuestions}]]*/ [];
         const gitIntermediateQuestions = /*[[${gitIntermediateQuestions}]]*/ [];
         const gitAdvancedQuestions = /*[[${gitAdvancedQuestions}]]*/ [];
+        const baseFrameworkPreIntermediateQuestions = /*[[${baseFrameworkPreIntermediateQuestions}]]*/ [];
+        const baseFrameworkIntermediateQuestions = /*[[${baseFrameworkIntermediateQuestions}]]*/ [];
+        const baseFrameworkAdvancedQuestions = /*[[${baseFrameworkAdvancedQuestions}]]*/ [];
         const GIT_QUIZ_SIZE = 10;
 
         function shuffleArray(items) {
@@ -469,203 +472,21 @@
                 const answerIdx = q.answer !== undefined ? q.answer : q.correct;
                 const options = shuffleArray(q.options);
                 const correctText = q.options[answerIdx];
+                const resolved = options.indexOf(correctText);
+                const finalIdx = resolved >= 0 ? resolved : answerIdx;
                 return {
                     question: q.question,
                     options,
-                    answer: options.indexOf(correctText),
-                    correct: options.indexOf(correctText)
+                    answer: finalIdx,
+                    correct: finalIdx
                 };
             });
         }
 
-        const pythonPreIntermediateQuestions = [
-            {
-                question: "What is the correct way to declare a function in Python?",
-                options: ["function myFunc():", "def myFunc():", "func myFunc():", "declare myFunc():"],
-                correct: 1,
-                explanation: "Python functions are defined using the def keyword."
-            },
-            {
-                question: "Which of these is a valid Python list?",
-                options: ["{1, 2, 3}", "[1, 2, 3]", "(1, 2, 3)", "<1, 2, 3>"],
-                correct: 1,
-                explanation: "Lists are defined with square brackets in Python."
-            },
-            {
-                question: "What is the output of print(type(3.14))?",
-                options: ["<class 'int'>", "<class 'float'>", "<class 'str'>", "<class 'double'>"],
-                correct: 1,
-                explanation: "3.14 is a float in Python."
-            },
-            {
-                question: "Which symbol is used for comments in Python?",
-                options: ["//", "#", "/*", "--"],
-                correct: 1,
-                explanation: "Python single-line comments start with #."
-            },
-            {
-                question: "How do you create a dictionary in Python?",
-                options: ["[1: 'a']", "{1: 'a'}", "(1: 'a')", "<1: 'a'>"],
-                correct: 1,
-                explanation: "Dictionaries are created using curly braces with key:value pairs."
-            },
-            {
-                question: "What keyword starts a conditional block in Python?",
-                options: ["when", "if", "cond", "check"],
-                correct: 1,
-                explanation: "if begins a conditional block in Python."
-            },
-            {
-                question: "Which function prints output to the console in Python?",
-                options: ["echo()", "print()", "console.log()", "output()"],
-                correct: 1,
-                explanation: "print() is used to output values in Python."
-            },
-            {
-                question: "How do you access the first element of a list named items?",
-                options: ["items[1]", "items[0]", "items.first", "items.get(0)"],
-                correct: 1,
-                explanation: "Python list indices start at 0, so items[0] returns the first element."
-            },
-            {
-                question: "Which data type is immutable in Python?",
-                options: ["list", "set", "tuple", "dictionary"],
-                correct: 2,
-                explanation: "Tuples are immutable, while lists and dictionaries are mutable."
-            },
-            {
-                question: "What does len('hello') return?",
-                options: ["4", "5", "6", "hello"],
-                correct: 1,
-                explanation: "len returns the number of characters in the string, which is 5."
-            }
-        ];
-
-        const pythonIntermediateQuestions = [
-            {
-                question: "What is list comprehension used for in Python?",
-                options: ["Creating lists using loops in a single expression", "Declaring classes", "Handling exceptions", "Defining functions"],
-                correct: 0,
-                explanation: "List comprehensions provide a concise way to create lists from existing iterables."
-            },
-            {
-                question: "Which keyword is used to handle exceptions in Python?",
-                options: ["try", "catch", "except", "error"],
-                correct: 2,
-                explanation: "Exceptions are handled using try and except blocks."
-            },
-            {
-                question: "How do you import a module named math?",
-                options: ["import math", "include math", "using math", "require math"],
-                correct: 0,
-                explanation: "Python modules are imported using the import keyword."
-            },
-            {
-                question: "What does the strip() method do on a string?",
-                options: ["Removes whitespace from both ends", "Converts to lowercase", "Reverses the string", "Splits the string"],
-                correct: 0,
-                explanation: "strip() removes whitespace from both ends of a string."
-            },
-            {
-                question: "Which of these is a tuple?",
-                options: ["[1, 2, 3]", "(1, 2, 3)", "{1, 2, 3}", "<1, 2, 3>"],
-                correct: 1,
-                explanation: "Tuples are defined with parentheses."
-            },
-            {
-                question: "What is the output of print('5' + '2')?",
-                options: ["7", "52", "Error", "5 2"],
-                correct: 1,
-                explanation: "String concatenation produces '52'."
-            },
-            {
-                question: "Which built-in type is used for ordered key-value data?",
-                options: ["list", "tuple", "set", "dict"],
-                correct: 3,
-                explanation: "A dict stores ordered key-value pairs."
-            },
-            {
-                question: "How do you define a class named Person?",
-                options: ["class Person:", "Person class:", "def Person:", "create Person:"],
-                correct: 0,
-                explanation: "In Python, classes are declared with the class keyword."
-            },
-            {
-                question: "What is the result of 3 == 3.0 in Python?",
-                options: ["True", "False", "None", "Error"],
-                correct: 0,
-                explanation: "Python compares numeric values and 3 equals 3.0."
-            },
-            {
-                question: "Which function generates a sequence of numbers?",
-                options: ["range()", "list()", "numbers()", "sequence()"],
-                correct: 0,
-                explanation: "range() generates an iterable sequence of numbers."
-            }
-        ];
-
-        const pythonAdvancedQuestions = [
-            {
-                question: "What does the @staticmethod decorator do?",
-                options: ["Defines a class method", "Defines a method that does not receive self", "Creates a new object", "Imports a module"],
-                correct: 1,
-                explanation: "@staticmethod defines a method that does not receive the instance as the first argument."
-            },
-            {
-                question: "Which protocol is used for object serialization in Python?",
-                options: ["pickle", "json", "xml", "yaml"],
-                correct: 0,
-                explanation: "pickle is commonly used for serializing Python objects."
-            },
-            {
-                question: "What is a generator in Python?",
-                options: ["A list of values", "A function returning an iterator", "A class method", "A type of exception"],
-                correct: 1,
-                explanation: "Generators are functions that yield values and return iterators."
-            },
-            {
-                question: "Which statement is used to create a context manager?",
-                options: ["with", "use", "using", "context"],
-                correct: 0,
-                explanation: "The with statement is used with context managers for resource handling."
-            },
-            {
-                question: "What is the output of len({'a': 1, 'b': 2})?",
-                options: ["1", "2", "3", "Error"],
-                correct: 1,
-                explanation: "len returns the number of keys in a dictionary, which is 2."
-            },
-            {
-                question: "Which method is used to add an item to a set?",
-                options: ["add()", "append()", "insert()", "push()"],
-                correct: 0,
-                explanation: "add() adds an element to a set."
-            },
-            {
-                question: "What is the purpose of __init__ in a Python class?",
-                options: ["To define a class method", "To initialize object state", "To delete an object", "To create a static method"],
-                correct: 1,
-                explanation: "__init__ initializes the object's state when it is created."
-            },
-            {
-                question: "How do you catch multiple exceptions in one except block?",
-                options: ["except (TypeError, ValueError):", "except TypeError, ValueError:", "except TypeError | ValueError:", "except [TypeError, ValueError]:"],
-                correct: 0,
-                explanation: "Python catches multiple exceptions using a tuple in the except clause."
-            },
-            {
-                question: "Which statement is true about Python's GIL?",
-                options: ["It allows true parallel threads for CPU-bound tasks", "It prevents multiple native threads from executing Python bytecodes at the same time", "It optimizes memory usage", "It is only active in Python 2"],
-                correct: 1,
-                explanation: "The Global Interpreter Lock ensures only one thread executes Python bytecode at a time in CPython."
-            },
-            {
-                question: "What is the output of [x*x for x in range(3)]?",
-                options: ["[0, 1, 4]", "[1, 4, 9]", "[0, 1, 2]", "Error"],
-                correct: 0,
-                explanation: "The list comprehension squares each number in the range, producing [0, 1, 4]."
-            }
-        ];
+        const pythonPreIntermediateQuestions = /*[[${pythonPreIntermediateQuestions}]]*/ [];
+        const pythonIntermediateQuestions = /*[[${pythonIntermediateQuestions}]]*/ [];
+        const pythonAdvancedQuestions = /*[[${pythonAdvancedQuestions}]]*/ [];
+        const PYTHON_QUIZ_SIZE = 10;
 
         let currentQuestionIndex = 0;
         let currentQuizQuestions = [];
@@ -869,9 +690,11 @@
                 if (level === 'Advanced') return sqlAdvancedQuestions;
             }
             if (subject === 'Python') {
-                if (level === 'Pre-Intermediate') return pythonPreIntermediateQuestions;
-                if (level === 'Intermediate') return pythonIntermediateQuestions;
-                if (level === 'Advanced') return pythonAdvancedQuestions;
+                let bank = null;
+                if (level === 'Pre-Intermediate') bank = pythonPreIntermediateQuestions;
+                if (level === 'Intermediate') bank = pythonIntermediateQuestions;
+                if (level === 'Advanced') bank = pythonAdvancedQuestions;
+                return bank ? randomizeQuizSet(bank, PYTHON_QUIZ_SIZE) : null;
             }
             if (subject === 'Git') {
                 let bank = null;
@@ -976,7 +799,8 @@
             // Calculate results
             let correct = 0;
             currentQuizQuestions.forEach((question, index) => {
-                if (userAnswers[index] === question.correct) {
+                const correctIdx = question.correct !== undefined ? question.correct : question.answer;
+                if (userAnswers[index] === correctIdx) {
                     correct++;
                 }
             });
@@ -1044,9 +868,12 @@
                                     <h5>Question Review:</h5>
                                     <div class="text-start bg-light p-3 rounded" style="max-height: 250px; overflow-y: auto;">
                                         ${currentQuizQuestions.map((q, i) => {
-                                            const isCorrect = userAnswers[i] === q.correct;
+                                            const correctIdx = q.correct !== undefined ? q.correct : q.answer;
+                                            const isCorrect = userAnswers[i] === correctIdx;
                                             const userAnswerText = userAnswers[i] !== null ? q.options[userAnswers[i]] : 'No answer';
-                                            const correctAnswerText = q.options[q.correct];
+                                            const correctAnswerText = correctIdx !== undefined && correctIdx >= 0
+                                                ? q.options[correctIdx]
+                                                : 'Answer not available';
                                             return `
                                                 <div class="mb-3 ${isCorrect ? 'text-success' : 'text-danger'}">
                                                     <div><strong>Q${i+1}:</strong> ${q.question}</div>
