@@ -28,7 +28,7 @@ public final class TechQuizCatalog {
 
     public static final int QUIZ_QUESTION_COUNT = 10;
     /** Question bank size per level for subjects that randomize across attempts (e.g. DSA, Git). */
-    public static final int QUIZ_BANK_SIZE = 25;
+    public static final int QUIZ_BANK_SIZE = 50;
     public static final int DSA_MAX_ATTEMPTS = 3;
     public static final int FRONTEND_MAX_ATTEMPTS = 5;
     public static final int BASE_FRAMEWORK_MAX_ATTEMPTS = 5;
@@ -941,6 +941,63 @@ public final class TechQuizCatalog {
                         "Java method names"), 0));
         list.add(q("Which build tool manages dependencies and packages a Spring Boot project?",
                 List.of("Maven (or Gradle)", "npm", "pip", "Composer"), 0));
+        list.add(q("Which property sets the JDBC driver class for the datasource?",
+                List.of("spring.datasource.driver-class-name", "spring.jpa.driver", "jdbc.class", "db.driver"), 0));
+        list.add(q("What format do REST APIs commonly use to exchange data with clients?",
+                List.of("JSON", "HTML only", "Binary EXE files", "Word documents"), 0));
+        list.add(q("Which property changes the HTTP port of a Spring Boot application?",
+                List.of("server.port", "spring.port", "http.port", "tomcat.port"), 0));
+        list.add(q("Which layer should handle HTTP requests and return responses in a Spring app?",
+                List.of("Controller layer", "Repository layer", "Database layer", "CSS layer"), 0));
+        list.add(q("What does spring.jpa.hibernate.ddl-auto=create-drop typically do?",
+                List.of("Creates schema on startup and drops it on shutdown (dev/test)", "Never changes the database",
+                        "Encrypts all tables", "Disables JPA"), 0));
+        list.add(q("Which annotation is a generic Spring-managed component (broader than @Service)?",
+                List.of("@Component", "@Table", "@Query", "@GetMapping"), 0));
+        list.add(q("Which in-memory database is often used for quick Spring Boot prototypes?",
+                List.of("H2", "MongoDB only", "Redis only", "SQLite driver only"), 0));
+        list.add(q("What is the role of DispatcherServlet in Spring MVC?",
+                List.of("Routes incoming HTTP requests to the correct controller method", "Generates SQL queries",
+                        "Compiles Java source code", "Stores JWT tokens"), 0));
+        list.add(q("Which file usually lists Spring Boot dependencies and plugins?",
+                List.of("pom.xml (Maven) or build.gradle (Gradle)", "index.html", "application.js",
+                        "database.sql only"), 0));
+        list.add(q("Besides application.properties, Spring Boot can load config from:",
+                List.of("application.yml or application.yaml", "index.html only", "style.css only",
+                        "package-lock.json"), 0));
+        list.add(q("What does CRUD stand for in database-backed APIs?",
+                List.of("Create, Read, Update, Delete", "Copy, Run, Upload, Download",
+                        "Connect, Route, Use, Deploy", "Cache, Render, Undo, Debug"), 0));
+        list.add(q("Which HTTP status code usually means a GET request succeeded?",
+                List.of("200 OK", "201 Created", "204 No Content", "400 Bad Request"), 0));
+        list.add(q("Which Accept header value tells the server the client prefers JSON?",
+                List.of("application/json", "text/html", "image/png", "multipart/form-data"), 0));
+        list.add(q("What is the Spring IoC container responsible for?",
+                List.of("Creating and wiring Spring beans (dependency injection)", "Writing SQL queries only",
+                        "Rendering HTML templates only", "Compiling TypeScript"), 0));
+        list.add(q("Which method boots a Spring Boot application from the main class?",
+                List.of("SpringApplication.run(...)", "SpringBoot.start(...)", "Application.launch(...)",
+                        "Main.execute(...)"), 0));
+        list.add(q("@RestController is equivalent to combining which two annotations?",
+                List.of("@Controller and @ResponseBody", "@Entity and @Table", "@Service and @Repository",
+                        "@GetMapping and @PostMapping"), 0));
+        list.add(q("Which starter is commonly used to write unit tests in Spring Boot?",
+                List.of("spring-boot-starter-test", "spring-boot-starter-web only", "spring-boot-starter-mail",
+                        "spring-boot-starter-jdbc only"), 0));
+        list.add(q("In a relational database, what does a foreign key enforce?",
+                List.of("A link between rows in related tables", "Automatic JSON serialization",
+                        "HTTP routing rules", "JWT expiration"), 0));
+        list.add(q("Why do many Spring REST APIs use an /api prefix in URLs?",
+                List.of("To separate API routes from web pages or static resources", "Because JPA requires it",
+                        "To disable validation", "To connect to MySQL only"), 0));
+        list.add(q("Which dependency is commonly used to connect Spring Boot to PostgreSQL?",
+                List.of("org.postgresql:postgresql", "mysql-connector-j only", "h2 only", "mongodb-driver only"), 0));
+        list.add(q("Which annotation marks a class that defines Spring @Bean methods?",
+                List.of("@Configuration", "@Entity", "@Repository", "@GetMapping"), 0));
+        list.add(q("What does each JPA entity instance typically represent?",
+                List.of("One row in a database table", "One HTTP request", "One HTML page", "One JWT token"), 0));
+        list.add(q("Which property file location does Spring Boot load automatically from src/main/resources?",
+                List.of("application.properties or application.yml", "pom.xml", "README.md", "index.html"), 0));
         return list;
     }
 
@@ -1000,6 +1057,62 @@ public final class TechQuizCatalog {
         list.add(q("Which property helps Hibernate generate correct SQL for your database dialect?",
                 List.of("spring.jpa.properties.hibernate.dialect", "spring.web.dialect",
                         "database.sql.mode", "jdbc.driver.only"), 0));
+        list.add(q("Which repository method returns a paginated result using Pageable?",
+                List.of("findAll(Pageable pageable)", "paginateAll()", "getPage()", "listPaged()"), 0));
+        list.add(q("Which JPA annotation defines a one-to-one relationship between two entities?",
+                List.of("@OneToOne", "@OneToMany", "@Table", "@Query"), 0));
+        list.add(q("What does FetchType.LAZY mean for a JPA association?",
+                List.of("Related data is loaded only when accessed", "Data is always loaded immediately",
+                        "The association is read-only", "The field cannot be null"), 0));
+        list.add(q("Which annotation marks a repository method that executes an UPDATE or DELETE query?",
+                List.of("@Modifying", "@UpdateOnly", "@SqlDelete", "@Transactional only on entity"), 0));
+        list.add(q("Which @Column attribute prevents null values at the database column level?",
+                List.of("nullable = false", "unique = false", "lazy = true", "fetch = eager"), 0));
+        list.add(q("Which repository method returns the total number of entities?",
+                List.of("count()", "size()", "total()", "length()"), 0));
+        list.add(q("Which JPA annotation enables optimistic locking with a version field?",
+                List.of("@Version", "@Lock", "@Secure", "@Revision"), 0));
+        list.add(q("Which Spring Data feature supports sorting with Sort.by(\"title\")?",
+                List.of("Passing Sort into repository query methods", "Using @SortMapping on entities only",
+                        "Writing HTML sort buttons only", "Calling ORDER BY in controllers"), 0));
+        list.add(q("What does cascade = CascadeType.ALL typically do on a parent-child relationship?",
+                List.of("Propagates persist/merge/remove operations to related entities", "Disables foreign keys",
+                        "Encrypts child records", "Creates read-only children"), 0));
+        list.add(q("Which annotation maps an HTTP PATCH request for partial updates?",
+                List.of("@PatchMapping", "@PutMapping only", "@PostMapping", "@DeleteMapping"), 0));
+        list.add(q("Which JPA annotation defines a many-to-many relationship with a join table?",
+                List.of("@ManyToMany", "@OneToOne only", "@Column only", "@Id only"), 0));
+        list.add(q("What does FetchType.EAGER mean for a JPA association?",
+                List.of("Related data is loaded immediately with the parent entity", "Data is never loaded",
+                        "The field is excluded from JSON", "The relationship is read-only"), 0));
+        list.add(q("In a bidirectional @OneToMany relationship, mappedBy belongs on:",
+                List.of("The inverse (non-owning) side of the relationship", "The database primary key only",
+                        "The controller class", "The DTO class"), 0));
+        list.add(q("Which Optional method throws an exception when no entity is found?",
+                List.of("orElseThrow()", "orElse(null) only", "isEmpty() only", "getClass()"), 0));
+        list.add(q("Which @Column attribute enforces uniqueness at the database level?",
+                List.of("unique = true", "nullable = true", "lazy = true", "fetch = eager"), 0));
+        list.add(q("Which repository method saves multiple entities in one call?",
+                List.of("saveAll(entities)", "saveMany()", "insertBatch() only", "persistAllSQL()"), 0));
+        list.add(q("Which ResponseEntity factory method builds a 404 Not Found response?",
+                List.of("ResponseEntity.notFound().build()", "ResponseEntity.ok().build()",
+                        "ResponseEntity.created(null)", "ResponseEntity.accepted()"), 0));
+        list.add(q("What does @Transactional(readOnly = true) suggest to the persistence provider?",
+                List.of("The transaction should not modify data (optimization hint)", "The method must delete rows",
+                        "HTTP caching is disabled", "JWT validation is skipped"), 0));
+        list.add(q("Which derived query method ignores case when matching a title?",
+                List.of("findByTitleIgnoreCase(...)", "findByTitleCase(...)", "findTitleExact(...)",
+                        "getTitleEquals(...)"), 0));
+        list.add(q("Which HTTP status fits invalid client input such as a negative price?",
+                List.of("400 Bad Request", "201 Created", "204 No Content", "302 Found"), 0));
+        list.add(q("What is the owning side of a JPA association responsible for?",
+                List.of("Managing the foreign key column in the database", "Rendering HTML templates",
+                        "Signing JWT tokens", "Parsing JSON only"), 0));
+        list.add(q("Which annotation specifies the join table for a @ManyToMany relationship?",
+                List.of("@JoinTable", "@JoinColumn only", "@PathVariable", "@RequestParam"), 0));
+        list.add(q("When should a service call repository.deleteById(id) instead of only returning 200?",
+                List.of("After confirming the record exists or handling not-found appropriately",
+                        "Before checking if the id exists", "Only for GET requests", "Never in REST APIs"), 0));
         return list;
     }
 
@@ -1067,6 +1180,70 @@ public final class TechQuizCatalog {
         list.add(q("What should a global exception handler return for API errors?",
                 List.of("Consistent JSON error structure with message and status", "Raw stack trace to clients always",
                         "Empty 200 OK", "HTML error page only"), 0));
+        list.add(q("Which starter adds Bean Validation support for DTOs?",
+                List.of("spring-boot-starter-validation", "spring-boot-starter-json", "spring-boot-starter-mail",
+                        "spring-boot-starter-thymeleaf"), 0));
+        list.add(q("Which validation annotation checks that a numeric field is within a min/max range?",
+                List.of("@Min / @Max (or @DecimalMin / @DecimalMax)", "@Range only in HTML", "@Between",
+                        "@Limit"), 0));
+        list.add(q("What is the main purpose of BCrypt in a Spring Security login flow?",
+                List.of("Hash passwords securely before storing them", "Encrypt JWT tokens in the browser",
+                        "Compress JSON responses", "Validate SQL syntax"), 0));
+        list.add(q("Which annotation restricts a controller method to users with a specific role?",
+                List.of("@PreAuthorize(\"hasRole('ADMIN')\")", "@GetMapping only", "@Entity", "@Table"), 0));
+        list.add(q("Why are REST APIs described as stateless?",
+                List.of("Each request contains all info needed; server does not store client session between calls",
+                        "They never use databases", "They cannot return JSON", "They run without HTTP"), 0));
+        list.add(q("Which tool is recommended for production database schema changes instead of ddl-auto=update?",
+                List.of("Flyway or Liquibase migrations", "Manual DROP DATABASE", "Editing entities only",
+                        "Deleting application.properties"), 0));
+        list.add(q("What does @Email validate on a DTO field?",
+                List.of("That the string follows a valid email format", "That the email exists in the database",
+                        "That the user is logged in", "That SMTP is configured"), 0));
+        list.add(q("Which HTTP status indicates the client is authenticated but not allowed to perform the action?",
+                List.of("403 Forbidden", "401 Unauthorized", "404 Not Found", "201 Created"), 0));
+        list.add(q("What is authentication vs authorization?",
+                List.of("Authentication verifies who you are; authorization decides what you can do",
+                        "They mean the same thing", "Authorization happens before login only",
+                        "Authentication is only for databases"), 0));
+        list.add(q("Which approach helps keep controllers thin and testable?",
+                List.of("Move business logic into the service layer", "Put SQL inside @RestController methods",
+                        "Return entities directly without services", "Disable validation"), 0));
+        list.add(q("Which exception is commonly handled when @Valid fails on a request DTO?",
+                List.of("MethodArgumentNotValidException", "FileNotFoundException", "OutOfMemoryError",
+                        "ClassNotFoundException"), 0));
+        list.add(q("What is the difference between a Request DTO and a Response DTO?",
+                List.of("Request DTO carries input from client; Response DTO shapes output to client",
+                        "They must be identical classes", "Only entities can be used", "DTOs replace databases"), 0));
+        list.add(q("Which HTTP status should be returned when the user is not authenticated?",
+                List.of("401 Unauthorized", "403 Forbidden", "404 Not Found", "201 Created"), 0));
+        list.add(q("Which HTTP status is appropriate for unexpected server failures?",
+                List.of("500 Internal Server Error", "200 OK", "204 No Content", "301 Moved Permanently"), 0));
+        list.add(q("What does a CORS preflight request typically use as the HTTP method?",
+                List.of("OPTIONS", "GET", "POST", "DELETE"), 0));
+        list.add(q("Which validation annotation limits the maximum length of a string field?",
+                List.of("@Size(max = ...)", "@Length only in HTML", "@MaxLength on entities only", "@Count"), 0));
+        list.add(q("Why should passwords never be returned in API response DTOs?",
+                List.of("Security risk — credentials must not be exposed to clients", "JSON cannot serialize strings",
+                        "JPA forbids String fields", "It makes SQL slower only"), 0));
+        list.add(q("Which layer should NOT contain SQL or persistence logic?",
+                List.of("Controller layer", "Repository layer", "Entity mapping", "Database"), 0));
+        list.add(q("What is a common purpose of API versioning such as /api/v1/courses?",
+                List.of("Allow breaking changes without disrupting existing clients", "Improve database indexes only",
+                        "Replace JWT authentication", "Disable validation"), 0));
+        list.add(q("Which annotation can hide a sensitive entity field from JSON serialization?",
+                List.of("@JsonIgnore", "@Hide", "@Secret", "@Password"), 0));
+        list.add(q("What does a refresh token typically allow in JWT-based auth?",
+                List.of("Obtain a new access token without logging in again", "Delete database tables",
+                        "Skip service-layer validation", "Compile Java code"), 0));
+        list.add(q("Which Spring Security class is often used to encode user passwords?",
+                List.of("BCryptPasswordEncoder", "JsonPasswordEncoder", "HtmlPasswordEncoder", "SqlPasswordEncoder"), 0));
+        list.add(q("When mapping entity to response DTO manually, where should that mapping usually live?",
+                List.of("Service layer or dedicated mapper component", "Database trigger", "HTML template",
+                        "Browser JavaScript only"), 0));
+        list.add(q("Which principle says each layer should have one clear responsibility?",
+                List.of("Single Responsibility Principle", "Random Placement Principle",
+                        "Controller-Only Principle", "No-Repository Principle"), 0));
         return list;
     }
 }
