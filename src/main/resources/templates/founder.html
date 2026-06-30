@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Founder - Learning Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.35;
+            z-index: 0;
+            pointer-events: none;
+            animation: float 14s ease-in-out infinite;
+        }
+        .blob-1 { width: 380px; height: 380px; background: #f093fb; top: -120px; right: -90px; }
+        .blob-2 { width: 300px; height: 300px; background: #4facfe; bottom: -80px; left: -100px; animation-delay: -7s; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(40px) scale(1.08); }
+        }
+
+        main { position: relative; z-index: 1; flex-grow: 1; }
+
+        .page-header {
+            padding: 4.5rem 0 1rem;
+            text-align: center;
+        }
+        .page-header .badge-pill {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .page-header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            font-weight: 800;
+        }
+        .page-header h1 .accent {
+            background: linear-gradient(90deg, #fbc2eb, #a6c1ee, #84fab0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-header .lead { color: rgba(255, 255, 255, 0.9); max-width: 680px; margin: 0 auto; text-align: justify; }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 24px;
+            padding: 2rem 1.75rem;
+            text-align: center;
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .profile-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+        }
+        .avatar-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.25rem;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, #fbc2eb, #667eea, #84fab0);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+        .avatar-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            background: linear-gradient(145deg, #4c1d95, #667eea);
+        }
+        .avatar-inner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .profile-card h2 { font-weight: 800; font-size: 1.75rem; margin-bottom: 0.35rem; }
+        .profile-card .role {
+            color: #fde68a;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+        .profile-card .location {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-bottom: 1.25rem;
+        }
+        .profile-card .tagline {
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            text-align: justify;
+        }
+        .social-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+        }
+        .social-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.28);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .content-panel {
+            background: rgba(255, 255, 255, 0.97);
+            color: #333;
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .founder-about-scroll {
+            flex: 1;
+            max-height: min(72vh, 640px);
+            overflow-y: auto;
+            padding: 2.5rem 2.25rem;
+            padding-right: 1.5rem;
+        }
+        .founder-about-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .founder-about-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 999px;
+            margin: 0.5rem 0;
+        }
+        .founder-about-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            border-radius: 999px;
+        }
+        .founder-about-scroll::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #5a6fd6, #6a4190);
+        }
+        .founder-about-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #764ba2 #f1f5f9;
+        }
+        .content-panel h3 {
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        .content-panel .section-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #764ba2;
+            margin-bottom: 0.35rem;
+        }
+        .content-panel p { color: #475569; line-height: 1.7; text-align: justify; }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.15));
+            border: 1px solid rgba(118, 75, 162, 0.2);
+            color: #5b21b6;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 0.35rem 0.85rem;
+            margin: 0.2rem;
+        }
+
+        .skill-chip {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-radius: 999px;
+            padding: 0.4rem 0.9rem;
+            margin: 0.2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .exp-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .exp-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .exp-item h6 { font-weight: 700; color: #1e293b; margin-bottom: 0.15rem; }
+        .exp-item .org { color: #764ba2; font-weight: 600; font-size: 0.9rem; }
+        .exp-item .period { color: #94a3b8; font-size: 0.82rem; margin-bottom: 0.5rem; }
+        .exp-item ul {
+            margin: 0;
+            padding-left: 1.1rem;
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.55;
+        }
+
+        .cta-strip p { text-align: justify; max-width: 520px; margin-left: auto; margin-right: auto; }
+
+        .btn-action {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.7rem 1.75rem;
+            border-radius: 12px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-action:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.45);
+        }
+        .btn-action-outline {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.55);
+            color: #fff;
+            font-weight: 600;
+            padding: 0.65rem 1.65rem;
+            border-radius: 12px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-action-outline:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #fff;
+            color: #fff;
+        }
+
+        .cta-strip { text-align: center; padding: 1rem 0 3rem; }
+
+        .site-footer {
+            background: rgba(17, 24, 39, 0.45);
+            backdrop-filter: blur(8px);
+            margin-top: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 991px) {
+            .founder-about-scroll {
+                max-height: none;
+                overflow-y: visible;
+                padding-right: 2.25rem;
+            }
+        }
+    </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, '', '/home', false, 'founder')}"></nav>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <span class="badge-pill"><i class="fas fa-code me-2"></i>Platform founder</span>
+                <h1>Meet <span class="accent">Thiri Min</span></h1>
+                <p class="lead mb-0">
+                    Technical Trainer at FPT Software Academy and creator of Learn Hub —
+                    bridging complex tech concepts with practical, hands-on learning.
+                </p>
+            </div>
+        </section>
+
+        <section class="container pb-4">
+            <div class="row g-4 align-items-stretch">
+                <div class="col-lg-4">
+                    <div class="profile-card">
+                        <div class="avatar-ring">
+                            <div class="avatar-inner">
+                                <img src="/images/founder-thiri-min.jpg" alt="Thiri Min — Founder of Learn Hub" width="112" height="112">
+                            </div>
+                        </div>
+                        <h2>Thiri Min</h2>
+                        <div class="role">Founder — Learn Hub</div>
+                        <div class="role">Technical Trainer @ FPT Software Academy</div>
+                        <div class="location"><i class="fas fa-location-dot me-1"></i>Hanoi, Vietnam</div>
+                        <p class="tagline">
+                            Mentor, developer, and trainer specializing in Java, Spring Boot, and React.js.
+                            Built this LMS to give FSA interns one place to learn, practice, and grow.
+                        </p>
+                        <div class="mb-3">
+                            <span class="role-badge"><i class="fas fa-chalkboard-user"></i> Mentor</span>
+                            <span class="role-badge"><i class="fas fa-laptop-code"></i> Developer</span>
+                            <span class="role-badge"><i class="fas fa-graduation-cap"></i> Trainer</span>
+                        </div>
+                        <div class="social-row">
+                            <a href="https://www.linkedin.com/in/thiri-min/" class="social-btn" target="_blank"
+                               rel="noopener noreferrer" title="LinkedIn" aria-label="LinkedIn profile">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="https://thiri-min.github.io/TM_Portfolio/" class="social-btn" target="_blank"
+                               rel="noopener noreferrer" title="Portfolio" aria-label="Personal portfolio">
+                                <i class="fas fa-globe"></i>
+                            </a>
+                            <a href="https://github.com/Thiri-Min" class="social-btn" target="_blank"
+                               rel="noopener noreferrer" title="GitHub" aria-label="GitHub profile">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="https://www.youtube.com/channel/UCXooFrUKOLxquRVMBr7Xi5Q" class="social-btn"
+                               target="_blank" rel="noopener noreferrer" title="YouTube — Road To Coding"
+                               aria-label="Road To Coding YouTube channel">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="https://www.tiktok.com/@ms.coding2" class="social-btn" target="_blank"
+                               rel="noopener noreferrer" title="TikTok" aria-label="TikTok profile">
+                                <i class="fab fa-tiktok"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="content-panel">
+                        <div class="founder-about-scroll">
+                        <div class="section-label">About the founder</div>
+                        <h3>Who I Am</h3>
+                        <p>
+                            Graduated with Master's Degree in IT and also got Post Graduate Diploma in English.
+                            I am a <strong>Technical Trainer &amp; Developer</strong> with expertise in Java, Spring Boot,
+                            and React.js. I am skilled in Java, Python, and C++, and work with database systems including
+                            MySQL, MSSQL Server, and phpMyAdmin. On the front end, I use HTML, CSS, Bootstrap,
+                            JavaScript, and React to build responsive interfaces.
+                        </p>
+                        <p class="mb-4">
+                            I am passionate about turning complex concepts into practical skills — the same philosophy
+                            behind Learn Hub, Road To Coding, and my OJT classes at FSA. This platform combines courses,
+                            skill quizzes, mock projects, and mentoring so trainees learn by building real software.
+                        </p>
+
+                        <div class="section-label">Expertise</div>
+                        <h3 class="h5 mb-3">Core skills</h3>
+                        <div class="mb-4">
+                            <span class="skill-chip">Java</span>
+                            <span class="skill-chip">Spring Boot</span>
+                            <span class="skill-chip">React.js</span>
+                            <span class="skill-chip">Python</span>
+                            <span class="skill-chip">JavaScript</span>
+                            <span class="skill-chip">HTML5 &amp; CSS3</span>
+                            <span class="skill-chip">Bootstrap</span>
+                            <span class="skill-chip">MySQL</span>
+                            <span class="skill-chip">RESTful APIs</span>
+                            <span class="skill-chip">Microservices</span>
+                            <span class="skill-chip">Project Management</span>
+                            <span class="skill-chip">Git / GitHub</span>
+                        </div>
+
+                        <div class="section-label">Career</div>
+                        <h3 class="h5 mb-2">Experience highlights</h3>
+                        <div class="exp-item">
+                            <h6>Technical Trainer</h6>
+                            <div class="org">FPT Software Academy — FSA</div>
+                            <div class="period">Hanoi, Vietnam · Jan 2023 – Present</div>
+                            <ul>
+                                <li>Delivered training on Java, Spring Boot, and React.js</li>
+                                <li>Developed backend APIs and responsive front-end interfaces</li>
+                                <li>Mentored junior developers on best practices</li>
+                            </ul>
+                        </div>
+                        <div class="exp-item">
+                            <h6>Project Manager</h6>
+                            <div class="org">Kumo Solutions Mandalay — Evercomm</div>
+                            <div class="period">Mandalay, Myanmar · Jan 2024 – Jun 2024</div>
+                            <ul>
+                                <li>Managed and assigned tasks to a team of 7 members</li>
+                                <li>Reviewed code and design updates to maintain delivery quality</li>
+                                <li>Implemented IoT features for real-world websites</li>
+                                <li>Ensured high code quality through structured code reviews</li>
+                            </ul>
+                        </div>
+                        <div class="exp-item">
+                            <h6>IT Instructor</h6>
+                            <div class="org">Lithan — eduCLaas</div>
+                            <div class="period">Remote (Singapore) · Jan 2021 – Dec 2023</div>
+                            <ul>
+                                <li>Developed backend services with Java and Spring Boot</li>
+                                <li>Contributed to enterprise features and code reviews</li>
+                            </ul>
+                        </div>
+                        <div class="exp-item">
+                            <h6>Senior Java Programmer</h6>
+                            <div class="org">DIR-ACE Technology</div>
+                            <div class="period">Japan Based · Jan 2021 – Dec 2023</div>
+                            <ul>
+                                <li>Built programs on IBM platform with Oracle data handling</li>
+                                <li>Created unit and integration tests for deployment quality</li>
+                            </ul>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container cta-strip">
+            <p class="mb-3" style="color: rgba(255,255,255,0.88); text-align: justify; max-width: 520px; margin-left: auto; margin-right: auto;">
+                Explore the full portfolio and resume on my personal site.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="https://thiri-min.github.io/TM_Portfolio/" class="btn-action" target="_blank"
+                   rel="noopener noreferrer">
+                    <i class="fas fa-external-link-alt me-2"></i>Full Portfolio
+                </a>
+                <a href="https://www.linkedin.com/in/thiri-min/" class="btn-action-outline" target="_blank"
+                   rel="noopener noreferrer">
+                    <i class="fab fa-linkedin-in me-2"></i>Connect on LinkedIn
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer text-white">
+        <div class="container py-4 text-center">
+            <p class="mb-0">&copy; 2026 Learning Management System. Founded by Thiri Min.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -95,6 +95,8 @@ public class AuthController {
         chatPresenceService.markActive(loggedIn);
         redirectAttributes.addFlashAttribute("trackLocation", true);
         redirectAttributes.addFlashAttribute("gaTrackLoginSuccess", true);
+        session.setAttribute("pendingLocationTrack", Boolean.TRUE);
+        session.setAttribute("pendingGaLoginTrack", Boolean.TRUE);
         return "redirect:/home";
     }
 
@@ -287,15 +289,22 @@ public class AuthController {
 
     @PostMapping("/api/track/location")
     @ResponseBody
-    public Map<String, String> trackLoginLocation(@RequestParam String location, HttpSession session) {
+    public Map<String, String> trackLoginLocation(@RequestParam(required = false) String location,
+                                                  HttpSession session, HttpServletRequest request) {
         Map<String, String> response = new HashMap<>();
         var user = session.getAttribute("loggedInUser");
         if (user == null) {
             response.put("status", "unauthorized");
             return response;
         }
-        userActivityService.updateLatestLoginLocation(((User) user).getId(), location);
+        String resolved = location;
+        if (resolved == null || resolved.isBlank() || resolved.startsWith("Unknown")) {
+            resolved = userActivityService.resolveCountryFromRequest(request);
+        }
+        userActivityService.updateLatestLoginLocation(((User) user).getId(), resolved);
+        session.removeAttribute("pendingLocationTrack");
         response.put("status", "ok");
+        response.put("location", resolved);
         return response;
     }
 

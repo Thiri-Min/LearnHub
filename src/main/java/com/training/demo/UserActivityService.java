@@ -49,6 +49,10 @@ public class UserActivityService {
     @Autowired
     private QuizAttemptRepository quizAttemptRepository;
 
+    public String resolveCountryFromRequest(HttpServletRequest request) {
+        return resolveCountryFromIp(resolveClientIp(request));
+    }
+
     public User recordLogin(User user, HttpServletRequest request) {
         user.setLoginCount(user.getLoginCount() + 1);
         User saved = userRepository.save(user);
@@ -150,15 +154,20 @@ public class UserActivityService {
         if (request == null) {
             return "Unknown";
         }
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            return forwarded.split(",")[0].trim();
+        String[] headerNames = {
+                "X-Forwarded-For",
+                "X-Real-IP",
+                "CF-Connecting-IP",
+                "True-Client-IP"
+        };
+        for (String headerName : headerNames) {
+            String value = request.getHeader(headerName);
+            if (value != null && !value.isBlank() && !"unknown".equalsIgnoreCase(value.trim())) {
+                return value.split(",")[0].trim();
+            }
         }
-        String realIp = request.getHeader("X-Real-IP");
-        if (realIp != null && !realIp.isBlank()) {
-            return realIp.trim();
-        }
-        return request.getRemoteAddr();
+        String remoteAddr = request.getRemoteAddr();
+        return remoteAddr != null && !remoteAddr.isBlank() ? remoteAddr.trim() : "Unknown";
     }
 
     private String resolveCountryFromIp(String ip) {
@@ -169,14 +178,91 @@ public class UserActivityService {
         if (isLocalOrPrivateAddress(normalized)) {
             return "Local development";
         }
+
+        String fromIpApiCo = lookupCountryFromIpApiCo(normalized);
+        if (isResolvableCountry(fromIpApiCo)) {
+            return fromIpApiCo;
+        }
+
+        String fromIpWho = lookupCountryFromIpWho(normalized);
+        if (isResolvableCountry(fromIpWho)) {
+            return fromIpWho;
+        }
+
+        String fromIpApi = lookupCountryFromIpApi(normalized);
+        if (isResolvableCountry(fromIpApi)) {
+            return fromIpApi;
+        }
+
+        return "Unknown";
+    }
+
+    private boolean isResolvableCountry(String country) {
+        return country != null && !country.isBlank() && !"Unknown".equalsIgnoreCase(country.trim());
+    }
+
+    private String lookupCountryFromIpApiCo(String ip) {
         try {
-            URI uri = URI.create("http://ip-api.com/json/" + normalized + "?fields=status,country");
+            URI uri = URI.create("https://ipapi.co/" + ip + "/country_name/");
             HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
-            connection.setConnectTimeout(2000);
-            connection.setReadTimeout(2000);
-            int statusCode = connection.getResponseCode();
-            if (statusCode != 200) {
+            connection.setConnectTimeout(3000);
+            connection.setReadTimeout(3000);
+            connection.setRequestProperty("User-Agent", "LearnHub-LMS/1.0");
+            if (connection.getResponseCode() != 200) {
+                return "Unknown";
+            }
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                String country = reader.readLine();
+                return country != null ? country.trim() : "Unknown";
+            }
+        } catch (Exception ignored) {
+            return "Unknown";
+        }
+    }
+
+    private String lookupCountryFromIpWho(String ip) {
+        try {
+            URI uri = URI.create("https://ipwho.is/" + ip);
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(3000);
+            connection.setReadTimeout(3000);
+            connection.setRequestProperty("User-Agent", "LearnHub-LMS/1.0");
+            if (connection.getResponseCode() != 200) {
+                return "Unknown";
+            }
+            StringBuilder body = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    body.append(line);
+                }
+            }
+            String json = body.toString();
+            if (!json.contains("\"success\":true")) {
+                return "Unknown";
+            }
+            Matcher matcher = Pattern.compile("\"country\"\\s*:\\s*\"([^\"]+)\"").matcher(json);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+        } catch (Exception ignored) {
+            return "Unknown";
+        }
+        return "Unknown";
+    }
+
+    private String lookupCountryFromIpApi(String ip) {
+        try {
+            URI uri = URI.create("http://ip-api.com/json/" + ip + "?fields=status,country");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(3000);
+            connection.setReadTimeout(3000);
+            if (connection.getResponseCode() != 200) {
                 return "Unknown";
             }
             StringBuilder body = new StringBuilder();
@@ -195,7 +281,7 @@ public class UserActivityService {
                 return matcher.group(1);
             }
         } catch (Exception ignored) {
-            // Fall back to client-side refinement when IP lookup is unavailable.
+            return "Unknown";
         }
         return "Unknown";
     }

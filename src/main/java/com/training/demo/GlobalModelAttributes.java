@@ -38,5 +38,15 @@ public class GlobalModelAttributes {
         model.addAttribute("ga4MeasurementId", ga4MeasurementId);
         model.addAttribute("aiChatEnabled", chatBotService.isEnabled());
         model.addAttribute("aiLiveEnabled", chatBotService.isLiveAiConfigured());
+
+        if (!model.containsAttribute("trackLocation")
+                && Boolean.TRUE.equals(session.getAttribute("pendingLocationTrack"))) {
+            model.addAttribute("trackLocation", true);
+        }
+        if (!model.containsAttribute("gaTrackLoginSuccess")
+                && Boolean.TRUE.equals(session.getAttribute("pendingGaLoginTrack"))) {
+            model.addAttribute("gaTrackLoginSuccess", true);
+            session.removeAttribute("pendingGaLoginTrack");
+        }
     }
 }

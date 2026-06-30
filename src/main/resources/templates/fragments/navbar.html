@@ -107,7 +107,12 @@
         function postLoginCountry(country) {
             const body = new URLSearchParams();
             body.append('location', country || 'Unknown');
-            fetch('/api/track/location', { method: 'POST', body: body }).catch(function() {});
+            fetch('/api/track/location', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body
+            }).catch(function() {});
         }
 
         function countryFromCoordinates(lat, lng) {
@@ -118,50 +123,60 @@
                 .then(function(data) {
                     if (data.countryName) return data.countryName;
                     if (data.countryCode) return data.countryCode;
-                    return 'Unknown';
+                    return null;
                 })
                 .catch(function() { return null; });
         }
 
         function countryFromIp() {
-            return fetch('https://ipapi.co/json/')
-                .then(function(r) { return r.json(); })
-                .then(function(data) { return data.country_name || data.country || null; })
+            return fetch('https://ipapi.co/json/', { credentials: 'omit' })
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .then(function(data) {
+                    if (!data) return null;
+                    return data.country_name || data.country || null;
+                })
                 .catch(function() { return null; });
         }
 
         function trackLoginLocation() {
-            function useIpFallback() {
-                countryFromIp().then(function(country) {
-                    postLoginCountry(country || 'Unknown (IP lookup failed)');
-                });
+            function useGeolocationFallback() {
+                if (!navigator.geolocation) {
+                    postLoginCountry('Unknown');
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        countryFromCoordinates(pos.coords.latitude, pos.coords.longitude)
+                            .then(function(country) {
+                                postLoginCountry(country || 'Unknown');
+                            });
+                    },
+                    function() {
+                        postLoginCountry('Unknown');
+                    },
+                    { timeout: 8000, maximumAge: 300000 }
+                );
             }
 
-            if (!navigator.geolocation) {
-                useIpFallback();
-                return;
-            }
+            countryFromIp().then(function(country) {
+                if (country) {
+                    postLoginCountry(country);
+                } else {
+                    useGeolocationFallback();
+                }
+            });
+        }
 
-            navigator.geolocation.getCurrentPosition(
-                function(pos) {
-                    countryFromCoordinates(pos.coords.latitude, pos.coords.longitude)
-                        .then(function(country) {
-                            if (country) {
-                                postLoginCountry(country);
-                            } else {
-                                useIpFallback();
-                            }
-                        });
-                },
-                function() {
-                    useIpFallback();
-                },
-                { timeout: 10000, maximumAge: 300000 }
-            );
+        function runWhenReady(callback) {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', callback);
+            } else {
+                callback();
+            }
         }
     </script>
     <script th:if="${trackLocation}">
-        document.addEventListener('DOMContentLoaded', trackLoginLocation);
+        runWhenReady(trackLoginLocation);
     </script>
 </th:block>
 
@@ -181,6 +196,12 @@
     </li>
     <li class="nav-item" th:if="${user != null and !isAdminUser}">
         <a class="nav-link" href="/feedback" th:classappend="${activeNav == 'feedback'} ? 'active' : ''">Feedback</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/about" th:classappend="${activeNav == 'about'} ? 'active' : ''">About</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/founder" th:classappend="${activeNav == 'founder'} ? 'active' : ''">Founder</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="/contact" th:classappend="${activeNav == 'contact'} ? 'active' : ''">Contact</a>
