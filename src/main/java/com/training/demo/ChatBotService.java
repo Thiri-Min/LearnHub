@@ -32,10 +32,10 @@ public class ChatBotService {
             - Courses (/courses): catalog with Buy Course, Favorites, and Read for each course
             - Course detail (/course-detail?courseId=): Code Demo and Practice Lab (Mock Project has HTML/CSS/JS editors with live UI preview; other courses use Input Code and Output)
             - Cart (/cart): shopping cart for courses
-            - Tech (/tech): Skill MCQ tests (Java, SQL, Python, Git, DSA) at Pre-Intermediate, Intermediate, Advanced — 10 random questions per attempt; DSA allows 3 attempts per level with a new random set each time
+            - Tech (/tech): Skill MCQ tests (Java, SQL, Python, Git, DSA, FrontEnd, Base Framework, AI, Fullstack) at Pre-Intermediate, Intermediate, Advanced — 10 random questions per attempt; DSA allows 3 attempts per level; FrontEnd, Base Framework, AI, and Fullstack allow 5 attempts per level
             - Quiz (/quiz): take quizzes from the tech page
             - Rich content library for learning materials
-            - Mentoring (/mentoring): book mentors and chat
+            - Interactive Learning (/mentoring): book live mentor sessions, view upcoming slots, and chat with trainers
             - My Progress (/my-progress): track learning progress
             - Profile (/profile): user profile
             - Feedback (/feedback): submit feedback (hidden for admin users)
@@ -49,10 +49,10 @@ public class ChatBotService {
             5. Spring Framework - Spring Boot and Java applications
             6. Mock Project - build a mock project with web practice lab (HTML, CSS, JavaScript)
 
-            Counts: 6 courses in the catalog, 6 mentors on the mentoring page, 8 tech skill areas on the Tech page (Java, SQL, Git, DSA, Spring, Mock Project, Python, Base Framework).
-            Skill quizzes: 3 levels (Pre-Intermediate, Intermediate, Advanced), 10 random questions per attempt, start from /tech then /quiz. DSA tests: up to 3 attempts per user per level; FrontEnd and Base Framework: up to 5 attempts per level — new random MCQs each attempt.
+            Counts: 6 courses in the catalog, 6 mentors on Interactive Learning (/mentoring), 10 tech skill areas on the Tech page (Java, SQL, Python, Base Framework, AI, Database, DSA, Git, FrontEnd, Fullstack), 800+ total MCQs across quiz banks.
+            Skill quizzes: 3 levels (Pre-Intermediate, Intermediate, Advanced), 10 random questions per attempt, start from /tech then /quiz. DSA: up to 3 attempts per level; FrontEnd, Base Framework, AI, and Fullstack: up to 5 attempts per level — new random MCQs each attempt.
 
-            Users can sign up, log in, reset password via forgot password on the home page, add courses to cart, favorite courses, read course materials, take Git quizzes, and use mentoring.
+            Users can sign up, log in, reset password via forgot password on the home page, add courses to cart, favorite courses, read course materials, take skill quizzes, and use Interactive Learning (/mentoring).
             Do not invent features or prices not listed above. Stay focused on helping users navigate and use Learn Hub.
             """;
 
@@ -303,7 +303,7 @@ public class ChatBotService {
         }
         if (q.contains("how many") && q.contains("mentor")) {
             return """
-                    There are 6 mentors on the Mentoring page (/mentoring).
+                    There are 6 mentors on the Interactive Learning page (/mentoring).
                     You can view profiles, book consultation slots, and chat with a mentor after booking.""";
         }
         if (q.contains("how many") && (q.contains("tech") || q.contains("skill"))) {
@@ -343,7 +343,7 @@ public class ChatBotService {
             return "Browse /courses, click Buy Course on any course, then open /cart to review and complete checkout.";
         }
         if (q.contains("mentor")) {
-            return "Visit /mentoring to browse mentors, book sessions, and chat with them on the mentor detail page.";
+            return "Visit /mentoring (Interactive Learning) to browse trainers, book sessions, and chat on the mentor detail page.";
         }
         if (q.contains("progress")) {
             return "Your learning activity is shown on /my-progress after you log in.";
@@ -354,12 +354,12 @@ public class ChatBotService {
                     Mock Project uses HTML, CSS, JavaScript editors plus a live UI preview. Click Run Code to execute.""";
         }
         if (q.contains("hello") || q.contains("hi ") || q.equals("hi")) {
-            return "Hello! I'm the Learn Hub assistant. Ask me about courses, Git quizzes, cart, mentoring, or practice labs.";
+            return "Hello! I'm the Learn Hub assistant. Ask me about courses, skill quizzes, cart, Interactive Learning, or practice labs.";
         }
 
         return """
                 I'm answering with built-in help (AI providers may be rate-limited).
-                Try asking about: courses, Git quizzes, login, cart, Mock Project practice, or mentoring.
+                Try asking about: courses, skill quizzes, login, cart, Mock Project practice, or Interactive Learning.
                 Browse /courses to get started!""";
     }
 }

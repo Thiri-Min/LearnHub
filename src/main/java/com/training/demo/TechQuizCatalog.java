@@ -21,6 +21,8 @@ public final class TechQuizCatalog {
         registerDsa();
         registerFrontEnd();
         registerBaseFramework();
+        registerAi();
+        registerFullstack();
     }
 
     private TechQuizCatalog() {
@@ -32,6 +34,8 @@ public final class TechQuizCatalog {
     public static final int DSA_MAX_ATTEMPTS = 3;
     public static final int FRONTEND_MAX_ATTEMPTS = 5;
     public static final int BASE_FRAMEWORK_MAX_ATTEMPTS = 5;
+    public static final int AI_MAX_ATTEMPTS = 5;
+    public static final int FULLSTACK_MAX_ATTEMPTS = 5;
 
     public static List<Map<String, Object>> getQuestions(String subject, String level) {
         Map<String, List<Map<String, Object>>> byLevel = QUESTIONS.get(subject);
@@ -68,6 +72,16 @@ public final class TechQuizCatalog {
         List<String> options = (List<String>) question.get("options");
         copy.put("options", new ArrayList<>(options));
         copy.put("answer", question.get("answer"));
+        Object correctOption = question.get("correctOption");
+        if (correctOption != null) {
+            copy.put("correctOption", correctOption);
+        } else if (question.get("answer") instanceof Integer idx) {
+            @SuppressWarnings("unchecked")
+            List<String> opts = (List<String>) question.get("options");
+            if (opts != null && idx >= 0 && idx < opts.size()) {
+                copy.put("correctOption", opts.get(idx));
+            }
+        }
         return copy;
     }
 
@@ -80,6 +94,7 @@ public final class TechQuizCatalog {
         question.put("options", options);
         int newAnswer = options.indexOf(correctText);
         question.put("answer", newAnswer >= 0 ? newAnswer : answer);
+        question.put("correctOption", correctText);
         return question;
     }
 
@@ -148,6 +163,22 @@ public final class TechQuizCatalog {
         levels.put("Intermediate", baseFrameworkIntermediate());
         levels.put("Advanced", baseFrameworkAdvanced());
         QUESTIONS.put("BaseFramework", levels);
+    }
+
+    private static void registerAi() {
+        Map<String, List<Map<String, Object>>> levels = new LinkedHashMap<>();
+        levels.put("Pre-Intermediate", AiQuizBank.preIntermediate());
+        levels.put("Intermediate", AiQuizBank.intermediate());
+        levels.put("Advanced", AiQuizBank.advanced());
+        QUESTIONS.put("AI", levels);
+    }
+
+    private static void registerFullstack() {
+        Map<String, List<Map<String, Object>>> levels = new LinkedHashMap<>();
+        levels.put("Pre-Intermediate", FullstackQuizBank.preIntermediate());
+        levels.put("Intermediate", FullstackQuizBank.intermediate());
+        levels.put("Advanced", FullstackQuizBank.advanced());
+        QUESTIONS.put("Fullstack", levels);
     }
 
     private static Map<String, Object> q(String question, List<String> options, int answer) {
@@ -255,7 +286,7 @@ public final class TechQuizCatalog {
         list.add(q("Which of these is a valid Python list?",
                 List.of("{1, 2, 3}", "[1, 2, 3]", "(1, 2, 3)", "<1, 2, 3>"), 1));
         list.add(q("What is the output of print(type(3.14))?",
-                List.of("<class 'int'>", "<class 'float'>", "<class 'str'>", "<class 'double'>"), 1));
+                List.of("<class 'float'>", "<class 'int'>", "<class 'str'>", "<class 'double'>"), 0));
         list.add(q("Which symbol is used for comments in Python?",
                 List.of("//", "#", "/*", "--"), 1));
         list.add(q("How do you create a dictionary in Python?",

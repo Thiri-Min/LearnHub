@@ -149,6 +149,10 @@
         const frontEndMaxAttempts = /*[[${frontEndMaxAttempts}]]*/ 5;
         const baseFrameworkAttemptCounts = /*[[${baseFrameworkAttemptCounts}]]*/ {};
         const baseFrameworkMaxAttempts = /*[[${baseFrameworkMaxAttempts}]]*/ 5;
+        const aiAttemptCounts = /*[[${aiAttemptCounts}]]*/ {};
+        const aiMaxAttempts = /*[[${aiMaxAttempts}]]*/ 5;
+        const fullstackAttemptCounts = /*[[${fullstackAttemptCounts}]]*/ {};
+        const fullstackMaxAttempts = /*[[${fullstackMaxAttempts}]]*/ 5;
         const testData = {
             Java: {
                 icon: 'fab fa-java',
@@ -533,6 +537,16 @@
                                 if (used >= baseFrameworkMaxAttempts) {
                                     btnDisabled = 'disabled';
                                 }
+                            } else if (filter === 'AI') {
+                                const used = Number(aiAttemptCounts[tier] || 0);
+                                if (used >= aiMaxAttempts) {
+                                    btnDisabled = 'disabled';
+                                }
+                            } else if (filter === 'Fullstack') {
+                                const used = Number(fullstackAttemptCounts[tier] || 0);
+                                if (used >= fullstackMaxAttempts) {
+                                    btnDisabled = 'disabled';
+                                }
                             }
                             const levelCard = document.createElement('div');
                             levelCard.className = 'col-md-4';
@@ -592,6 +606,16 @@
                 } else if (subject === 'BaseFramework') {
                     const used = Number(baseFrameworkAttemptCounts[normalizedLevel] || 0);
                     if (used >= baseFrameworkMaxAttempts) {
+                        return;
+                    }
+                } else if (subject === 'AI') {
+                    const used = Number(aiAttemptCounts[normalizedLevel] || 0);
+                    if (used >= aiMaxAttempts) {
+                        return;
+                    }
+                } else if (subject === 'Fullstack') {
+                    const used = Number(fullstackAttemptCounts[normalizedLevel] || 0);
+                    if (used >= fullstackMaxAttempts) {
                         return;
                     }
                 }

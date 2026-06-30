@@ -627,7 +627,7 @@
         </div>
         <div id="aiChatMessages" class="ai-chat-messages"></div>
         <div class="ai-chat-input-row">
-            <textarea id="aiChatInput" rows="1" placeholder="Ask about courses, quizzes, mentoring..." maxlength="2000" aria-label="Your message"></textarea>
+            <textarea id="aiChatInput" rows="1" placeholder="Ask about courses, quizzes, Interactive Learning..." maxlength="2000" aria-label="Your message"></textarea>
             <button type="button" class="ai-chat-send" id="aiChatSendBtn" aria-label="Send message">
                 <i class="fas fa-paper-plane"></i>
             </button>
@@ -779,7 +779,7 @@
                 welcomed = true;
                 if (aiChatEnabled) {
                     if (aiLiveEnabled) {
-                        appendBubble('Hi! I can help you with courses, Git quizzes, mentoring, cart, practice labs, and how to use Learn Hub. What would you like to know?', 'bot');
+                        appendBubble('Hi! I can help you with courses, skill quizzes, Interactive Learning, cart, practice labs, and how to use Learn Hub. What would you like to know?', 'bot');
                     } else {
                         appendBubble('Hi! I am in help mode with built-in answers. For full AI replies, copy application-local.properties.example to application-local.properties, add your OpenAI or Gemini API key, and restart the app.', 'bot');
                     }

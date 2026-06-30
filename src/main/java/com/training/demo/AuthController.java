@@ -232,6 +232,10 @@ public class AuthController {
         model.addAttribute("frontEndAttemptCounts", buildSubjectAttemptCounts(currentUser.getId(), "FrontEnd"));
         model.addAttribute("baseFrameworkMaxAttempts", TechQuizCatalog.BASE_FRAMEWORK_MAX_ATTEMPTS);
         model.addAttribute("baseFrameworkAttemptCounts", buildSubjectAttemptCounts(currentUser.getId(), "BaseFramework"));
+        model.addAttribute("aiMaxAttempts", TechQuizCatalog.AI_MAX_ATTEMPTS);
+        model.addAttribute("aiAttemptCounts", buildSubjectAttemptCounts(currentUser.getId(), "AI"));
+        model.addAttribute("fullstackMaxAttempts", TechQuizCatalog.FULLSTACK_MAX_ATTEMPTS);
+        model.addAttribute("fullstackAttemptCounts", buildSubjectAttemptCounts(currentUser.getId(), "Fullstack"));
         return "tech";
     }
 
@@ -426,8 +430,17 @@ public class AuthController {
         return subject != null && "BaseFramework".equalsIgnoreCase(subject.trim());
     }
 
+    private static boolean isAiQuiz(String subject) {
+        return subject != null && "AI".equalsIgnoreCase(subject.trim());
+    }
+
+    private static boolean isFullstackQuiz(String subject) {
+        return subject != null && "Fullstack".equalsIgnoreCase(subject.trim());
+    }
+
     private static boolean hasAttemptLimit(String subject) {
-        return isDsaQuiz(subject) || isFrontEndQuiz(subject) || isBaseFrameworkQuiz(subject);
+        return isDsaQuiz(subject) || isFrontEndQuiz(subject) || isBaseFrameworkQuiz(subject)
+                || isAiQuiz(subject) || isFullstackQuiz(subject);
     }
 
     private static int maxAttemptsForSubject(String subject) {
@@ -436,6 +449,12 @@ public class AuthController {
         }
         if (isBaseFrameworkQuiz(subject)) {
             return TechQuizCatalog.BASE_FRAMEWORK_MAX_ATTEMPTS;
+        }
+        if (isAiQuiz(subject)) {
+            return TechQuizCatalog.AI_MAX_ATTEMPTS;
+        }
+        if (isFullstackQuiz(subject)) {
+            return TechQuizCatalog.FULLSTACK_MAX_ATTEMPTS;
         }
         return TechQuizCatalog.DSA_MAX_ATTEMPTS;
     }
@@ -446,6 +465,12 @@ public class AuthController {
         }
         if (isBaseFrameworkQuiz(subject)) {
             return "BaseFramework";
+        }
+        if (isAiQuiz(subject)) {
+            return "AI";
+        }
+        if (isFullstackQuiz(subject)) {
+            return "Fullstack";
         }
         return "DSA";
     }
