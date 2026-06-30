@@ -1,5 +1,6 @@
 package com.training.demo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,11 +14,14 @@ public class ChatReadStatusService {
 
     private final Map<String, LocalDateTime> readTimes = new ConcurrentHashMap<>();
 
+    @Autowired
+    private UserService userService;
+
     public void markRead(User viewer, Long mentorId, Long menteeId) {
         if (viewer == null || mentorId == null || menteeId == null) {
             return;
         }
-        readTimes.put(readKey(viewer.isAdmin(), mentorId, menteeId), LocalDateTime.now());
+        readTimes.put(readKey(userService.canAccessTrainerView(viewer), mentorId, menteeId), LocalDateTime.now());
     }
 
     public String getDeliveryStatus(MentorChatMessage message) {
@@ -51,7 +55,7 @@ public class ChatReadStatusService {
         if (viewer == null || message == null || message.getSentAt() == null) {
             return false;
         }
-        boolean viewerIsTrainer = viewer.isAdmin();
+        boolean viewerIsTrainer = userService.canAccessTrainerView(viewer);
         boolean messageFromOtherSide = viewerIsTrainer
                 ? "USER".equals(message.getSender())
                 : "MENTOR".equals(message.getSender());

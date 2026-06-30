@@ -1,5 +1,6 @@
 package com.training.demo;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -74,6 +75,32 @@ public class UserService {
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    /** Reload the logged-in user from the database into the session (role, profile, etc.). */
+    public Optional<User> syncSessionUser(HttpSession session) {
+        if (session == null) {
+            return Optional.empty();
+        }
+        Object attr = session.getAttribute("loggedInUser");
+        if (!(attr instanceof User sessionUser) || sessionUser.getId() == null) {
+            return Optional.empty();
+        }
+        Optional<User> fresh = userRepository.findById(sessionUser.getId());
+        fresh.ifPresent(user -> session.setAttribute("loggedInUser", user));
+        return fresh;
+    }
+
+    /** Admin trainer dashboard for Interactive Learning (mentor inbox + reply as trainer). */
+    public boolean canAccessTrainerView(User user) {
+        if (user == null) {
+            return false;
+        }
+        if (user.isAdmin()) {
+            return true;
+        }
+        String email = user.getEmail();
+        return email != null && email.equalsIgnoreCase(reservedAdminEmail.trim());
     }
 
     public User updateUser(Long id, String firstName, String lastName, String username, String email) throws Exception {

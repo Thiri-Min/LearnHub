@@ -54,7 +54,7 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return "ADMIN".equalsIgnoreCase(role);
+        return role != null && "ADMIN".equalsIgnoreCase(role);
     }
     
     // Getters and Setters

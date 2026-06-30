@@ -19,8 +19,12 @@ public class GlobalModelAttributes {
     @Autowired
     private MentoringService mentoringService;
 
+    @Autowired
+    private UserService userService;
+
     @ModelAttribute
     public void addSessionUser(HttpSession session, Model model) {
+        userService.syncSessionUser(session);
         Object attr = session.getAttribute("loggedInUser");
         if (attr instanceof User user) {
             if (!model.containsAttribute("user")) {

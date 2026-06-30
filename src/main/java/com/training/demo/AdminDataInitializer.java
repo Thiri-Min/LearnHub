@@ -51,6 +51,8 @@ public class AdminDataInitializer implements ApplicationRunner {
         String username = userService.normalizeUsername(adminUsername.trim());
         String password = adminPassword.trim();
 
+        backfillUserRoles(email);
+
         userRepository.findByEmailIgnoreCase(email).ifPresentOrElse(user -> {
             user.setFirstName(adminFirstName.trim());
             user.setLastName(adminLastName.trim());
@@ -67,6 +69,23 @@ public class AdminDataInitializer implements ApplicationRunner {
             userRepository.saveAndFlush(admin);
             log.info("Admin account created for email {} (username: {})", email, username);
         });
+    }
+
+    private void backfillUserRoles(String adminEmailAddress) {
+        for (User user : userRepository.findAll()) {
+            boolean changed = false;
+            if (user.getRole() == null || user.getRole().isBlank()) {
+                user.setRole("USER");
+                changed = true;
+            }
+            if (user.getEmail() != null && user.getEmail().equalsIgnoreCase(adminEmailAddress)) {
+                user.setRole("ADMIN");
+                changed = true;
+            }
+            if (changed) {
+                userRepository.saveAndFlush(user);
+            }
+        }
     }
 
     private void backfillMissingUsernames() {

@@ -35,6 +35,9 @@ public class MentoringController {
     @Autowired
     private ChatReadStatusService chatReadStatusService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping("/mentoring")
     public String mentoringHub(HttpSession session, Model model) {
         User user = requireUser(session);
@@ -91,7 +94,7 @@ public class MentoringController {
         model.addAttribute("slots", mentoringService.getUpcomingSlots(mentorId));
         model.addAttribute("preselectedSlotId", slotId);
         model.addAttribute("bookings", mentoringService.getUserBookingsForMentor(user.getId(), mentorId));
-        boolean trainerView = user.isAdmin();
+        boolean trainerView = userService.canAccessTrainerView(user);
         List<MentoringService.ChatConversation> chatConversations = trainerView
                 ? mentoringService.getChatConversations(mentorId, user)
                 : List.of();
@@ -311,7 +314,7 @@ public class MentoringController {
         }
         chatPresenceService.markActive(user);
         try {
-            if (user.isAdmin()) {
+            if (isTrainer(user)) {
                 if (chatTargetUserId == null) {
                     throw new Exception("No mentee conversation found yet.");
                 }
@@ -325,7 +328,7 @@ public class MentoringController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         String redirectUrl = "/mentoring/mentor?mentorId=" + mentorId;
-        if (user.isAdmin() && chatTargetUserId != null) {
+        if (isTrainer(user) && chatTargetUserId != null) {
             redirectUrl += "&menteeId=" + chatTargetUserId;
         }
         return "redirect:" + redirectUrl + "#chat";
@@ -340,7 +343,7 @@ public class MentoringController {
             return Map.of("online", false);
         }
         chatPresenceService.markActive(user);
-        boolean online = user.isAdmin() && menteeId != null
+        boolean online = isTrainer(user) && menteeId != null
                 ? chatPresenceService.isUserOnline(menteeId)
                 : chatPresenceService.isOtherSideOnline(user);
         return Map.of("online", online);
@@ -356,7 +359,7 @@ public class MentoringController {
             return Map.of("messages", List.of());
         }
         chatPresenceService.markActive(user);
-        Long targetUserId = user.isAdmin() ? menteeId : user.getId();
+        Long targetUserId = isTrainer(user) ? menteeId : user.getId();
         if (targetUserId == null) {
             return Map.of("messages", List.of());
         }
@@ -364,11 +367,11 @@ public class MentoringController {
         String mentorName = mentoringService.getMentor(mentorId).map(Mentor::getName).orElse("Mentor");
         List<Map<String, Object>> messages = mentoringService.getChatMessages(targetUserId, mentorId).stream()
                 .map(message -> {
-                    boolean mine = (user.isAdmin() && "MENTOR".equals(message.getSender()))
-                            || (!user.isAdmin() && "USER".equals(message.getSender()));
+                    boolean mine = (isTrainer(user) && "MENTOR".equals(message.getSender()))
+                            || (!isTrainer(user) && "USER".equals(message.getSender()));
                     String senderLabel = "USER".equals(message.getSender())
-                            ? (user.isAdmin() ? "Mentee" : "You")
-                            : (user.isAdmin() ? "You" : mentorName);
+                            ? (isTrainer(user) ? "Mentee" : "You")
+                            : (isTrainer(user) ? "You" : mentorName);
                     return Map.<String, Object>of(
                             "id", message.getId(),
                             "content", message.getContent(),
@@ -387,7 +390,7 @@ public class MentoringController {
     public Map<String, Object> chatConversations(@RequestParam Long mentorId,
                                                  HttpSession session) {
         User user = requireUser(session);
-        if (user == null || !user.isAdmin()) {
+        if (user == null || !isTrainer(user)) {
             return Map.of("conversations", List.of());
         }
         chatPresenceService.markActive(user);
@@ -415,7 +418,11 @@ public class MentoringController {
     }
 
     private User requireUser(HttpSession session) {
-        return (User) session.getAttribute("loggedInUser");
+        return userService.syncSessionUser(session).orElse(null);
+    }
+
+    private boolean isTrainer(User user) {
+        return userService.canAccessTrainerView(user);
     }
 
     @SuppressWarnings("unchecked")

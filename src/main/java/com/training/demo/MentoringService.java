@@ -35,6 +35,9 @@ public class MentoringService {
     @Autowired
     private ChatReadStatusService chatReadStatusService;
 
+    @Autowired
+    private UserService userService;
+
     public List<Mentor> getAllMentors() {
         return mentorRepository.findAll().stream()
                 .sorted(Comparator.comparingInt(this::mentorDisplayOrder))
@@ -108,7 +111,7 @@ public class MentoringService {
         if (user == null) {
             return new ChatNotificationState(0, "/mentoring");
         }
-        List<MentorChatMessage> messages = user.isAdmin()
+        List<MentorChatMessage> messages = userService.canAccessTrainerView(user)
                 ? mentorChatMessageRepository.findAll().stream()
                         .sorted(Comparator.comparing(MentorChatMessage::getSentAt).reversed())
                         .toList()
@@ -124,7 +127,7 @@ public class MentoringService {
             return "/mentoring";
         }
         String href = "/mentoring/mentor?mentorId=" + message.getMentorId();
-        if (user != null && user.isAdmin()) {
+        if (user != null && userService.canAccessTrainerView(user)) {
             href += "&menteeId=" + message.getUserId();
         }
         return href + "#chat";
