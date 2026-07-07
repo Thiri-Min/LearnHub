@@ -41,9 +41,6 @@ public class MentoringController {
     @GetMapping("/mentoring")
     public String mentoringHub(HttpSession session, Model model) {
         User user = requireUser(session);
-        if (user == null) {
-            return "redirect:/?authMode=login";
-        }
         List<Mentor> mentors = mentoringService.getAllMentors();
         Map<Long, Long> availableCounts = new HashMap<>();
         Map<Long, List<MentorSlot>> upcomingSlots = new HashMap<>();
@@ -65,11 +62,12 @@ public class MentoringController {
             upcomingSlots.put(mentor.getId(), slots);
             mi++;
         }
-        model.addAttribute("user", user);
-        model.addAttribute("cartCount", getCartCount(session));
         model.addAttribute("mentors", mentors);
         model.addAttribute("availableCounts", availableCounts);
         model.addAttribute("upcomingSlots", upcomingSlots);
+        if (user != null) {
+            model.addAttribute("cartCount", getCartCount(session));
+        }
         return "mentoring";
     }
 
@@ -79,20 +77,31 @@ public class MentoringController {
                                @RequestParam(required = false) Long menteeId,
                                HttpSession session, Model model) {
         User user = requireUser(session);
-        if (user == null) {
-            return "redirect:/?authMode=login";
-        }
-        chatPresenceService.markActive(user);
         var mentorOpt = mentoringService.getMentor(mentorId);
         if (mentorOpt.isEmpty()) {
             return "redirect:/mentoring";
         }
-        model.addAttribute("user", user);
-        model.addAttribute("cartCount", getCartCount(session));
         Mentor mentor = mentorOpt.get();
         model.addAttribute("mentor", mentor);
         model.addAttribute("slots", mentoringService.getUpcomingSlots(mentorId));
         model.addAttribute("preselectedSlotId", slotId);
+
+        if (user == null) {
+            model.addAttribute("bookings", List.of());
+            model.addAttribute("trainerView", false);
+            model.addAttribute("chatConversations", List.of());
+            model.addAttribute("selectedMenteeId", null);
+            model.addAttribute("chatTitle", "Chat with Mentor");
+            model.addAttribute("chatPartnerOnline", false);
+            model.addAttribute("chatTargetUserId", null);
+            model.addAttribute("chatMessages", List.of());
+            model.addAttribute("defaultStudentName", "");
+            model.addAttribute("defaultStudentEmail", "");
+            return "mentor-detail";
+        }
+
+        chatPresenceService.markActive(user);
+        model.addAttribute("cartCount", getCartCount(session));
         model.addAttribute("bookings", mentoringService.getUserBookingsForMentor(user.getId(), mentorId));
         boolean trainerView = userService.canAccessTrainerView(user);
         List<MentoringService.ChatConversation> chatConversations = trainerView

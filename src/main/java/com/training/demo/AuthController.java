@@ -253,32 +253,23 @@ public class AuthController {
 
     @GetMapping("/rich-content")
     public String richContent(HttpSession session, Model model) {
-        var user = session.getAttribute("loggedInUser");
-        if (user == null) {
-            return "redirect:/?authMode=login";
-        }
-        model.addAttribute("user", user);
-        model.addAttribute("cartCount", getCart(session).size());
+        applyOptionalSession(session, model);
         model.addAttribute("topics", TechContentCatalog.getAllTopics());
         return "rich-content";
     }
 
     @GetMapping("/rich-content/detail")
     public String richContentDetail(@RequestParam String topic, HttpSession session, Model model) {
-        var user = session.getAttribute("loggedInUser");
-        if (user == null) {
-            return "redirect:/?authMode=login";
-        }
         var techTopic = TechContentCatalog.findById(topic);
         if (techTopic.isEmpty()) {
             return "redirect:/rich-content";
         }
-        User currentUser = (User) user;
         TechTopic tech = techTopic.get();
-        userActivityService.recordRichContentView(currentUser.getId(), tech.getId(), tech.getTitle());
-
-        model.addAttribute("user", currentUser);
-        model.addAttribute("cartCount", getCart(session).size());
+        var user = session.getAttribute("loggedInUser");
+        if (user instanceof User currentUser) {
+            userActivityService.recordRichContentView(currentUser.getId(), tech.getId(), tech.getTitle());
+        }
+        applyOptionalSession(session, model);
         model.addAttribute("topic", tech);
         return "rich-content-detail";
     }
@@ -348,12 +339,7 @@ public class AuthController {
 
     @GetMapping("/course-detail")
     public String courseDetail(@RequestParam String courseId, HttpSession session, Model model) {
-        var user = session.getAttribute("loggedInUser");
-        if (user == null) {
-            return "redirect:/?authMode=login";
-        }
-        model.addAttribute("user", user);
-        model.addAttribute("cartCount", getCart(session).size());
+        applyOptionalSession(session, model);
         model.addAttribute("courseId", courseId);
         return "course-detail";
     }
@@ -855,10 +841,17 @@ public class AuthController {
     private void populateHomeModel(HttpSession session, Model model) {
         var user = session.getAttribute("loggedInUser");
         boolean loggedIn = user != null;
-        if (loggedIn) {
-            model.addAttribute("user", user);
+        applyOptionalSession(session, model);
+        model.addAttribute("featuredCourses", courseService.findFeaturedForHome(loggedIn));
+    }
+
+    private void applyOptionalSession(HttpSession session, Model model) {
+        var user = session.getAttribute("loggedInUser");
+        if (user != null) {
+            if (!model.containsAttribute("user")) {
+                model.addAttribute("user", user);
+            }
             model.addAttribute("cartCount", getCart(session).size());
         }
-        model.addAttribute("featuredCourses", courseService.findFeaturedForHome(loggedIn));
     }
 }

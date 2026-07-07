@@ -486,25 +486,23 @@
         <div class="container">
             <div class="row text-center">
                 <div class="col-md-4">
-                    <a th:href="${user} ? '/rich-content' : '/login'" class="feature-card text-decoration-none text-dark d-block">
+                    <a href="/rich-content" class="feature-card text-decoration-none text-dark d-block">
                         <i class="fas fa-book-open feature-icon"></i>
                         <h3>Rich Content</h3>
                         <p>Access PDFs, guides, and videos for Java, SQL, Git, DSA, Spring, and more.</p>
-                        <span class="btn btn-custom btn-sm mt-2" th:if="${user}">
+                        <span class="btn btn-custom btn-sm mt-2">
                             <i class="fas fa-arrow-right me-1"></i>Browse Library
                         </span>
-                        <span class="text-muted small d-block mt-2" th:if="${user == null}">Sign in to explore</span>
                     </a>
                 </div>
                 <div class="col-md-4">
-                    <a th:href="${user} ? '/mentoring' : '/login'" class="feature-card text-decoration-none text-dark d-block">
+                    <a href="/mentoring" class="feature-card text-decoration-none text-dark d-block">
                         <i class="fas fa-users feature-icon"></i>
                         <h3>Interactive Learning</h3>
                         <p>Book live sessions with Technical Trainers and chat with mentors during consultation.</p>
-                        <span class="btn btn-custom btn-sm mt-2" th:if="${user}">
-                            <i class="fas fa-arrow-right me-1"></i>Book a Session
+                        <span class="btn btn-custom btn-sm mt-2">
+                            <i class="fas fa-arrow-right me-1"></i>Explore Mentors
                         </span>
-                        <span class="text-muted small d-block mt-2" th:if="${user == null}">Sign in to book</span>
                     </a>
                 </div>
                 <div class="col-md-4">
@@ -528,21 +526,19 @@
                         <i class="" th:classappend="${course.icon} + ' feature-icon'"></i>
                         <h3 th:text="${course.title}">Course title</h3>
                         <p th:text="${course.description}">Course description</p>
-                        <div class="mt-auto d-grid gap-2" th:if="${user}">
-                            <button type="button" class="btn btn-outline-danger w-100"
+                        <div class="mt-auto d-grid gap-2">
+                            <button type="button" class="btn btn-outline-primary w-100"
+                                    th:onclick="'window.location.href=&quot;/course-detail?courseId=' + ${course.id} + '&quot;'">
+                                <i class="fas fa-book-open me-2"></i>Read
+                            </button>
+                            <button type="button" class="btn btn-outline-danger w-100" th:if="${user}"
                                     th:id="'favBtn-' + ${course.id}"
                                     th:attr="data-course-id=${course.id},data-course-title=${course.title}"
                                     onclick="toggleFavorite(this.dataset.courseId, this.dataset.courseTitle)">
                                 <i class="fas fa-heart me-2"></i><span class="fav-text">Fav</span>
                             </button>
-                            <button type="button" class="btn btn-outline-primary w-100"
-                                    th:onclick="'window.location.href=&quot;/course-detail?courseId=' + ${course.id} + '&quot;'">
-                                <i class="fas fa-book-open me-2"></i>Read
-                            </button>
-                        </div>
-                        <div class="mt-auto" th:if="${user == null}">
-                            <a href="/?authMode=login" class="btn btn-custom btn-sm w-100">
-                                <i class="fas fa-sign-in-alt me-1"></i>Sign in to explore
+                            <a href="/?authMode=login" class="btn btn-outline-secondary w-100" th:if="${user == null}">
+                                <i class="fas fa-heart me-2"></i>Sign in to save favorites
                             </a>
                         </div>
                     </div>

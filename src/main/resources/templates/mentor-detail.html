@@ -785,7 +785,13 @@
                         </div>
 
                         <div th:unless="${#lists.isEmpty(slots)}">
-                            <form method="POST" action="/mentoring/book" class="booking-form" id="bookingForm">
+                            <div th:if="${user == null}" class="text-center py-3">
+                                <p class="text-muted mb-3">Sign in to book a session with this mentor.</p>
+                                <a href="/?authMode=login" class="btn btn-success">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Sign in to Book
+                                </a>
+                            </div>
+                            <form th:if="${user != null}" method="POST" action="/mentoring/book" class="booking-form" id="bookingForm">
                                 <input type="hidden" name="mentorId" th:value="${mentor.id}" />
                                 <input type="hidden" name="slotId" id="slotIdInput" value="" />
                                 <div class="row g-3">
@@ -865,11 +871,18 @@
                               th:text="${chatPartnerOnline} ? 'Online' : 'Offline'">Offline</span>
                     </div>
                     <div class="chat-box" id="chatBox">
-                        <div th:if="${#lists.isEmpty(chatMessages)}" class="text-center text-muted py-5">
+                        <div th:if="${user == null}" class="text-center text-muted py-5">
+                            <i class="fas fa-lock fa-2x mb-2"></i>
+                            <p class="mb-3">Sign in to chat with your mentor after booking.</p>
+                            <a href="/?authMode=login" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-sign-in-alt me-1"></i>Sign in
+                            </a>
+                        </div>
+                        <div th:if="${user != null and #lists.isEmpty(chatMessages)}" class="text-center text-muted py-5">
                             <i class="fas fa-comment-dots fa-2x mb-2"></i>
                             <p class="mb-0" th:text="${trainerView} ? 'No messages yet. Wait for a mentee to say hello!' : 'No messages yet. Say hello to your mentor!'">No messages yet.</p>
                         </div>
-                        <div th:each="msg : ${chatMessages}"
+                        <div th:if="${user != null}" th:each="msg : ${chatMessages}"
                              th:class="${(msg.sender == 'USER' and !trainerView) or (msg.sender == 'MENTOR' and trainerView)} ? 'chat-bubble user' : 'chat-bubble mentor'">
                             <div th:text="${msg.content}">Message</div>
                             <div class="chat-meta"
@@ -880,7 +893,7 @@
                                  th:classappend="${(msg.sender == 'USER' and !trainerView) or (msg.sender == 'MENTOR' and trainerView)} ? ' text-end' : ''"></div>
                         </div>
                     </div>
-                    <form method="POST" action="/mentoring/chat">
+                    <form th:if="${user != null}" method="POST" action="/mentoring/chat">
                         <input type="hidden" name="mentorId" th:value="${mentor.id}" />
                         <input type="hidden" name="chatTargetUserId" th:value="${chatTargetUserId}" />
                         <div class="mb-2">
