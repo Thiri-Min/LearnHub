@@ -453,11 +453,37 @@
             border: 1px solid #dee2e6;
         }
         .chat-meta { font-size: 0.75rem; opacity: 0.75; margin-top: 0.25rem; }
-        .chat-delivery {
+        .chat-footer {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.35rem;
             font-size: 0.72rem;
-            opacity: 0.78;
-            margin-top: 0.2rem;
-            font-weight: 600;
+            line-height: 1;
+        }
+        .chat-footer.is-mine {
+            justify-content: flex-end;
+        }
+        .chat-bubble.user .chat-footer {
+            color: rgba(255, 255, 255, 0.88);
+        }
+        .chat-bubble.mentor .chat-footer {
+            color: #64748b;
+        }
+        .chat-time {
+            opacity: 0.9;
+        }
+        .chat-receipt {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.68rem;
+            opacity: 0.9;
+        }
+        .chat-bubble.user .chat-receipt.is-read {
+            color: #bfdbfe;
+        }
+        .chat-bubble.mentor .chat-receipt.is-read {
+            color: #0084ff;
         }
         .chat-heading {
             display: flex;
@@ -883,14 +909,20 @@
                             <p class="mb-0" th:text="${trainerView} ? 'No messages yet. Wait for a mentee to say hello!' : 'No messages yet. Say hello to your mentor!'">No messages yet.</p>
                         </div>
                         <div th:if="${user != null}" th:each="msg : ${chatMessages}"
-                             th:class="${(msg.sender == 'USER' and !trainerView) or (msg.sender == 'MENTOR' and trainerView)} ? 'chat-bubble user' : 'chat-bubble mentor'">
+                             th:class="${msg.mine} ? 'chat-bubble user' : 'chat-bubble mentor'">
                             <div th:text="${msg.content}">Message</div>
                             <div class="chat-meta"
-                                 th:text="${msg.sender == 'USER'} ? (${trainerView} ? 'Mentee' : 'You') : (${trainerView} ? 'You' : ${mentor.name})"
-                                 th:classappend="${(msg.sender == 'USER' and !trainerView) or (msg.sender == 'MENTOR' and trainerView)} ? ' text-end' : ''"></div>
-                            <div class="chat-meta"
-                                 th:text="${#temporals.format(msg.sentAt, 'dd MMM HH:mm')}"
-                                 th:classappend="${(msg.sender == 'USER' and !trainerView) or (msg.sender == 'MENTOR' and trainerView)} ? ' text-end' : ''"></div>
+                                 th:if="${msg.senderLabel != null and !#strings.isEmpty(msg.senderLabel)}"
+                                 th:text="${msg.senderLabel}"></div>
+                            <div class="chat-footer" th:classappend="${msg.mine} ? ' is-mine' : ''">
+                                <span class="chat-time" th:text="${msg.sentAtText}">12 Jan 10:00</span>
+                                <span th:if="${msg.mine}"
+                                      class="chat-receipt"
+                                      th:classappend="' is-' + ${#strings.toLowerCase(msg.deliveryStatus)}"
+                                      th:attr="aria-label=${msg.deliveryStatus},title=${msg.deliveryStatus == 'READ' ? 'Read' : (msg.deliveryStatus == 'DELIVERED' ? 'Delivered' : 'Sent')}">
+                                    <i th:class="${msg.deliveryStatus == 'SENT'} ? 'fas fa-check' : 'fas fa-check-double'"></i>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <form th:if="${user != null}" method="POST" action="/mentoring/chat">
@@ -1021,6 +1053,17 @@
                     .replace(/'/g, '&#039;');
             }
 
+            function receiptHtml(status) {
+                if (!status) {
+                    return '';
+                }
+                const normalized = String(status).toUpperCase();
+                const iconClass = normalized === 'SENT' ? 'fas fa-check' : 'fas fa-check-double';
+                const label = normalized === 'READ' ? 'Read' : (normalized === 'DELIVERED' ? 'Delivered' : 'Sent');
+                return '<span class="chat-receipt is-' + normalized.toLowerCase() + '" aria-label="' + label + '" title="' + label + '">'
+                    + '<i class="' + iconClass + '"></i></span>';
+            }
+
             function renderMessages(messages) {
                 const signature = messages.map(msg => msg.id + ':' + msg.deliveryStatus).join(',');
                 if (signature === lastSignature) {
@@ -1032,13 +1075,19 @@
                     return;
                 }
                 chatBox.innerHTML = messages.map(msg => {
-                    const align = msg.mine ? ' text-end' : '';
-                    const bubbleClass = msg.mine ? 'chat-bubble user' : 'chat-bubble mentor';
+                    const mine = !!msg.mine;
+                    const bubbleClass = mine ? 'chat-bubble user' : 'chat-bubble mentor';
+                    const labelHtml = msg.senderLabel
+                        ? '<div class="chat-meta">' + escapeHtml(msg.senderLabel) + '</div>'
+                        : '';
+                    const receipt = mine ? receiptHtml(msg.deliveryStatus) : '';
                     return '<div class="' + bubbleClass + '">'
                         + '<div>' + escapeHtml(msg.content) + '</div>'
-                        + '<div class="chat-meta' + align + '">' + escapeHtml(msg.senderLabel) + '</div>'
-                        + '<div class="chat-meta' + align + '">' + escapeHtml(msg.sentAt) + '</div>'
-                        + '<div class="chat-delivery' + align + '">' + escapeHtml(msg.deliveryStatus) + '</div>'
+                        + labelHtml
+                        + '<div class="chat-footer' + (mine ? ' is-mine' : '') + '">'
+                        + '<span class="chat-time">' + escapeHtml(msg.sentAtText || msg.sentAt || '') + '</span>'
+                        + receipt
+                        + '</div>'
                         + '</div>';
                 }).join('');
                 chatBox.scrollTop = chatBox.scrollHeight;

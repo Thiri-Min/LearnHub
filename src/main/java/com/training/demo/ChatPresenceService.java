@@ -48,6 +48,11 @@ public class ChatPresenceService {
         return activeUsers.containsKey(userId);
     }
 
+    public boolean isAnyTrainerOnline() {
+        purgeStaleEntries();
+        return activeUsers.values().stream().anyMatch(PresenceEntry::admin);
+    }
+
     private void purgeStaleEntries() {
         Instant cutoff = Instant.now().minus(ONLINE_WINDOW);
         activeUsers.entrySet().removeIf(entry -> entry.getValue().lastSeen().isBefore(cutoff));

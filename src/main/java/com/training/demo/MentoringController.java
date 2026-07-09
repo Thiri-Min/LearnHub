@@ -138,9 +138,12 @@ public class MentoringController {
         MentoringService.ChatNotificationState chatState = mentoringService.getChatNotificationState(user);
         model.addAttribute("chatNotificationCount", chatState.getUnreadCount());
         model.addAttribute("chatNotificationHref", chatState.getHref());
-        model.addAttribute("chatMessages", trainerView
-                ? (selectedMenteeId != null ? mentoringService.getChatMessages(selectedMenteeId, mentorId) : List.of())
-                : mentoringService.getChatMessages(user.getId(), mentorId));
+        model.addAttribute("chatMessages", buildChatMessageViews(
+                trainerView
+                        ? (selectedMenteeId != null ? mentoringService.getChatMessages(selectedMenteeId, mentorId) : List.of())
+                        : mentoringService.getChatMessages(user.getId(), mentorId),
+                trainerView,
+                mentor.getName()));
         model.addAttribute("defaultStudentName", buildDisplayName(user));
         model.addAttribute("defaultStudentEmail", user.getEmail() != null ? user.getEmail() : "");
         return "mentor-detail";
@@ -374,24 +377,36 @@ public class MentoringController {
         }
         chatReadStatusService.markRead(user, mentorId, targetUserId);
         String mentorName = mentoringService.getMentor(mentorId).map(Mentor::getName).orElse("Mentor");
-        List<Map<String, Object>> messages = mentoringService.getChatMessages(targetUserId, mentorId).stream()
-                .map(message -> {
-                    boolean mine = (isTrainer(user) && "MENTOR".equals(message.getSender()))
-                            || (!isTrainer(user) && "USER".equals(message.getSender()));
-                    String senderLabel = "USER".equals(message.getSender())
-                            ? (isTrainer(user) ? "Mentee" : "You")
-                            : (isTrainer(user) ? "You" : mentorName);
-                    return Map.<String, Object>of(
-                            "id", message.getId(),
-                            "content", message.getContent(),
-                            "mine", mine,
-                            "senderLabel", senderLabel,
-                            "sentAt", CHAT_TIME_FORMAT.format(message.getSentAt()),
-                            "deliveryStatus", chatReadStatusService.getDeliveryStatus(message)
-                    );
-                })
-                .toList();
+        boolean trainerView = isTrainer(user);
+        List<Map<String, Object>> messages = buildChatMessageViews(
+                mentoringService.getChatMessages(targetUserId, mentorId),
+                trainerView,
+                mentorName);
         return Map.of("messages", messages);
+    }
+
+    private List<Map<String, Object>> buildChatMessageViews(List<MentorChatMessage> messages,
+                                                            boolean trainerView,
+                                                            String mentorName) {
+        if (messages == null || messages.isEmpty()) {
+            return List.of();
+        }
+        List<Map<String, Object>> views = new ArrayList<>(messages.size());
+        for (MentorChatMessage message : messages) {
+            boolean mine = (trainerView && "MENTOR".equals(message.getSender()))
+                    || (!trainerView && "USER".equals(message.getSender()));
+            String senderLabel = "MENTOR".equals(message.getSender()) && !trainerView ? mentorName : "";
+            Map<String, Object> view = new HashMap<>();
+            view.put("id", message.getId());
+            view.put("sender", message.getSender());
+            view.put("content", message.getContent());
+            view.put("sentAtText", CHAT_TIME_FORMAT.format(message.getSentAt()));
+            view.put("mine", mine);
+            view.put("senderLabel", senderLabel);
+            view.put("deliveryStatus", mine ? chatReadStatusService.getDeliveryStatus(message) : "");
+            views.add(view);
+        }
+        return views;
     }
 
     @GetMapping(value = "/mentoring/chat/conversations", produces = MediaType.APPLICATION_JSON_VALUE)

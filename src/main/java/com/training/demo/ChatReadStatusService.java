@@ -12,10 +12,17 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class ChatReadStatusService {
 
+    public static final String STATUS_SENT = "SENT";
+    public static final String STATUS_DELIVERED = "DELIVERED";
+    public static final String STATUS_READ = "READ";
+
     private final Map<String, LocalDateTime> readTimes = new ConcurrentHashMap<>();
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ChatPresenceService chatPresenceService;
 
     public void markRead(User viewer, Long mentorId, Long menteeId) {
         if (viewer == null || mentorId == null || menteeId == null) {
@@ -26,11 +33,17 @@ public class ChatReadStatusService {
 
     public String getDeliveryStatus(MentorChatMessage message) {
         if (message == null || message.getSentAt() == null) {
-            return "Delivered";
+            return STATUS_SENT;
         }
         boolean recipientIsTrainer = "USER".equals(message.getSender());
         LocalDateTime readAt = readTimes.get(readKey(recipientIsTrainer, message.getMentorId(), message.getUserId()));
-        return readAt != null && !readAt.isBefore(message.getSentAt()) ? "Read" : "Delivered";
+        if (readAt != null && !readAt.isBefore(message.getSentAt())) {
+            return STATUS_READ;
+        }
+        boolean recipientOnline = recipientIsTrainer
+                ? chatPresenceService.isAnyTrainerOnline()
+                : chatPresenceService.isUserOnline(message.getUserId());
+        return recipientOnline ? STATUS_DELIVERED : STATUS_SENT;
     }
 
     public long countUnread(User viewer, List<MentorChatMessage> messages) {
