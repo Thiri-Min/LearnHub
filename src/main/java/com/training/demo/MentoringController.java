@@ -142,8 +142,7 @@ public class MentoringController {
                 trainerView
                         ? (selectedMenteeId != null ? mentoringService.getChatMessages(selectedMenteeId, mentorId) : List.of())
                         : mentoringService.getChatMessages(user.getId(), mentorId),
-                trainerView,
-                mentor.getName()));
+                trainerView));
         model.addAttribute("defaultStudentName", buildDisplayName(user));
         model.addAttribute("defaultStudentEmail", user.getEmail() != null ? user.getEmail() : "");
         return "mentor-detail";
@@ -376,18 +375,15 @@ public class MentoringController {
             return Map.of("messages", List.of());
         }
         chatReadStatusService.markRead(user, mentorId, targetUserId);
-        String mentorName = mentoringService.getMentor(mentorId).map(Mentor::getName).orElse("Mentor");
         boolean trainerView = isTrainer(user);
         List<Map<String, Object>> messages = buildChatMessageViews(
                 mentoringService.getChatMessages(targetUserId, mentorId),
-                trainerView,
-                mentorName);
+                trainerView);
         return Map.of("messages", messages);
     }
 
     private List<Map<String, Object>> buildChatMessageViews(List<MentorChatMessage> messages,
-                                                            boolean trainerView,
-                                                            String mentorName) {
+                                                            boolean trainerView) {
         if (messages == null || messages.isEmpty()) {
             return List.of();
         }
@@ -395,14 +391,12 @@ public class MentoringController {
         for (MentorChatMessage message : messages) {
             boolean mine = (trainerView && "MENTOR".equals(message.getSender()))
                     || (!trainerView && "USER".equals(message.getSender()));
-            String senderLabel = "MENTOR".equals(message.getSender()) && !trainerView ? mentorName : "";
             Map<String, Object> view = new HashMap<>();
             view.put("id", message.getId());
             view.put("sender", message.getSender());
             view.put("content", message.getContent());
             view.put("sentAtText", CHAT_TIME_FORMAT.format(message.getSentAt()));
             view.put("mine", mine);
-            view.put("senderLabel", senderLabel);
             view.put("deliveryStatus", mine ? chatReadStatusService.getDeliveryStatus(message) : "");
             views.add(view);
         }

@@ -911,9 +911,6 @@
                         <div th:if="${user != null}" th:each="msg : ${chatMessages}"
                              th:class="${msg.mine} ? 'chat-bubble user' : 'chat-bubble mentor'">
                             <div th:text="${msg.content}">Message</div>
-                            <div class="chat-meta"
-                                 th:if="${msg.senderLabel != null and !#strings.isEmpty(msg.senderLabel)}"
-                                 th:text="${msg.senderLabel}"></div>
                             <div class="chat-footer" th:classappend="${msg.mine} ? ' is-mine' : ''">
                                 <span class="chat-time" th:text="${msg.sentAtText}">12 Jan 10:00</span>
                                 <span th:if="${msg.mine}"
@@ -1077,13 +1074,9 @@
                 chatBox.innerHTML = messages.map(msg => {
                     const mine = !!msg.mine;
                     const bubbleClass = mine ? 'chat-bubble user' : 'chat-bubble mentor';
-                    const labelHtml = msg.senderLabel
-                        ? '<div class="chat-meta">' + escapeHtml(msg.senderLabel) + '</div>'
-                        : '';
                     const receipt = mine ? receiptHtml(msg.deliveryStatus) : '';
                     return '<div class="' + bubbleClass + '">'
                         + '<div>' + escapeHtml(msg.content) + '</div>'
-                        + labelHtml
                         + '<div class="chat-footer' + (mine ? ' is-mine' : '') + '">'
                         + '<span class="chat-time">' + escapeHtml(msg.sentAtText || msg.sentAt || '') + '</span>'
                         + receipt
