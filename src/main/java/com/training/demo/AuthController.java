@@ -213,18 +213,6 @@ public class AuthController {
         }
         model.addAttribute("user", user);
         model.addAttribute("cartCount", getCart(session).size());
-        model.addAttribute("sqlPreIntermediateQuestions", getQuestions("SQL", "Pre-Intermediate"));
-        model.addAttribute("sqlIntermediateQuestions", getQuestions("SQL", "Intermediate"));
-        model.addAttribute("sqlAdvancedQuestions", getQuestions("SQL", "Advanced"));
-        model.addAttribute("gitPreIntermediateQuestions", getQuestions("Git", "Pre-Intermediate"));
-        model.addAttribute("gitIntermediateQuestions", getQuestions("Git", "Intermediate"));
-        model.addAttribute("gitAdvancedQuestions", getQuestions("Git", "Advanced"));
-        model.addAttribute("baseFrameworkPreIntermediateQuestions", getQuestions("BaseFramework", "Pre-Intermediate"));
-        model.addAttribute("baseFrameworkIntermediateQuestions", getQuestions("BaseFramework", "Intermediate"));
-        model.addAttribute("baseFrameworkAdvancedQuestions", getQuestions("BaseFramework", "Advanced"));
-        model.addAttribute("pythonPreIntermediateQuestions", getQuestions("Python", "Pre-Intermediate"));
-        model.addAttribute("pythonIntermediateQuestions", getQuestions("Python", "Intermediate"));
-        model.addAttribute("pythonAdvancedQuestions", getQuestions("Python", "Advanced"));
         User currentUser = (User) user;
         model.addAttribute("dsaMaxAttempts", TechQuizCatalog.DSA_MAX_ATTEMPTS);
         model.addAttribute("dsaAttemptCounts", buildDsaAttemptCounts(currentUser.getId()));
@@ -541,10 +529,6 @@ public class AuthController {
 
     private static String urlEncode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
-    }
-
-    private List<Map<String, Object>> getQuestions(String subject, String level) {
-        return TechQuizCatalog.getQuestions(subject, level);
     }
 
     @PostMapping("/cart/add")
