@@ -34,12 +34,12 @@ public class DatabaseConfig {
     private String resolveUrl(DataSourceProperties properties) {
         String configuredUrl = properties.getUrl();
         if (StringUtils.hasText(configuredUrl)) {
-            return configuredUrl;
+            return normalizeJdbcUrl(configuredUrl);
         }
 
         String envUrl = env.getProperty("SPRING_DATASOURCE_URL");
         if (StringUtils.hasText(envUrl)) {
-            return envUrl;
+            return normalizeJdbcUrl(envUrl);
         }
 
         if (env.acceptsProfiles("prod")) {
@@ -47,6 +47,19 @@ public class DatabaseConfig {
         }
 
         return "jdbc:mysql://localhost:3306/demo_db?createDatabaseIfNotExist=true&serverTimezone=UTC";
+    }
+
+    private String normalizeJdbcUrl(String url) {
+        if (!StringUtils.hasText(url)) {
+            return url;
+        }
+        if (url.startsWith("postgres://")) {
+            return "jdbc:postgresql://" + url.substring("postgres://".length());
+        }
+        if (url.startsWith("postgresql://")) {
+            return "jdbc:postgresql://" + url.substring("postgresql://".length());
+        }
+        return url;
     }
 
     private String resolveDriver(DataSourceProperties properties, String url) {

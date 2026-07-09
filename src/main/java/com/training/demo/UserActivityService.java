@@ -3,6 +3,7 @@ package com.training.demo;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -53,6 +54,7 @@ public class UserActivityService {
         return resolveCountryFromIp(resolveClientIp(request));
     }
 
+    @Transactional
     public User recordLogin(User user, HttpServletRequest request) {
         user.setLoginCount(user.getLoginCount() + 1);
         User saved = userRepository.save(user);
@@ -62,11 +64,12 @@ public class UserActivityService {
         event.setLoginAt(LocalDateTime.now());
         String ipAddress = resolveClientIp(request);
         event.setIpAddress(ipAddress);
-        event.setLocation(resolveCountryFromIp(ipAddress));
+        event.setLocation("Unknown");
         loginEventRepository.save(event);
         return saved;
     }
 
+    @Transactional
     public void updateLatestLoginLocation(Long userId, String location) {
         if (location == null || location.isBlank()) {
             return;

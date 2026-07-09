@@ -418,19 +418,9 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const techToggle = document.getElementById('techNavDropdown');
-            if (!techToggle) {
-                return;
-            }
-
-            function setTechDropdownOpen(open) {
-                const dropdown = techToggle.closest('.dropdown');
-                const menu = dropdown ? dropdown.querySelector('.dropdown-menu') : null;
-                if (!dropdown || !menu) {
-                    return;
-                }
+            function closeOtherDropdowns(currentMenu) {
                 document.querySelectorAll('.lms-navbar .dropdown-menu.show').forEach(function (openMenu) {
-                    if (openMenu === menu && open) {
+                    if (openMenu === currentMenu) {
                         return;
                     }
                     openMenu.classList.remove('show');
@@ -440,24 +430,50 @@
                         openToggle.setAttribute('aria-expanded', 'false');
                     }
                 });
-                menu.classList.toggle('show', open);
-                techToggle.classList.toggle('show', open);
-                techToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
             }
 
-            techToggle.addEventListener('click', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                const menu = techToggle.closest('.dropdown')?.querySelector('.dropdown-menu');
-                if (!menu) {
-                    window.location.href = techToggle.getAttribute('href') || '/tech';
+            function setDropdownOpen(toggle, open) {
+                const dropdown = toggle.closest('.dropdown');
+                const menu = dropdown ? dropdown.querySelector('.dropdown-menu') : null;
+                if (!dropdown || !menu) {
+                    return false;
+                }
+                if (open) {
+                    closeOtherDropdowns(menu);
+                }
+                menu.classList.toggle('show', open);
+                toggle.classList.toggle('show', open);
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                return true;
+            }
+
+            function bindNavbarDropdown(toggleId, fallbackHref) {
+                const toggle = document.getElementById(toggleId);
+                if (!toggle) {
                     return;
                 }
-                setTechDropdownOpen(!menu.classList.contains('show'));
-            });
+                toggle.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const menu = toggle.closest('.dropdown')?.querySelector('.dropdown-menu');
+                    if (!menu) {
+                        window.location.href = toggle.getAttribute('href') || fallbackHref;
+                        return;
+                    }
+                    setDropdownOpen(toggle, !menu.classList.contains('show'));
+                });
+            }
 
-            document.addEventListener('click', function () {
-                setTechDropdownOpen(false);
+            bindNavbarDropdown('techNavDropdown', '/tech');
+            bindNavbarDropdown('profileNavDropdown', '/profile');
+
+            document.addEventListener('click', function (event) {
+                document.querySelectorAll('.lms-navbar .dropdown-toggle').forEach(function (toggle) {
+                    if (toggle.closest('.dropdown')?.contains(event.target)) {
+                        return;
+                    }
+                    setDropdownOpen(toggle, false);
+                });
             });
         });
     </script>
