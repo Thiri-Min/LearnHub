@@ -5,7 +5,252 @@
   activeTech: tests | rich-content | mentoring | (empty)
   homeHref: / or /home
 -->
-<style th:fragment="navbarStyles">
+<th:block th:fragment="navbarStyles">
+<script>
+    (function () {
+        const savedTheme = localStorage.getItem('lms-theme') || 'light';
+        const theme = savedTheme === 'dark' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.colorScheme = theme;
+    })();
+</script>
+<style>
+    :root {
+        --lms-page-dark: linear-gradient(135deg, #111827 0%, #1f2937 48%, #0f172a 100%);
+        --lms-surface-light: rgba(255, 255, 255, 0.96);
+        --lms-surface-dark: rgba(17, 24, 39, 0.94);
+        --lms-border-light: rgba(148, 163, 184, 0.24);
+        --lms-border-dark: rgba(148, 163, 184, 0.22);
+        --lms-text-light: #1f2937;
+        --lms-text-dark: #e5e7eb;
+        --lms-muted-dark: #a7b0c0;
+    }
+    html[data-theme="dark"] body {
+        background: var(--lms-page-dark) !important;
+        color: var(--lms-text-dark);
+    }
+    body {
+        transition: background 0.25s ease, color 0.25s ease;
+    }
+    html[data-theme="light"] .lms-navbar {
+        background: rgba(30, 41, 59, 0.42) !important;
+    }
+    html[data-theme="dark"] .lms-navbar {
+        background: rgba(2, 6, 23, 0.78) !important;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+    }
+    html[data-theme="dark"] :where(
+        .features,
+        .card,
+        .feature-card,
+        .course-card,
+        .content-card,
+        .content-panel,
+        .feedback-card,
+        .about-card,
+        .contact-card,
+        .profile-card,
+        .map-panel,
+        .main-card,
+        .sidebar-card,
+        .quiz-container,
+        .quiz-card,
+        .contact-form,
+        .info-card,
+        .payment-card,
+        .vnpay-body,
+        .vnpay-option,
+        .lesson-card,
+        .video-card,
+        .topic-card,
+        .dashboard-card,
+        .mentor-card,
+        .mentor-card-header,
+        .panel-card,
+        .booking-panel,
+        .booking-panel.hai-theme,
+        .booking-panel.new-theme,
+        .gcal-wrap,
+        .gcal-grid,
+        .gcal-dow,
+        .gcal-cell,
+        .meeting-step,
+        .chat-box,
+        .chat-bubble.mentor,
+        .conversation-item,
+        .conversation-empty,
+        .skill-icon,
+        .signup-container,
+        .table-responsive,
+        .modal-content
+    ) {
+        background: var(--lms-surface-dark) !important;
+        border-color: var(--lms-border-dark) !important;
+        color: var(--lms-text-dark) !important;
+    }
+    html[data-theme="dark"] :where(.about-card, .contact-card, .profile-card) {
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.38);
+    }
+    html[data-theme="dark"] :where(.content-panel, .map-panel, .feedback-card) {
+        box-shadow: 0 22px 54px rgba(0, 0, 0, 0.42);
+    }
+    html[data-theme="dark"] :where(.content-panel p, .message-side .lead-text, .feedback-card .text-muted, .profile-card .tagline, .profile-card .location, .about-card p, .contact-card p) {
+        color: var(--lms-muted-dark) !important;
+    }
+    html[data-theme="dark"] :where(
+        .mentor-card h4,
+        .panel-card h2,
+        .panel-card h4,
+        .panel-card h5,
+        .booking-panel h4,
+        .booking-panel h5,
+        .gcal-title,
+        .time-slots-section h6,
+        .conversation-name,
+        .conversation-name-text
+    ) {
+        color: #f8fafc !important;
+    }
+    html[data-theme="dark"] :where(
+        .expertise-line,
+        .mentor-bio,
+        .calendar-ready,
+        .slot-empty,
+        .gcal-legend,
+        .times-placeholder,
+        .conversation-email,
+        .conversation-preview,
+        .conversation-time,
+        .form-text,
+        .mentor-hero .text-muted,
+        .panel-card .text-muted,
+        .panel-card .text-secondary
+    ) {
+        color: #cbd5e1 !important;
+    }
+    html[data-theme="dark"] :where(.mentor-card-header) {
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(17, 24, 39, 0.96) 100%) !important;
+    }
+    html[data-theme="dark"] :where(.mentor-card, .panel-card, .booking-panel, .booking-panel.hai-theme, .booking-panel.new-theme) {
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.34) !important;
+    }
+    html[data-theme="dark"] :where(.position-badge) {
+        background: rgba(99, 102, 241, 0.2) !important;
+        color: #c4b5fd !important;
+    }
+    html[data-theme="dark"] :where(.status-pill, .slot-pill, .gcal-btn, .time-slot-btn, .chat-status) {
+        background: rgba(15, 23, 42, 0.88) !important;
+        border-color: rgba(148, 163, 184, 0.32) !important;
+        color: #e5e7eb !important;
+    }
+    html[data-theme="dark"] :where(.status-pill.available, .meeting-date-display, .selected-slot-summary, .chat-status.online) {
+        background: rgba(16, 185, 129, 0.14) !important;
+        border-color: rgba(74, 222, 128, 0.28) !important;
+        color: #bbf7d0 !important;
+    }
+    html[data-theme="dark"] :where(.status-pill.booked) {
+        background: rgba(248, 113, 113, 0.14) !important;
+        border-color: rgba(248, 113, 113, 0.28) !important;
+        color: #fecaca !important;
+    }
+    html[data-theme="dark"] :where(.gcal-cell.other-month, .conversation-empty) {
+        background: #0f172a !important;
+    }
+    html[data-theme="dark"] :where(.gcal-day-num, .gcal-cell.other-month .gcal-day-num, .skill-icon span) {
+        color: #cbd5e1 !important;
+    }
+    html[data-theme="dark"] :where(.gcal-event.booked) {
+        background: rgba(148, 163, 184, 0.22) !important;
+        color: #e2e8f0 !important;
+    }
+    html[data-theme="dark"] :where(.chat-bubble.mentor) {
+        color: #e5e7eb !important;
+    }
+    html[data-theme="dark"] :where(.conversation-item:hover, .conversation-item.active) {
+        background: rgba(34, 197, 94, 0.14) !important;
+        color: #bbf7d0 !important;
+    }
+    html[data-theme="dark"] :where(.section-label, .exp-item .org, .contact-card a) {
+        color: #c4b5fd !important;
+    }
+    html[data-theme="dark"] :where(.role-badge, .skill-chip) {
+        background: rgba(99, 102, 241, 0.18) !important;
+        border-color: rgba(196, 181, 253, 0.28) !important;
+        color: #e9d5ff !important;
+    }
+    html[data-theme="dark"] .exp-item {
+        border-bottom-color: rgba(148, 163, 184, 0.2) !important;
+    }
+    html[data-theme="dark"] .exp-item .period {
+        color: #94a3b8 !important;
+    }
+    html[data-theme="dark"] .cta-strip a.btn-action[href="/courses"] {
+        background: transparent !important;
+        border: 2px solid rgba(255, 255, 255, 0.55) !important;
+        color: #fff !important;
+        box-shadow: none !important;
+    }
+    html[data-theme="dark"] .cta-strip a.btn-action[href="/courses"]:hover {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: #fff !important;
+        color: #fff !important;
+        transform: none;
+    }
+    html[data-theme="dark"] :where(.bg-white, .table-light, .list-group-item) {
+        background-color: #111827 !important;
+        color: var(--lms-text-dark) !important;
+    }
+    html[data-theme="dark"] :where(.text-dark, .text-body, .card-title, h1, h2, h3, h4, h5, h6, p, label) {
+        color: var(--lms-text-dark) !important;
+    }
+    html[data-theme="dark"] :where(.text-muted, small, .small) {
+        color: var(--lms-muted-dark) !important;
+    }
+    html[data-theme="dark"] :where(.form-control, .form-select, textarea, input) {
+        background-color: #0f172a !important;
+        border-color: rgba(148, 163, 184, 0.34) !important;
+        color: #f8fafc !important;
+    }
+    html[data-theme="dark"] :where(.form-control, .form-select, textarea, input)::placeholder {
+        color: #94a3b8 !important;
+    }
+    html[data-theme="dark"] :where(.table) {
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--lms-text-dark);
+        --bs-table-border-color: rgba(148, 163, 184, 0.22);
+        color: var(--lms-text-dark);
+    }
+    html[data-theme="dark"] .dropdown-menu {
+        background: #111827;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+    html[data-theme="dark"] .dropdown-item {
+        color: var(--lms-text-dark);
+    }
+    html[data-theme="dark"] .dropdown-item:hover,
+    html[data-theme="dark"] .dropdown-item:focus {
+        background: rgba(99, 102, 241, 0.18);
+        color: #fff;
+    }
+    .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.35rem;
+        height: 2.35rem;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+    .theme-toggle:hover,
+    .theme-toggle:focus {
+        background: rgba(255, 255, 255, 0.22);
+        border-color: rgba(255, 255, 255, 0.65);
+        color: #fff;
+        transform: translateY(-1px);
+    }
     .lms-navbar {
         position: sticky;
         top: 0;
@@ -121,8 +366,20 @@
         .lms-navbar .nav-icon-link {
             text-align: left;
         }
+        .theme-toggle {
+            justify-content: flex-start;
+            width: 100%;
+            border-radius: 8px;
+            padding: 0.55rem 0.75rem;
+            gap: 0.45rem;
+        }
+        .theme-toggle::after {
+            content: attr(aria-label);
+            font-weight: 500;
+        }
     }
 </style>
+</th:block>
 
 <th:block th:fragment="navbarShell(homeActive, coursesActive, activeTech, homeHref, useAuthModal, activeNav)">
     <nav class="navbar navbar-expand-lg navbar-dark bg-transparent lms-navbar">
@@ -156,6 +413,51 @@
                         instance.hide();
                     }
                 });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const techToggle = document.getElementById('techNavDropdown');
+            if (!techToggle) {
+                return;
+            }
+
+            function setTechDropdownOpen(open) {
+                const dropdown = techToggle.closest('.dropdown');
+                const menu = dropdown ? dropdown.querySelector('.dropdown-menu') : null;
+                if (!dropdown || !menu) {
+                    return;
+                }
+                document.querySelectorAll('.lms-navbar .dropdown-menu.show').forEach(function (openMenu) {
+                    if (openMenu === menu && open) {
+                        return;
+                    }
+                    openMenu.classList.remove('show');
+                    const openToggle = openMenu.closest('.dropdown')?.querySelector('.dropdown-toggle');
+                    if (openToggle) {
+                        openToggle.classList.remove('show');
+                        openToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+                menu.classList.toggle('show', open);
+                techToggle.classList.toggle('show', open);
+                techToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+
+            techToggle.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                const menu = techToggle.closest('.dropdown')?.querySelector('.dropdown-menu');
+                if (!menu) {
+                    window.location.href = techToggle.getAttribute('href') || '/tech';
+                    return;
+                }
+                setTechDropdownOpen(!menu.classList.contains('show'));
+            });
+
+            document.addEventListener('click', function () {
+                setTechDropdownOpen(false);
             });
         });
     </script>
@@ -284,14 +586,20 @@
         <a class="nav-link" href="/contact" th:classappend="${activeNav == 'contact'} ? 'active' : ''">Contact</a>
     </li>
     <li class="nav-item dropdown" th:if="${user}">
-        <a class="nav-link dropdown-toggle" href="#" id="techNavDropdown" role="button"
-           data-bs-toggle="dropdown" aria-expanded="false"
+        <a class="nav-link dropdown-toggle" href="/tech" th:href="@{/tech}" id="techNavDropdown" role="button"
+           aria-haspopup="true" aria-expanded="false"
            th:classappend="${activeTech != null and !#strings.isEmpty(activeTech)} ? 'active' : ''">Tech</a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="techNavDropdown">
             <li>
                 <a class="dropdown-item" th:href="@{/tech}"
                    th:classappend="${activeTech == 'tests'} ? 'active' : ''">
                     <i class="fas fa-clipboard-check me-2"></i>Skill Tests
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" th:href="@{/flashcard}"
+                   th:classappend="${activeTech == 'flashcard'} ? 'active' : ''">
+                    <i class="fas fa-clone me-2"></i>Flashcard
                 </a>
             </li>
             <li>
@@ -342,13 +650,30 @@
             <i class="fas fa-shield-halved me-1"></i>Admin
         </a>
     </li>
-    <li class="nav-item" th:if="${user}">
-        <a class="nav-link" href="/logout">Logout</a>
+    <li class="nav-item">
+        <button class="theme-toggle" type="button" id="themeToggle" aria-label="Switch to dark mode" title="Switch theme">
+            <i class="fas fa-moon" aria-hidden="true"></i>
+        </button>
     </li>
-    <li class="nav-item" th:if="${user}">
-        <a class="nav-link" href="/profile">
+    <li class="nav-item dropdown" th:if="${user}">
+        <a class="nav-link dropdown-toggle" href="#" id="profileNavDropdown" role="button"
+           data-bs-toggle="dropdown" aria-expanded="false"
+           th:classappend="${activeNav == 'profile'} ? 'active' : ''">
             <i class="fas fa-user-circle me-1"></i>Profile
         </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileNavDropdown">
+            <li>
+                <a class="dropdown-item" href="/profile"
+                   th:classappend="${activeNav == 'profile'} ? 'active' : ''">
+                    <i class="fas fa-user-edit me-2"></i>Edit Profile
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="/logout">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </li>
+        </ul>
     </li>
     <li class="nav-item" th:if="${user == null and !useAuthModal}">
         <a class="nav-link" href="/?authMode=login">Login</a>
@@ -402,6 +727,43 @@
                 window.refreshNavbarChatNotifications = refreshChatNotifications;
                 refreshChatNotifications();
                 window.setInterval(refreshChatNotifications, 15000);
+            })();
+        </script>
+    </li>
+    <li class="d-none">
+        <script>
+            (function () {
+                function applyTheme(theme) {
+                    const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-theme', normalizedTheme);
+                    document.documentElement.style.colorScheme = normalizedTheme;
+                    localStorage.setItem('lms-theme', normalizedTheme);
+
+                    const button = document.getElementById('themeToggle');
+                    if (!button) {
+                        return;
+                    }
+                    const icon = button.querySelector('i');
+                    const isDark = normalizedTheme === 'dark';
+                    button.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+                    button.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+                    if (icon) {
+                        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                    const button = document.getElementById('themeToggle');
+                    applyTheme(currentTheme);
+                    if (!button) {
+                        return;
+                    }
+                    button.addEventListener('click', function () {
+                        const nextTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                        applyTheme(nextTheme);
+                    });
+                });
             })();
         </script>
     </li>

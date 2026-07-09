@@ -239,6 +239,78 @@ public class AuthController {
         return "tech";
     }
 
+    @GetMapping("/flashcard")
+    public String flashcard(HttpSession session, Model model) {
+        var user = session.getAttribute("loggedInUser");
+        if (user == null) {
+            return "redirect:/?authMode=login";
+        }
+        User currentUser = (User) user;
+        applyOptionalSession(session, model);
+        model.addAttribute("skills", buildMkTestSkills(currentUser.getId()));
+        return "mk-test";
+    }
+
+    @GetMapping("/fill-blank-practice")
+    public String fillBlankPractice(HttpSession session) {
+        return "redirect:/flashcard";
+    }
+
+    private List<Map<String, Object>> buildMkTestSkills(Long userId) {
+        List<Map<String, Object>> skills = new ArrayList<>();
+        skills.add(buildMkSkill("Java", "fab fa-java", "Practice Java basics, OOP, collections, and core interview concepts.", userId, "Java"));
+        skills.add(buildMkSkill("DSA", "fas fa-brain", "Challenge yourself with arrays, trees, graphs, and searching patterns.", userId, "DSA"));
+        skills.add(buildMkSkill("SQL", "fas fa-database", "Strengthen your query writing, joins, and database design knowledge.", userId, "SQL"));
+        skills.add(buildMkSkill("Frontend", "fas fa-code", "Review HTML, CSS, JavaScript, and web UI fundamentals.", userId, "FrontEnd"));
+        return skills;
+    }
+
+    private Map<String, Object> buildMkSkill(String title, String icon, String description, Long userId, String subject) {
+        Map<String, Object> skill = new LinkedHashMap<>();
+        skill.put("title", title);
+        skill.put("icon", icon);
+        skill.put("description", description);
+        skill.put("levels", buildMkLevels(subject, userId));
+        return skill;
+    }
+
+    private List<Map<String, Object>> buildMkLevels(String subject, Long userId) {
+        List<Map<String, Object>> levels = new ArrayList<>();
+        for (String level : List.of("Pre-Intermediate", "Intermediate", "Advanced")) {
+            boolean disabled = isMkLevelDisabled(subject, userId, level);
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("label", level);
+            item.put("disabled", disabled);
+            item.put("subject", subject);
+            item.put("level", level);
+            item.put("attemptCount", getMkAttemptCount(userId, subject, level));
+            item.put("maxAttempts", getMkMaxAttempts(subject));
+            levels.add(item);
+        }
+        return levels;
+    }
+
+    private boolean isMkLevelDisabled(String subject, Long userId, String level) {
+        int maxAttempts = getMkMaxAttempts(subject);
+        return getMkAttemptCount(userId, subject, level) >= maxAttempts;
+    }
+
+    private int getMkAttemptCount(Long userId, String subject, String level) {
+        return Math.toIntExact(quizAttemptRepository.countByUserIdAndSubjectAndLevel(userId, normalizeMkSubject(subject), level));
+    }
+
+    private int getMkMaxAttempts(String subject) {
+        return switch (subject) {
+            case "DSA" -> TechQuizCatalog.DSA_MAX_ATTEMPTS;
+            case "FrontEnd" -> TechQuizCatalog.FRONTEND_MAX_ATTEMPTS;
+            default -> 999;
+        };
+    }
+
+    private String normalizeMkSubject(String subject) {
+        return subject == null ? "" : subject.trim();
+    }
+
     private Map<String, Long> buildDsaAttemptCounts(Long userId) {
         return buildSubjectAttemptCounts(userId, "DSA");
     }

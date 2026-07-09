@@ -87,6 +87,41 @@
             align-items: center;
             justify-content: center;
         }
+        .options-container .form-check {
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 0.75rem 0.9rem 0.75rem 2.35rem;
+            background: #f8f9fa;
+            color: #1f2937;
+        }
+        .options-container .form-check-label {
+            color: inherit;
+            cursor: pointer;
+            width: 100%;
+        }
+        html[data-theme="dark"] .test-card .options-container .form-check {
+            background: rgba(15, 23, 42, 0.92);
+            border-color: rgba(148, 163, 184, 0.36);
+            color: #f8fafc;
+        }
+        html[data-theme="dark"] .test-card .options-container .form-check:has(.form-check-input:checked) {
+            background: rgba(37, 99, 235, 0.22);
+            border-color: rgba(147, 197, 253, 0.72);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+        }
+        html[data-theme="dark"] .test-card .options-container .form-check-input {
+            background-color: #0f172a;
+            border-color: rgba(203, 213, 225, 0.72);
+        }
+        html[data-theme="dark"] .test-card .options-container .form-check-input:checked {
+            background-color: #2563eb;
+            border-color: #93c5fd;
+        }
+        html[data-theme="dark"] .test-card .bg-light {
+            background-color: rgba(15, 23, 42, 0.92) !important;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            color: #f8fafc !important;
+        }
     </style>
     <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
 </head>
@@ -109,6 +144,9 @@
                 </div>
                 <div class="card test-card p-4">
                     <div class="text-center mb-4">
+                        <a href="/flashcard" class="btn btn-outline-light mb-3">
+                            <i class="fas fa-clone me-2"></i>Open Flashcard
+                        </a>
                         <div class="d-flex flex-wrap justify-content-center gap-2 mb-4" role="group" aria-label="Tech filters">
                             <button type="button" class="btn filter-btn" data-filter="all">All</button>
                             <button type="button" class="btn filter-btn active" data-filter="Java">Java</button>

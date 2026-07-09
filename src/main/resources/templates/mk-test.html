@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards - Learn Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --page-bg: #f6f8fb;
+            --surface: #ffffff;
+            --surface-soft: #eef4ff;
+            --ink: #162033;
+            --muted: #64748b;
+            --line: #d8e1ee;
+            --accent: #2563eb;
+            --accent-2: #0f766e;
+            --good: #15803d;
+            --review: #b45309;
+            --shadow: 0 18px 38px rgba(30, 41, 59, 0.12);
+        }
+
+        html[data-theme="dark"] {
+            --page-bg: #0b1220;
+            --surface: #111827;
+            --surface-soft: #172033;
+            --ink: #f8fafc;
+            --muted: #b6c2d2;
+            --line: rgba(148, 163, 184, 0.28);
+            --accent: #60a5fa;
+            --accent-2: #5eead4;
+            --shadow: 0 18px 42px rgba(0, 0, 0, 0.34);
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34rem),
+                radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.13), transparent 28rem),
+                var(--page-bg);
+            color: var(--ink);
+            font-family: "Segoe UI", system-ui, sans-serif;
+        }
+
+        .flash-shell {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 2rem 1rem 3rem;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: var(--accent-2);
+            font-weight: 800;
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .page-title {
+            margin: 0.25rem 0 0;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 850;
+            letter-spacing: 0;
+        }
+
+        .btn-soft {
+            border: 1px solid var(--line);
+            background: var(--surface);
+            color: var(--ink);
+            border-radius: 12px;
+            font-weight: 700;
+            padding: 0.65rem 0.9rem;
+            box-shadow: 0 8px 20px rgba(30, 41, 59, 0.06);
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 170px 170px;
+            gap: 0.75rem;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .control {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background-color: var(--surface-soft);
+            color: var(--ink);
+            min-height: 44px;
+        }
+
+        .study-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .study-card,
+        .side-panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .study-card {
+            padding: clamp(1rem, 3vw, 1.5rem);
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.38rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            background: var(--surface-soft);
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .flashcard {
+            min-height: 360px;
+            border-radius: 18px;
+            padding: clamp(1.1rem, 3vw, 2rem);
+            background:
+                linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(15, 118, 110, 0.11)),
+                var(--surface-soft);
+            border: 1px solid var(--line);
+            display: grid;
+            align-content: center;
+            cursor: pointer;
+            transition: transform 0.18s ease, border-color 0.18s ease;
+        }
+
+        .flashcard:hover {
+            transform: translateY(-2px);
+            border-color: color-mix(in srgb, var(--accent), var(--line) 45%);
+        }
+
+        .card-label {
+            color: var(--muted);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.78rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .card-question {
+            font-size: clamp(1.55rem, 4vw, 2.55rem);
+            line-height: 1.15;
+            font-weight: 850;
+            max-width: 820px;
+        }
+
+        .card-answer {
+            font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+            line-height: 1.65;
+            color: var(--ink);
+            max-width: 760px;
+        }
+
+        .card-answer pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            background: rgba(15, 23, 42, 0.08);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 1rem;
+            color: var(--ink);
+        }
+
+        html[data-theme="dark"] .card-answer pre {
+            background: rgba(2, 6, 23, 0.5);
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .action-row .btn {
+            border-radius: 14px;
+            min-height: 48px;
+            font-weight: 800;
+        }
+
+        .side-panel {
+            padding: 1rem;
+        }
+
+        .progress-track {
+            height: 10px;
+            border-radius: 999px;
+            background: var(--surface-soft);
+            overflow: hidden;
+            border: 1px solid var(--line);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            transition: width 0.25s ease;
+        }
+
+        .mini-stat {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--line);
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .mini-stat strong {
+            color: var(--ink);
+            font-size: 1.25rem;
+        }
+
+        .deck-list {
+            display: grid;
+            gap: 0.5rem;
+            max-height: 360px;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        .deck-item {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 0.7rem;
+            background: var(--surface-soft);
+            cursor: pointer;
+            transition: border-color 0.15s ease, transform 0.15s ease;
+        }
+
+        .deck-item:hover,
+        .deck-item.active {
+            border-color: var(--accent);
+            transform: translateX(2px);
+        }
+
+        .deck-title {
+            font-weight: 800;
+            color: var(--ink);
+            font-size: 0.9rem;
+        }
+
+        .deck-subtitle {
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+
+        .empty-state {
+            min-height: 280px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .status-note {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            .toolbar,
+            .study-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .action-row {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .topbar .d-flex {
+                width: 100%;
+            }
+
+            .topbar .btn-soft {
+                flex: 1;
+            }
+        }
+    </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
+</head>
+<body>
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, 'flashcard', '/home', false, '')}"></nav>
+
+    <main class="flash-shell">
+        <header class="topbar">
+            <div>
+                <span class="eyebrow"><i class="fas fa-clone"></i> Flashcards</span>
+                <h1 class="page-title">Simple study cards</h1>
+                <p class="status-note mb-0">Choose a deck, flip each card, mark what you know, and keep moving.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-soft" type="button" id="resetBtn">
+                    <i class="fas fa-rotate-left me-2"></i>Reset
+                </button>
+                <a class="btn btn-soft" href="/tech">
+                    <i class="fas fa-arrow-left me-2"></i>Tech
+                </a>
+            </div>
+        </header>
+
+        <section class="toolbar" aria-label="Flashcard filters">
+            <input id="searchInput" class="form-control control" type="search" placeholder="Search question, answer, or topic">
+            <select id="categoryFilter" class="form-select control" aria-label="Deck"></select>
+            <select id="difficultyFilter" class="form-select control" aria-label="Difficulty">
+                <option value="All">All levels</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+        </section>
+
+        <section class="study-layout">
+            <div class="study-card">
+                <div class="card-meta">
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="pill" id="categoryPill"><i class="fas fa-layer-group"></i>All</span>
+                        <span class="pill" id="difficultyPill"><i class="fas fa-signal"></i>Level</span>
+                    </div>
+                    <span class="pill" id="counterText">Card 1 of 1</span>
+                </div>
+
+                <article class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flip flashcard">
+                    <div id="cardContent"></div>
+                </article>
+
+                <div class="action-row">
+                    <button class="btn btn-outline-secondary" type="button" id="prevBtn">
+                        <i class="fas fa-arrow-left me-2"></i>Previous
+                    </button>
+                    <button class="btn btn-primary" type="button" id="flipBtn">
+                        <i class="fas fa-repeat me-2"></i>Show Answer
+                    </button>
+                    <button class="btn btn-outline-secondary" type="button" id="nextBtn">
+                        Next<i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <button class="btn btn-outline-success btn-sm" type="button" data-status="known">
+                        <i class="fas fa-check me-1"></i>I Know This
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm" type="button" data-status="review">
+                        <i class="fas fa-bookmark me-1"></i>Review Later
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" type="button" data-status="clear">
+                        <i class="fas fa-eraser me-1"></i>Clear Mark
+                    </button>
+                </div>
+            </div>
+
+            <aside class="side-panel">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h2 class="h6 mb-0">Progress</h2>
+                    <span class="status-note" id="progressText">0%</span>
+                </div>
+                <div class="progress-track mb-3">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="mini-stat">
+                    <span>Visible cards</span>
+                    <strong id="visibleCards">0</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Known</span>
+                    <strong id="knownCards">0</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Need review</span>
+                    <strong id="reviewCards">0</strong>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+                    <h2 class="h6 mb-0">Deck</h2>
+                    <span class="status-note">Tap to open</span>
+                </div>
+                <div class="deck-list" id="deckList"></div>
+            </aside>
+        </section>
+    </main>
+
+    <script>
+        const deckData = {
+            HTML: {
+                icon: 'fab fa-html5',
+                cards: [
+                    ['Easy', 'Document Structure', 'Which tag wraps all visible page content?', 'The <body> tag wraps the content users see in the browser.'],
+                    ['Easy', 'Head Metadata', 'Which tag stores metadata, title, and linked assets?', 'The <head> tag stores metadata, page title, stylesheets, and scripts.'],
+                    ['Easy', 'Main Content', 'What tag represents the primary content of a page?', 'Use <main> for the unique primary content of the document.'],
+                    ['Easy', 'Links', 'Which attribute sets the destination of an anchor tag?', 'The href attribute sets the link destination.'],
+                    ['Medium', 'Images', 'Why should every meaningful image have alt text?', 'Alt text supports screen readers and appears when the image cannot load.'],
+                    ['Medium', 'Forms', 'What does the label element do for form inputs?', 'A label describes an input and improves accessibility and click targeting.'],
+                    ['Medium', 'Semantic Layout', 'Name two semantic layout tags.', '<header>, <nav>, <main>, <section>, <article>, aside, and <footer> are common semantic tags.'],
+                    ['Medium', 'Tables', 'Which tags group table header and body rows?', '<thead> groups header rows and <tbody> groups body rows.'],
+                    ['Hard', 'Accessibility', 'What is the purpose of aria-label?', 'aria-label gives an accessible name when visible text is missing or insufficient.'],
+                    ['Hard', 'Script Loading', 'What does the defer attribute do on a script?', 'defer downloads the script during parsing and runs it after the document is parsed.']
+                ]
+            },
+            CSS: {
+                icon: 'fab fa-css3-alt',
+                cards: [
+                    ['Easy', 'Selectors', 'What does .card select in CSS?', 'It selects elements with class="card".'],
+                    ['Easy', 'Box Model', 'What are the four box model parts?', 'Content, padding, border, and margin.'],
+                    ['Easy', 'Colors', 'What does color control?', 'color controls the foreground text color.'],
+                    ['Easy', 'Spacing', 'What is the difference between margin and padding?', 'Margin is outside the border; padding is inside the border.'],
+                    ['Medium', 'Flexbox', 'Which property aligns items on the main axis?', 'justify-content aligns flex items on the main axis.'],
+                    ['Medium', 'Grid', 'Which property defines grid columns?', 'grid-template-columns defines the grid column tracks.'],
+                    ['Medium', 'Positioning', 'What does position: sticky do?', 'It behaves normally until a scroll threshold, then sticks relative to its container.'],
+                    ['Medium', 'Responsive', 'What is a media query used for?', 'A media query applies styles based on viewport or device conditions.'],
+                    ['Hard', 'Specificity', 'Which is more specific: .nav a or a?', '.nav a is more specific because it combines a class and an element selector.'],
+                    ['Hard', 'Custom Properties', 'How do you read a CSS variable?', 'Use var(--name), for example color: var(--brand-color).']
+                ]
+            },
+            Bootstrap: {
+                icon: 'fab fa-bootstrap',
+                cards: [
+                    ['Easy', 'Container', 'What does .container provide?', 'It provides a responsive fixed-width wrapper with horizontal padding.'],
+                    ['Easy', 'Grid Rows', 'Which class creates a Bootstrap grid row?', 'Use .row to create a grid row.'],
+                    ['Easy', 'Columns', 'What does .col-md-6 mean?', 'It spans 6 of 12 columns on medium screens and larger.'],
+                    ['Easy', 'Buttons', 'Which classes make a primary button?', 'Use btn btn-primary.'],
+                    ['Medium', 'Spacing', 'What does mt-3 mean?', 'It adds margin-top using Bootstrap spacing step 3.'],
+                    ['Medium', 'Flex Utilities', 'Which class creates a flex container?', 'Use d-flex.'],
+                    ['Medium', 'Responsive Display', 'What does d-none d-md-block do?', 'It hides an element by default and shows it from medium screens upward.'],
+                    ['Medium', 'Cards', 'What is .card used for?', 'It creates a bordered content container with Bootstrap card styling.'],
+                    ['Hard', 'Modals', 'Which JS bundle is needed for Bootstrap modals?', 'Bootstrap bundle JS is needed because it includes Popper and Bootstrap plugins.'],
+                    ['Hard', 'Breakpoints', 'Name Bootstrap 5 breakpoint prefixes.', 'Common prefixes are sm, md, lg, xl, and xxl.']
+                ]
+            },
+            JavaScript: {
+                icon: 'fab fa-js',
+                cards: [
+                    ['Easy', 'Variables', 'Which keyword declares a block-scoped variable?', 'let declares a block-scoped variable.'],
+                    ['Easy', 'Constants', 'What does const mean?', 'const creates a binding that cannot be reassigned.'],
+                    ['Easy', 'Functions', 'What does a function return by default?', 'undefined, unless a return value is specified.'],
+                    ['Easy', 'DOM', 'How do you select an element by id?', 'Use document.getElementById("id").'],
+                    ['Medium', 'Events', 'How do you listen for a click?', 'element.addEventListener("click", handler);', 'code'],
+                    ['Medium', 'Arrays', 'Which method transforms every array item?', 'map transforms each item and returns a new array.'],
+                    ['Medium', 'Objects', 'How do you access the name property?', 'Use object.name or object["name"].'],
+                    ['Medium', 'Async', 'What does await do?', 'await pauses an async function until a Promise settles.'],
+                    ['Hard', 'Promises', 'What does Promise.all do?', 'It waits for all promises to fulfill or rejects when one rejects.'],
+                    ['Hard', 'Closures', 'What is a closure?', 'A closure lets a function remember variables from its outer scope.']
+                ]
+            },
+            Java: {
+                icon: 'fab fa-java',
+                cards: [
+                    ['Easy', 'Class', 'What is a class in Java?', 'A class is a blueprint for creating objects.'],
+                    ['Easy', 'Object', 'What is an object?', 'An object is an instance of a class with state and behavior.'],
+                    ['Easy', 'Main Method', 'What is the Java entry point method?', 'public static void main(String[] args)', 'code'],
+                    ['Easy', 'Types', 'Name two primitive types.', 'int, double, boolean, char, byte, short, long, and float are primitive types.'],
+                    ['Medium', 'Encapsulation', 'Why use private fields?', 'Private fields protect data and expose controlled access through methods.'],
+                    ['Medium', 'Inheritance', 'Which keyword extends a class?', 'extends is used for class inheritance.'],
+                    ['Medium', 'Interface', 'Which keyword implements an interface?', 'implements is used to implement an interface.'],
+                    ['Medium', 'Collections', 'Which collection stores key-value pairs?', 'Map stores key-value pairs.'],
+                    ['Hard', 'Exceptions', 'What is the difference between checked and unchecked exceptions?', 'Checked exceptions must be handled or declared; unchecked exceptions do not require that.'],
+                    ['Hard', 'Streams', 'What does filter do in a stream?', 'filter keeps only elements that match a predicate.']
+                ]
+            },
+            DSA: {
+                icon: 'fas fa-diagram-project',
+                cards: [
+                    ['Easy', 'Array', 'What is an array?', 'An array stores elements in contiguous indexed positions.'],
+                    ['Easy', 'Linked List', 'What does a linked list node contain?', 'It usually contains data and a reference to the next node.'],
+                    ['Easy', 'Stack', 'What rule does a stack follow?', 'LIFO: last in, first out.'],
+                    ['Easy', 'Queue', 'What rule does a queue follow?', 'FIFO: first in, first out.'],
+                    ['Medium', 'Hash Table', 'Why are hash tables fast?', 'They use a hash function to compute where a key should be stored.'],
+                    ['Medium', 'Tree', 'What is the root of a tree?', 'The root is the top node with no parent.'],
+                    ['Medium', 'Binary Search', 'What must be true before binary search?', 'The data must be sorted.'],
+                    ['Medium', 'Big O', 'What does O(n) mean?', 'Runtime grows linearly with the input size.'],
+                    ['Hard', 'Recursion', 'What two parts does recursion need?', 'A base case and a recursive case.'],
+                    ['Hard', 'Graph', 'What is the difference between BFS and DFS?', 'BFS explores level by level; DFS explores deeply before backtracking.']
+                ]
+            },
+            Git: {
+                icon: 'fab fa-git-alt',
+                cards: [
+                    ['Easy', 'Init', 'Which command creates a new Git repository?', 'git init', 'code'],
+                    ['Easy', 'Status', 'Which command shows changed files?', 'git status', 'code'],
+                    ['Easy', 'Stage', 'Which command stages a file?', 'git add filename', 'code'],
+                    ['Easy', 'Commit', 'Which command saves staged changes?', 'git commit -m "message"', 'code'],
+                    ['Medium', 'Branch', 'How do you create and switch to a branch?', 'git switch -c branch-name', 'code'],
+                    ['Medium', 'Merge', 'What does git merge do?', 'It integrates changes from one branch into another.'],
+                    ['Medium', 'Pull', 'What does git pull do?', 'It fetches remote changes and merges them into the current branch.'],
+                    ['Medium', 'Push', 'What does git push do?', 'It uploads local commits to a remote repository.'],
+                    ['Hard', 'Rebase', 'What does rebase do?', 'It reapplies commits on top of another base commit.'],
+                    ['Hard', 'Conflict', 'What is a merge conflict?', 'A conflict happens when Git cannot automatically combine changes.']
+                ]
+            }
+        };
+
+        const flashcards = Object.entries(deckData).flatMap(([category, deck], deckIndex) =>
+            deck.cards.map((card, cardIndex) => ({
+                id: deckIndex * 100 + cardIndex + 1,
+                category,
+                difficulty: card[0],
+                icon: deck.icon,
+                title: card[1],
+                question: card[2],
+                answer: card[3],
+                type: card[4] || 'text'
+            }))
+        );
+
+        const state = {
+            index: 0,
+            flipped: false,
+            search: '',
+            category: 'All',
+            difficulty: 'All',
+            statuses: JSON.parse(localStorage.getItem('flashcard-statuses') || '{}')
+        };
+
+        const els = {
+            search: document.getElementById('searchInput'),
+            category: document.getElementById('categoryFilter'),
+            difficulty: document.getElementById('difficultyFilter'),
+            card: document.getElementById('flashcard'),
+            content: document.getElementById('cardContent'),
+            flip: document.getElementById('flipBtn'),
+            prev: document.getElementById('prevBtn'),
+            next: document.getElementById('nextBtn'),
+            reset: document.getElementById('resetBtn'),
+            counter: document.getElementById('counterText'),
+            categoryPill: document.getElementById('categoryPill'),
+            difficultyPill: document.getElementById('difficultyPill'),
+            progressText: document.getElementById('progressText'),
+            progressFill: document.getElementById('progressFill'),
+            visibleCards: document.getElementById('visibleCards'),
+            knownCards: document.getElementById('knownCards'),
+            reviewCards: document.getElementById('reviewCards'),
+            deckList: document.getElementById('deckList')
+        };
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function filteredCards() {
+            const query = state.search.toLowerCase();
+            return flashcards.filter(card => {
+                const haystack = [card.title, card.question, card.answer, card.category, card.difficulty].join(' ').toLowerCase();
+                return (!query || haystack.includes(query))
+                    && (state.category === 'All' || card.category === state.category)
+                    && (state.difficulty === 'All' || card.difficulty === state.difficulty);
+            });
+        }
+
+        function saveStatuses() {
+            localStorage.setItem('flashcard-statuses', JSON.stringify(state.statuses));
+        }
+
+        function renderAnswer(card) {
+            if (card.type === 'code') {
+                return `<pre><code>${escapeHtml(card.answer)}</code></pre>`;
+            }
+            return `<p class="mb-0">${escapeHtml(card.answer)}</p>`;
+        }
+
+        function render() {
+            const cards = filteredCards();
+            if (state.index >= cards.length) state.index = 0;
+
+            if (!cards.length) {
+                els.content.innerHTML = '<div class="empty-state"><div><i class="fas fa-search fa-2x mb-3"></i><p class="mb-0">No cards match your filters.</p></div></div>';
+                els.counter.textContent = '0 cards';
+                els.deckList.innerHTML = '';
+                els.visibleCards.textContent = '0';
+                els.progressText.textContent = '0%';
+                els.progressFill.style.width = '0%';
+                return;
+            }
+
+            const card = cards[state.index];
+            const isKnown = state.statuses[card.id] === 'known';
+            const isReview = state.statuses[card.id] === 'review';
+
+            els.content.innerHTML = state.flipped
+                ? `<div class="card-label"><i class="fas fa-lightbulb me-2"></i>Answer</div><div class="card-answer">${renderAnswer(card)}</div>`
+                : `<div class="card-label"><i class="${card.icon} me-2"></i>${escapeHtml(card.category)} / ${escapeHtml(card.title)}</div><div class="card-question">${escapeHtml(card.question)}</div>`;
+
+            els.flip.innerHTML = state.flipped
+                ? '<i class="fas fa-repeat me-2"></i>Show Question'
+                : '<i class="fas fa-repeat me-2"></i>Show Answer';
+            els.counter.textContent = `Card ${state.index + 1} of ${cards.length}`;
+            els.categoryPill.innerHTML = `<i class="${card.icon}"></i>${escapeHtml(card.category)}`;
+            els.difficultyPill.innerHTML = `<i class="fas fa-signal"></i>${escapeHtml(card.difficulty)}`;
+
+            const knownCount = flashcards.filter(item => state.statuses[item.id] === 'known').length;
+            const reviewCount = flashcards.filter(item => state.statuses[item.id] === 'review').length;
+            const markedCount = knownCount + reviewCount;
+            const progress = Math.round((markedCount / flashcards.length) * 100);
+            els.visibleCards.textContent = String(cards.length);
+            els.knownCards.textContent = String(knownCount);
+            els.reviewCards.textContent = String(reviewCount);
+            els.progressText.textContent = `${progress}%`;
+            els.progressFill.style.width = `${progress}%`;
+
+            document.querySelectorAll('[data-status]').forEach(btn => {
+                const status = btn.dataset.status;
+                btn.classList.toggle('active', (status === 'known' && isKnown) || (status === 'review' && isReview));
+            });
+
+            els.deckList.innerHTML = cards.map((item, idx) => {
+                const mark = state.statuses[item.id] === 'known' ? 'Known' : state.statuses[item.id] === 'review' ? 'Review' : item.difficulty;
+                return `
+                    <button class="deck-item text-start ${idx === state.index ? 'active' : ''}" type="button" data-index="${idx}">
+                        <div class="deck-title">${escapeHtml(item.title)}</div>
+                        <div class="deck-subtitle">${escapeHtml(item.category)} · ${mark}</div>
+                    </button>
+                `;
+            }).join('');
+
+            els.deckList.querySelectorAll('.deck-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    state.index = Number(item.dataset.index);
+                    state.flipped = false;
+                    render();
+                });
+            });
+        }
+
+        function move(step) {
+            const cards = filteredCards();
+            if (!cards.length) return;
+            state.index = (state.index + step + cards.length) % cards.length;
+            state.flipped = false;
+            render();
+        }
+
+        function flip() {
+            state.flipped = !state.flipped;
+            render();
+        }
+
+        function setStatus(status) {
+            const cards = filteredCards();
+            if (!cards.length) return;
+            const card = cards[state.index];
+            if (status === 'clear') {
+                delete state.statuses[card.id];
+            } else {
+                state.statuses[card.id] = status;
+            }
+            saveStatuses();
+            render();
+        }
+
+        function init() {
+            const categories = ['All', ...Object.keys(deckData)];
+            els.category.innerHTML = categories.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category === 'All' ? 'All decks' : category)}</option>`).join('');
+
+            els.search.addEventListener('input', event => {
+                state.search = event.target.value;
+                state.index = 0;
+                state.flipped = false;
+                render();
+            });
+            els.category.addEventListener('change', event => {
+                state.category = event.target.value;
+                state.index = 0;
+                state.flipped = false;
+                render();
+            });
+            els.difficulty.addEventListener('change', event => {
+                state.difficulty = event.target.value;
+                state.index = 0;
+                state.flipped = false;
+                render();
+            });
+            els.flip.addEventListener('click', flip);
+            els.card.addEventListener('click', flip);
+            els.card.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    flip();
+                }
+            });
+            els.prev.addEventListener('click', () => move(-1));
+            els.next.addEventListener('click', () => move(1));
+            els.reset.addEventListener('click', () => {
+                state.index = 0;
+                state.flipped = false;
+                state.search = '';
+                state.category = 'All';
+                state.difficulty = 'All';
+                els.search.value = '';
+                els.category.value = 'All';
+                els.difficulty.value = 'All';
+                render();
+            });
+            document.querySelectorAll('[data-status]').forEach(btn => {
+                btn.addEventListener('click', () => setStatus(btn.dataset.status));
+            });
+            document.addEventListener('keydown', event => {
+                if (event.target.matches('input, select, textarea')) return;
+                if (event.key === 'ArrowRight') move(1);
+                if (event.key === 'ArrowLeft') move(-1);
+            });
+            render();
+        }
+
+        init();
+    </script>
+</body>
+</html>

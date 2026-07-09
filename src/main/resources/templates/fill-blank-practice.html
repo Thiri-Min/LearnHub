@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fill-in-the-Blank Practice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+            min-height: 100vh;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .practice-card {
+            background: rgba(255,255,255,0.96);
+            color: #1f2937;
+            border-radius: 20px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.2);
+        }
+        .answer-box {
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 0.7rem 0.9rem;
+            width: 100%;
+            outline: none;
+        }
+        .answer-box:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+        .hint-pill {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border-radius: 999px;
+            padding: 0.35rem 0.7rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .result-badge.correct {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .result-badge.incorrect {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+    </style>
+    <th:block th:replace="~{fragments/navbar :: navbarStyles}"></th:block>
+</head>
+<body>
+    <nav th:replace="~{fragments/navbar :: navbarShell(false, false, 'tests', '/home', false, '')}"></nav>
+
+    <div class="container py-5">
+        <div class="practice-card p-4 p-md-5">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                <div>
+                    <p class="text-muted mb-2 text-uppercase fw-semibold">Practice mode</p>
+                    <h1 class="h3 mb-1">Fill-in-the-Blank Review</h1>
+                    <p class="mb-0 text-secondary">Complete the missing words for Java, DSA, SQL, and Frontend topics.</p>
+                </div>
+                <a href="/tech" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to tests
+                </a>
+            </div>
+
+            <div th:each="section : ${skillSections}" class="mb-4">
+                <div class="border-bottom pb-2 mb-3">
+                    <h2 class="h5 mb-0" th:text="${section.name}">Skill</h2>
+                </div>
+                <div th:each="item, stat : ${section.questions}" class="card shadow-sm border-0 mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                            <p class="fw-semibold mb-0" th:text="${stat.count} + '. ' + ${item.prompt}">Question</p>
+                            <span class="hint-pill">
+                                <i class="fas fa-lightbulb"></i>
+                                <span th:text="${item.hint}">Hint</span>
+                            </span>
+                        </div>
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-8">
+                                <input type="text" class="answer-box" th:attr="data-answer=${item.answer}" placeholder="Type your answer here">
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <button type="button" class="btn btn-sm btn-outline-success check-btn">
+                                    <i class="fas fa-check me-2"></i>Check
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3 result-text d-none">
+                            <span class="result-badge incorrect"><i class="fas fa-times"></i> Try again</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.check-btn').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const cardBody = button.closest('.card-body');
+                const input = cardBody.querySelector('.answer-box');
+                const resultText = cardBody.querySelector('.result-text');
+                const expected = (input.getAttribute('data-answer') || '').trim().toLowerCase();
+                const actual = (input.value || '').trim().toLowerCase();
+                const badge = resultText.querySelector('.result-badge');
+                if (badge) {
+                    badge.remove();
+                }
+                if (actual === expected) {
+                    resultText.innerHTML = '<span class="result-badge correct"><i class="fas fa-check"></i> Correct!</span>';
+                } else {
+                    resultText.innerHTML = '<span class="result-badge incorrect"><i class="fas fa-times"></i> Try again</span>';
+                }
+                resultText.classList.remove('d-none');
+            });
+        });
+    </script>
+</body>
+</html>
